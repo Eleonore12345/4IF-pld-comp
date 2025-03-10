@@ -4,12 +4,14 @@ antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx)
 {
     std::cout<< ".globl main\n" ;
     std::cout<< " main: \n" ;
-    std::cout<< " pushq %rbp # save %rbp on the stack" ;
-    std::cout<< " movq %rsp, %rbp # define %rbp for the current function" ;
 
+    std::cout << "    # prologue\n" << "    pushq %rbp\n" << "    movq %rsp, %rbp\n" << "\n" ;
+
+    std::cout << "    # body\n" ;
     this->visit( ctx->return_stmt() );
-    std::cout<< " popq %rbp # restore %rbp from the stack" ;
-    std::cout<< " ret" ;
+    
+    std::cout << "\n" << "    # epilogue\n" << "    popq %rbp\n" ;
+    std::cout << "    ret\n";
 
     return 0;
 }
