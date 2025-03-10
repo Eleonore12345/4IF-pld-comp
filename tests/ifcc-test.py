@@ -21,6 +21,11 @@ import shutil
 import sys
 import subprocess
 
+GREEN_BG = "\033[42m" 
+RED_BG = "\033[41m"
+RED_FG = "\033[31m"
+RESET_COLOR = "\033[0m"
+
 def command(string, logfile=None):
     """execute `string` as a shell command, optionnaly logging stdout+stderr to a file. return exit status.)"""
     if args.verbose:
@@ -184,15 +189,15 @@ for jobname in jobs:
     
     if gccstatus != 0 and ifccstatus != 0:
         ## ifcc correctly rejects invalid program -> test-case ok
-        print("TEST OK")
+        print(GREEN_BG+"TEST OK"+RESET_COLOR)
         continue
     elif gccstatus != 0 and ifccstatus == 0:
         ## ifcc wrongly accepts invalid program -> error
-        print("TEST FAIL (your compiler accepts an invalid program)")
+        print(RED_BG+"TEST FAIL"+RESET_COLOR+RED_FG+"(your compiler accepts an invalid program)"+RESET_COLOR)
         continue
     elif gccstatus == 0 and ifccstatus != 0:
         ## ifcc wrongly rejects valid program -> error
-        print("TEST FAIL (your compiler rejects a valid program)")
+        print(RED_BG+"TEST FAIL"+RESET_COLOR+RED_FG+"(your compiler rejects a valid program)"+RESET_COLOR)
         if args.verbose:
             dumpfile("ifcc-compile.txt")
         continue
@@ -200,7 +205,7 @@ for jobname in jobs:
         ## ifcc accepts to compile valid program -> let's link it
         ldstatus=command("gcc -o exe-ifcc asm-ifcc.s", "ifcc-link.txt")
         if ldstatus:
-            print("TEST FAIL (your compiler produces incorrect assembly)")
+            print(RED_BG+"TEST FAIL"+RESET_COLOR+RESET_COLOR+RED_FG+"(your compiler produces incorrect assembly)"+RESET_COLOR)
             if args.verbose:
                 dumpfile("ifcc-link.txt")
             continue
@@ -210,7 +215,7 @@ for jobname in jobs:
         
     command("./exe-ifcc","ifcc-execute.txt")
     if open("gcc-execute.txt").read() != open("ifcc-execute.txt").read() :
-        print("TEST FAIL (different results at execution)")
+        print(RED_BG+"TEST FAIL"+RESET_COLOR+RED_FG+"(different results at execution)"+RESET_COLOR)
         if args.verbose:
             print("GCC:")
             dumpfile("gcc-execute.txt")
@@ -219,4 +224,4 @@ for jobname in jobs:
         continue
 
     ## last but not least
-    print("TEST OK")
+    print(GREEN_BG+"TEST OK"+RESET_COLOR)
