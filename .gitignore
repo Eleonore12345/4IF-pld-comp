@@ -2,3 +2,4 @@ compiler/build
 compiler/generated
 ifcc
 *.mk
+tests/ifcc-test-output
