@@ -1,5 +1,10 @@
 #include "CodeGenVisitor.h"
 
+CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable) : ifccBaseVisitor()
+{
+    symbolTable = symboleTable;
+}
+
 antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx) 
 {
     std::cout<< ".globl main\n" ;
@@ -8,7 +13,7 @@ antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx)
     std::cout << "    # prologue\n" << "    pushq %rbp\n" << "    movq %rsp, %rbp\n" << "\n" ;
 
     std::cout << "    # body\n" ;
-    this->visit( ctx->return_stmt() );
+    visitChildren(ctx);
     
     std::cout << "\n" << "    # epilogue\n" << "    popq %rbp\n" ;
     std::cout << "    ret\n";
@@ -16,6 +21,63 @@ antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx)
     return 0;
 }
 
+antlrcpp::Any CodeGenVisitor::visitDefinitionC(ifccParser::DefinitionCContext *ctx) {
+    std::string varName = ctx->VAR()->getText();
+    int val = stoi(ctx->CONST()->getText());
+    int index = symbolTable->getOffset(varName);
+
+    std::cout << "    movl	$" << val << ", -" << index << "(%rbp)\n";
+
+    visitChildren(ctx);
+
+    return 0;
+}
+
+
+antlrcpp::Any CodeGenVisitor::visitDefinitionV(ifccParser::DefinitionVContext * ctx) {
+    std::string varName0 = ctx->VAR(0)->getText();
+    std::string varName1 = ctx->VAR(1)->getText();
+    int index0 = symbolTable->getOffset(varName0);
+    int index1 = symbolTable->getOffset(varName1);
+
+    std::cout << "    movl	-" << index1 << "(%rbp), %eax\n";
+    std::cout << "    movl	%eax, -" << index0 << "(%rbp)\n";
+
+    visitChildren(ctx);
+
+    return 0;
+}
+
+antlrcpp::Any CodeGenVisitor::visitDeclaration(ifccParser::DeclarationContext *ctx) {
+    visitChildren(ctx);
+    return 0;
+}
+
+antlrcpp::Any CodeGenVisitor::visitAffectationC(ifccParser::AffectationCContext *ctx) {
+    std::string varName = ctx->VAR()->getText();
+    int val = stoi(ctx->CONST()->getText());
+    int index = symbolTable->getOffset(varName);
+
+    std::cout << "    movl	$" << val << ", -" << index << "(%rbp)\n";
+
+    visitChildren(ctx);
+
+    return 0;
+}
+
+antlrcpp::Any CodeGenVisitor::visitAffectationV(ifccParser::AffectationVContext *ctx) {
+    std::string varName0 = ctx->VAR(0)->getText();
+    std::string varName1 = ctx->VAR(1)->getText();
+    int index0 = symbolTable->getOffset(varName0);
+    int index1 = symbolTable->getOffset(varName1);
+
+    std::cout << "    movl	-" << index1 << "(%rbp), %eax\n";
+    std::cout << "    movl	%eax, -" << index0 << "(%rbp)\n";
+    
+    visitChildren(ctx);
+
+    return 0;
+}
 
 antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)
 {
