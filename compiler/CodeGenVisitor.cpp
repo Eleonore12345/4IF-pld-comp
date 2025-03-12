@@ -16,10 +16,10 @@ antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx)
     return 0;
 }
 
-antlrcpp::Any CodeGenVisitor::visitDeclarationVaC(ifccParser::DeclarationVaCContext *ctx) {
+antlrcpp::Any CodeGenVisitor::visitDefinitionC(ifccParser::DefinitionCContext *ctx) {
     std::string varName = ctx->VAR()->getText();
     int val = stoi(ctx->CONST()->getText());
-    int index = getIndex(varName);
+    int index = symbolTable->getIndex(varName);
 
     std::cout << "    movl	$" << val << ", -" << index << "(%rbp)\n";
 
@@ -29,11 +29,11 @@ antlrcpp::Any CodeGenVisitor::visitDeclarationVaC(ifccParser::DeclarationVaCCont
 }
 
 
-antlrcpp::Any CodeGenVisitor::visitDeclarationVaV(ifccParser::DeclarationVaVContext * ctx) {
+antlrcpp::Any CodeGenVisitor::visitDefinitionV(ifccParser::DefinitionVContext * ctx) {
     std::string varName0 = ctx->VAR(0)->getText();
     std::string varName1 = ctx->VAR(1)->getText();
-    int index0 = getIndex(varName0);
-    int index1 = getIndex(varName1);
+    int index0 = symbolTable->getIndex(varName0);
+    int index1 = symbolTable->getIndex(varName1);
 
     std::cout << "    movl	-" << index1 << "(%rbp), %eax\n";
     std::cout << "    movl	%eax, -" << index0 << "(%rbp)\n";
@@ -43,15 +43,15 @@ antlrcpp::Any CodeGenVisitor::visitDeclarationVaV(ifccParser::DeclarationVaVCont
     return 0;
 }
 
-antlrcpp::Any CodeGenVisitor::visitDeclarationV(ifccParser::DeclarationVContext *ctx) {
+antlrcpp::Any CodeGenVisitor::visitDeclaration(ifccParser::DeclarationContext *ctx) {
     visitChildren(ctx);
     return 0;
 }
 
-antlrcpp::Any CodeGenVisitor::visitAffectationVaC(ifccParser::AffectationVaCContext *ctx) {
+antlrcpp::Any CodeGenVisitor::visitAffectationC(ifccParser::AffectationCContext *ctx) {
     std::string varName = ctx->VAR()->getText();
     int val = stoi(ctx->CONST()->getText());
-    int index = getIndex(varName);
+    int index = symbolTable->getIndex(varName);
 
     std::cout << "    movl	$" << val << ", -" << index << "(%rbp)\n";
 
@@ -60,11 +60,11 @@ antlrcpp::Any CodeGenVisitor::visitAffectationVaC(ifccParser::AffectationVaCCont
     return 0;
 }
 
-antlrcpp::Any CodeGenVisitor::visitAffectationVaV(ifccParser::AffectationVaVContext *ctx) {
+antlrcpp::Any CodeGenVisitor::visitAffectationV(ifccParser::AffectationVContext *ctx) {
     std::string varName0 = ctx->VAR(0)->getText();
     std::string varName1 = ctx->VAR(1)->getText();
-    int index0 = getIndex(varName0);
-    int index1 = getIndex(varName1);
+    int index0 = symbolTable->getIndex(varName0);
+    int index1 = symbolTable->getIndex(varName1);
 
     std::cout << "    movl	-" << index1 << "(%rbp), %eax\n";
     std::cout << "    movl	%eax, -" << index0 << "(%rbp)\n";
@@ -80,14 +80,5 @@ antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *c
 
     std::cout << "    movl $"<<retval<<", %eax\n" ;
 
-    return 0;
-}
-
-int CodeGenVisitor::getIndex(std::string varName) {
-    for (size_t i = 0; i < symboleTable.size(); i++) {
-        if(varName.compare(symboleTable[i].name) == 0) {
-            return symboleTable[i].index;
-        }
-    }
     return 0;
 }
