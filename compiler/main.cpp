@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+#include <vector>
 
 #include "antlr4-runtime.h"
 #include "generated/ifccLexer.h"

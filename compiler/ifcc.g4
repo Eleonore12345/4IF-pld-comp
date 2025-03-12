@@ -18,6 +18,8 @@ return_stmt : RETURN CONST ';' ;
 RETURN : 'return' ;
 TYPE : 'int' ;
 CONST : [0-9]+ ;
+TYPE : 'int' ;
+VAR : [a-z]+;
 COMMENT : '/*' .*? '*/' -> skip ;
 DIRECTIVE : '#' .*? '\n' -> skip ;
 WS    : [ \t\r\n] -> channel(HIDDEN);
