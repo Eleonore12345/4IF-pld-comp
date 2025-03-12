@@ -106,7 +106,6 @@ antlrcpp::Any IdentifierVisitor::visitAxiom(ifccParser::AxiomContext *ctx)
 {
     visitChildren(ctx);
     if (!symTable->isEachIdUsed()) {
-        error = false;
         //TO-DO : METTRE UN WARNING ET NON UNE ERREUR
     }
     return 0;    
