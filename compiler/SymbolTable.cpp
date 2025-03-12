@@ -46,7 +46,7 @@ bool SymbolTable::isEachIdUsed() {
     {
         if (a.use == false) 
         {
-            cout << "Variable " << a.identifier << " not used" << endl;
+            //cout << "Variable " << a.identifier << " not used" << endl;
             res = false;
         }
     }

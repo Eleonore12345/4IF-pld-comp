@@ -11,14 +11,14 @@ antlrcpp::Any IdentifierVisitor::visitDeclaration(ifccParser::DeclarationContext
 {
     string varName = ctx->VAR()->getText();
     if (symTable->getIndex(varName) != -1) {
-        cout << "Variable " << varName << " already declared" << endl;
+        std::string erreur = "Variable " + varName + " already declared\n";
+        throw std::runtime_error(erreur);
         error = true;
     } else {
         desc_identifier id;
         id.identifier = varName;
         id.index = (symTable->size() + 1) * (-4);
         symTable->addIdentifier(id);
-        cout << "Variable " << varName << " declared" << endl;
     }
     return visitChildren(ctx);
 }
@@ -33,12 +33,14 @@ antlrcpp::Any IdentifierVisitor::visitDefinitionV(ifccParser::DefinitionVContext
     string varNameR = ctx->VAR(1)->getText();
     if (symTable->getIndex(varNameL) != -1) 
     {
-        cout << "Variable " << varNameL << " already declared" << endl;
+        std::string erreur = "Variable " + varNameL + " already declared\n";
+        throw std::runtime_error(erreur);
         error = true;
     }
     else if (symTable->getIndex(varNameR) == -1) 
     {
-        cout << "Variable " << varNameR << " not declared" << endl;
+        std::string erreur = "Variable " + varNameR + " not declared\n";
+        throw std::runtime_error(erreur);
         error = true;
     }
     else 
@@ -48,8 +50,6 @@ antlrcpp::Any IdentifierVisitor::visitDefinitionV(ifccParser::DefinitionVContext
         id.index = (symTable->size() + 1) * (-4);
         symTable->addIdentifier(id);
         symTable->setUse(varNameR);
-        cout << "Variable " << varNameL << " declared" << endl;
-        cout << "Variable " << varNameR << " used" << endl;
     }
     return visitChildren(ctx);
 }
@@ -59,14 +59,14 @@ antlrcpp::Any IdentifierVisitor::visitDefinitionC(ifccParser::DefinitionCContext
 {
     string varName = ctx->VAR()->getText();
     if (symTable->getIndex(varName) != -1) {
-        cout << "Variable " << varName << " already declared" << endl;
+        std::string erreur = "Variable " + varName + " already declared\n";
+        throw std::runtime_error(erreur);
         error = true;
     } else {
         desc_identifier id;
         id.identifier = varName;
         id.index = (symTable->size() + 1) * (-4);
         symTable->addIdentifier(id);
-        cout << "Variable " << varName << " declared" << endl;
     }
     return visitChildren(ctx);
 }
@@ -76,16 +76,17 @@ antlrcpp::Any IdentifierVisitor::visitAffectationV(ifccParser::AffectationVConte
     string varNameL = ctx->VAR(0)->getText();
     string varNameR = ctx->VAR(1)->getText();
     if (symTable->getIndex(varNameL) == -1) {
-        cout << "Variable " << varNameL << " not declared" << endl;
+        std::string erreur = "Variable " + varNameL + " not declared\n";
+        throw std::runtime_error(erreur);
         error = true;
     } 
     else if (symTable->getIndex(varNameR) == -1) {
-        cout << "Variable " << varNameR << " not declared" << endl;
+        std::string erreur = "Variable " + varNameR + " not declared\n";
+        throw std::runtime_error(erreur);
         error = true;
     } 
     else {
         symTable->setUse(varNameR);
-        cout << "Variable " << varNameR << " used" << endl;
     }
     return visitChildren(ctx);
 }
@@ -94,7 +95,8 @@ antlrcpp::Any IdentifierVisitor::visitAffectationC(ifccParser::AffectationCConte
 {
     string varName = ctx->VAR()->getText();
     if (symTable->getIndex(varName) == -1) {
-        cout << "Variable " << varName << " not declared" << endl;
+        std::string erreur = "Variable " + varName + " not declared\n";
+        throw std::runtime_error(erreur);
         error = true;
     }
     return visitChildren(ctx);
@@ -104,7 +106,8 @@ antlrcpp::Any IdentifierVisitor::visitAxiom(ifccParser::AxiomContext *ctx)
 {
     visitChildren(ctx);
     if (!symTable->isEachIdUsed()) {
-        error = true;
+        error = false;
+        //TO-DO : METTRE UN WARNING ET NON UNE ERREUR
     }
     return 0;    
 }
