@@ -24,7 +24,7 @@ antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx)
 antlrcpp::Any CodeGenVisitor::visitDefinitionC(ifccParser::DefinitionCContext *ctx) {
     std::string varName = ctx->VAR()->getText();
     int val = stoi(ctx->CONST()->getText());
-    int index = symbolTable->getIndexMemory(varName);
+    int index = symbolTable->getOffset(varName);
 
     std::cout << "    movl	$" << val << ", -" << index << "(%rbp)\n";
 
@@ -37,8 +37,8 @@ antlrcpp::Any CodeGenVisitor::visitDefinitionC(ifccParser::DefinitionCContext *c
 antlrcpp::Any CodeGenVisitor::visitDefinitionV(ifccParser::DefinitionVContext * ctx) {
     std::string varName0 = ctx->VAR(0)->getText();
     std::string varName1 = ctx->VAR(1)->getText();
-    int index0 = symbolTable->getIndexMemory(varName0);
-    int index1 = symbolTable->getIndexMemory(varName1);
+    int index0 = symbolTable->getOffset(varName0);
+    int index1 = symbolTable->getOffset(varName1);
 
     std::cout << "    movl	-" << index1 << "(%rbp), %eax\n";
     std::cout << "    movl	%eax, -" << index0 << "(%rbp)\n";
@@ -56,7 +56,7 @@ antlrcpp::Any CodeGenVisitor::visitDeclaration(ifccParser::DeclarationContext *c
 antlrcpp::Any CodeGenVisitor::visitAffectationC(ifccParser::AffectationCContext *ctx) {
     std::string varName = ctx->VAR()->getText();
     int val = stoi(ctx->CONST()->getText());
-    int index = symbolTable->getIndexMemory(varName);
+    int index = symbolTable->getOffset(varName);
 
     std::cout << "    movl	$" << val << ", -" << index << "(%rbp)\n";
 
@@ -68,8 +68,8 @@ antlrcpp::Any CodeGenVisitor::visitAffectationC(ifccParser::AffectationCContext 
 antlrcpp::Any CodeGenVisitor::visitAffectationV(ifccParser::AffectationVContext *ctx) {
     std::string varName0 = ctx->VAR(0)->getText();
     std::string varName1 = ctx->VAR(1)->getText();
-    int index0 = symbolTable->getIndexMemory(varName0);
-    int index1 = symbolTable->getIndexMemory(varName1);
+    int index0 = symbolTable->getOffset(varName0);
+    int index1 = symbolTable->getOffset(varName1);
 
     std::cout << "    movl	-" << index1 << "(%rbp), %eax\n";
     std::cout << "    movl	%eax, -" << index0 << "(%rbp)\n";

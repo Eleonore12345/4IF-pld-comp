@@ -7,7 +7,7 @@ using namespace std;
 
 typedef struct {
     string identifier;
-    int index;
+    int offset;
     bool use = false;
 } desc_identifier;
 
@@ -18,8 +18,8 @@ class SymbolTable {
         void print();
         int size();
         void addIdentifier(desc_identifier id);
-        int getIndexVector(string name);
-        int getIndexMemory(string name);
+        int getIndex(string name);
+        int getOffset(string name);
         void setUse(string name);
         bool isEachIdUsed();
 

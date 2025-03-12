@@ -10,14 +10,14 @@ IdentifierVisitor::IdentifierVisitor(SymbolTable* symboleTable) : ifccBaseVisito
 antlrcpp::Any IdentifierVisitor::visitDeclaration(ifccParser::DeclarationContext *ctx) 
 {
     string varName = ctx->VAR()->getText();
-    if (symTable->getIndexVector(varName) != -1) {
+    if (symTable->getIndex(varName) != -1) {
         std::string erreur = "Variable " + varName + " already declared\n";
         throw std::runtime_error(erreur);
         error = true;
     } else {
         desc_identifier id;
         id.identifier = varName;
-        id.index = (symTable->size() + 1) * 4;
+        id.offset = (symTable->size() + 1) * 4;
         symTable->addIdentifier(id);
     }
     return visitChildren(ctx);
@@ -31,13 +31,13 @@ antlrcpp::Any IdentifierVisitor::visitDefinitionV(ifccParser::DefinitionVContext
 {
     string varNameL = ctx->VAR(0)->getText();
     string varNameR = ctx->VAR(1)->getText();
-    if (symTable->getIndexVector(varNameL) != -1) 
+    if (symTable->getIndex(varNameL) != -1) 
     {
         std::string erreur = "Variable " + varNameL + " already declared\n";
         throw std::runtime_error(erreur);
         error = true;
     }
-    else if (symTable->getIndexVector(varNameR) == -1) 
+    else if (symTable->getIndex(varNameR) == -1) 
     {
         std::string erreur = "Variable " + varNameR + " not declared\n";
         throw std::runtime_error(erreur);
@@ -47,7 +47,7 @@ antlrcpp::Any IdentifierVisitor::visitDefinitionV(ifccParser::DefinitionVContext
     {
         desc_identifier id;
         id.identifier = varNameL;
-        id.index = (symTable->size() + 1) * 4;
+        id.offset = (symTable->size() + 1) * 4;
         symTable->addIdentifier(id);
         symTable->setUse(varNameR);
     }
@@ -58,14 +58,14 @@ antlrcpp::Any IdentifierVisitor::visitDefinitionV(ifccParser::DefinitionVContext
 antlrcpp::Any IdentifierVisitor::visitDefinitionC(ifccParser::DefinitionCContext *ctx)
 {
     string varName = ctx->VAR()->getText();
-    if (symTable->getIndexVector(varName) != -1) {
+    if (symTable->getIndex(varName) != -1) {
         std::string erreur = "Variable " + varName + " already declared\n";
         throw std::runtime_error(erreur);
         error = true;
     } else {
         desc_identifier id;
         id.identifier = varName;
-        id.index = (symTable->size() + 1) * 4;
+        id.offset = (symTable->size() + 1) * 4;
         symTable->addIdentifier(id);
     }
     return visitChildren(ctx);
@@ -75,12 +75,12 @@ antlrcpp::Any IdentifierVisitor::visitAffectationV(ifccParser::AffectationVConte
 {
     string varNameL = ctx->VAR(0)->getText();
     string varNameR = ctx->VAR(1)->getText();
-    if (symTable->getIndexVector(varNameL) == -1) {
+    if (symTable->getIndex(varNameL) == -1) {
         std::string erreur = "Variable " + varNameL + " not declared\n";
         throw std::runtime_error(erreur);
         error = true;
     } 
-    else if (symTable->getIndexVector(varNameR) == -1) {
+    else if (symTable->getIndex(varNameR) == -1) {
         std::string erreur = "Variable " + varNameR + " not declared\n";
         throw std::runtime_error(erreur);
         error = true;
@@ -94,7 +94,7 @@ antlrcpp::Any IdentifierVisitor::visitAffectationV(ifccParser::AffectationVConte
 antlrcpp::Any IdentifierVisitor::visitAffectationC(ifccParser::AffectationCContext *ctx)
 {
     string varName = ctx->VAR()->getText();
-    if (symTable->getIndexVector(varName) == -1) {
+    if (symTable->getIndex(varName) == -1) {
         std::string erreur = "Variable " + varName + " not declared\n";
         throw std::runtime_error(erreur);
         error = true;

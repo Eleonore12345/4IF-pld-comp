@@ -6,7 +6,7 @@ using namespace std;
 void SymbolTable::print()
 {
     for (auto a : vect){
-        cout << "id : " << a.identifier << " index : " << a.index << endl;
+        cout << "id : " << a.identifier << " index : " << a.offset << endl;
     }
 }
 
@@ -20,7 +20,7 @@ int SymbolTable::size()
     return vect.size();
 }
 
-int SymbolTable::getIndexVector(string name) 
+int SymbolTable::getIndex(string name) 
 {
     for (int i = 0 ; i < vect.size() ; i++)
     {
@@ -32,20 +32,20 @@ int SymbolTable::getIndexVector(string name)
     return -1;
 }
 
-int SymbolTable::getIndexMemory(string name)
+int SymbolTable::getOffset(string name)
 {
     for(int i = 0 ; i < vect.size() ; i++)
     {
         if (vect[i].identifier == name) 
         {
-            return vect[i].index;
+            return vect[i].offset;
         }
     }
     return -1;
 }
 
 void SymbolTable::setUse(string name) {
-    int index = getIndexVector(name);
+    int index = getIndex(name);
     if (index != -1) 
     {
         vect[index].use = true;
