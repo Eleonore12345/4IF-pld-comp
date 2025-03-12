@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+#include <vector>
 
 #include "antlr4-runtime.h"
 #include "generated/ifccLexer.h"
@@ -9,6 +10,7 @@
 #include "generated/ifccBaseVisitor.h"
 
 #include "CodeGenVisitor.h"
+#include "CodeGenSymbolTable.h"
 
 using namespace antlr4;
 using namespace std;
@@ -49,7 +51,10 @@ int main(int argn, const char **argv)
   }
 
   
-  CodeGenVisitor v;
+  std::vector<Variable> s;
+  CodeGenVisitor v(s);
+  CodeGenSymbolTable v2(s);
+  v2.visit(tree);
   v.visit(tree);
 
   return 0;
