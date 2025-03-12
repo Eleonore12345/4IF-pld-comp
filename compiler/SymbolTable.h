@@ -18,7 +18,8 @@ class SymbolTable {
         void print();
         int size();
         void addIdentifier(desc_identifier id);
-        int getIndex(string name);
+        int getIndexVector(string name);
+        int getIndexMemory(string name);
         void setUse(string name);
         bool isEachIdUsed();
 

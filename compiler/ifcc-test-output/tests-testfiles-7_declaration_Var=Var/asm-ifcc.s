@@ -5,9 +5,9 @@
     movq %rsp, %rbp
 
     # body
-    movl	$2, -0(%rbp)
-    movl	-0(%rbp), %eax
-    movl	%eax, -1(%rbp)
+    movl	$2, -4(%rbp)
+    movl	-4(%rbp), %eax
+    movl	%eax, -8(%rbp)
     movl $0, %eax
 
     # epilogue

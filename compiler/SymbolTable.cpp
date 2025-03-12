@@ -20,7 +20,7 @@ int SymbolTable::size()
     return vect.size();
 }
 
-int SymbolTable::getIndex(string name) 
+int SymbolTable::getIndexVector(string name) 
 {
     for (int i = 0 ; i < vect.size() ; i++)
     {
@@ -32,8 +32,20 @@ int SymbolTable::getIndex(string name)
     return -1;
 }
 
+int SymbolTable::getIndexMemory(string name)
+{
+    for(int i = 0 ; i < vect.size() ; i++)
+    {
+        if (vect[i].identifier == name) 
+        {
+            return vect[i].index;
+        }
+    }
+    return -1;
+}
+
 void SymbolTable::setUse(string name) {
-    int index = getIndex(name);
+    int index = getIndexVector(name);
     if (index != -1) 
     {
         vect[index].use = true;

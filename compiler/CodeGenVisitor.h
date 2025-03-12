@@ -8,7 +8,8 @@
 
 class  CodeGenVisitor : public ifccBaseVisitor {
 	public:
-                CodeGenVisitor(SymbolTable * s):symbolTable(s){};
+                CodeGenVisitor(SymbolTable * s);
+                virtual ~CodeGenVisitor(){};
 
                 virtual antlrcpp::Any visitProg(ifccParser::ProgContext *ctx) override ;
                 virtual antlrcpp::Any visitReturn_stmt(ifccParser::Return_stmtContext *ctx) override;
