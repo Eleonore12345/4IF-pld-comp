@@ -8,11 +8,26 @@ antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx)
     std::cout << "    # prologue\n" << "    pushq %rbp\n" << "    movq %rsp, %rbp\n" << "\n" ;
 
     std::cout << "    # body\n" ;
-    this->visit( ctx->return_stmt() );
+    this->visit(ctx->expr());
     
     std::cout << "\n" << "    # epilogue\n" << "    popq %rbp\n" ;
     std::cout << "    ret\n";
 
+    return 0;
+}
+
+antlrcpp::Any CodeGenVisitor::visitDeclarationVaC(ifccParser::DeclarationVaCContext *ctx) {
+    int val = stoi(ctx->CONST()->getText());
+
+    std::cout << "    movl	$" << val << ", -4(%rbp)\n";
+
+    this->visit(ctx->expr());
+
+    return 0;
+}
+
+antlrcpp::Any CodeGenVisitor::visitDeclarationV(ifccParser::DeclarationVContext *ctx) {
+    this->visit(ctx->expr());
     return 0;
 }
 
