@@ -25,3 +25,22 @@ antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *c
 
     return 0;
 }
+
+antlrcpp::Any CodeGenVisitor::visitAxiom(ifccParser::AxiomContext *ctx) {
+    std::cout << "a" << std::endl;
+}
+antlrcpp::Any CodeGenVisitor::visitDec(ifccParser::DecContext *ctx) {
+    std::cout << "c"<< std::endl;
+}
+antlrcpp::Any CodeGenVisitor::visitAffDecConst(ifccParser::AffDecConstContext *ctx) {
+    std::cout << "d" << std::endl;
+}
+antlrcpp::Any CodeGenVisitor::visitAffDecVar(ifccParser::AffDecVarContext *ctx) {
+    std::cout << "e" << std::endl;
+}
+antlrcpp::Any CodeGenVisitor::visitAffVar(ifccParser::AffVarContext *ctx) {
+    std::cout <<"f" << std::endl;    
+}
+antlrcpp::Any CodeGenVisitor::visitAffConst(ifccParser::AffConstContext *ctx) {
+    std::cout << "g" << std::endl;
+}

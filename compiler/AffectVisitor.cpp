@@ -1,29 +1,33 @@
 #include "AffectVisitor.h"
 
-virtual antlrcpp::Any AffectVisitor::visitAxiom(ifccParser::AxiomContext *ctx) override {
+antlrcpp::Any AffectVisitor::visitAxiom(ifccParser::AxiomContext *ctx) {
     cout << "a" << endl;
 }
 
-virtual antlrcpp::Any AffectVisitor::visitProg(ifccParser::ProgContext *ctx) override {
+antlrcpp::Any AffectVisitor::visitProg(ifccParser::ProgContext *ctx) {
     cout << "b" << endl;
 }
 
-antlrcpp::Any AffectVisitor::visitDec(ifccParser::DecContext *ctx) override {
+antlrcpp::Any AffectVisitor::visitDec(ifccParser::DecContext *ctx) {
         cout << "c"<< endl;
 }
 
-antlrcpp::Any AffectVisitor::visitAffDecConst(ifccParser::AffDecConstContext *ctx) override {
+antlrcpp::Any AffectVisitor::visitAffDecConst(ifccParser::AffDecConstContext *ctx) {
     cout << "d" << endl;
 }
 
-antlrcpp::Any AffectVisitor::visitAffDecVar(ifccParser::AffDecVarContext *ctx) override {
+antlrcpp::Any AffectVisitor::visitAffDecVar(ifccParser::AffDecVarContext *ctx) {
     cout << "e" << endl;
 }
 
-antlrcpp::Any AffectVisitor::visitAffVar(ifccParser::AffVarContext *ctx) override {
+antlrcpp::Any AffectVisitor::visitAffVar(ifccParser::AffVarContext *ctx) {
     cout <<"f" << endl;
 }
 
-antlrcpp::Any AffectVisitor::(ifccParser::AffConstContext *ctx) override {
+antlrcpp::Any AffectVisitor::(ifccParser::AffConstContext *ctx) {
     cout << "g" << endl;
+}
+
+antlrcpp::Any AffectVisitor::(ifccParser::Return_stmtContext *ctx) {
+    cout << "h" << endl;
 }
