@@ -10,7 +10,7 @@ antlrcpp::Any CodeGenVisitor::visitDeclaration(ifccParser::DeclarationContext *c
 {
     std::string varName = ctx->VAR()->getText();
 
-    // Décrémenter l'offset de 4 pour allouer de la place sur la pile pour chaque variable
+    // Décrémenter l'offset de 4 pour allouer de la place sur la pile pour chaque variable (ARM64 mais 32 bits)
     stackOffset -= 4;
     symbolTable[varName] = stackOffset;
 
@@ -18,7 +18,8 @@ antlrcpp::Any CodeGenVisitor::visitDeclaration(ifccParser::DeclarationContext *c
     if (ctx->expr())
     {
         int value = std::stoi(ctx->expr()->getText());
-        std::cout << "    movl $" << value << ", " << stackOffset << "(%rbp)" << std::endl;
+        std::cout << "    mov x0, #" << value << std::endl;                    // 将值加载到 x0 寄存器
+        std::cout << "    str x0, [x29, #" << stackOffset << "]" << std::endl; // 将值存储到栈中
     }
 
     return 0;
@@ -31,7 +32,8 @@ antlrcpp::Any CodeGenVisitor::visitAssignment(ifccParser::AssignmentContext *ctx
     int value = std::stoi(ctx->expr()->getText());
 
     // Générer le code assembleur pour affecter la valeur à la variable
-    std::cout << "    movl $" << value << ", " << symbolTable[varName] << "(%rbp)" << std::endl;
+    std::cout << "    mov x0, #" << value << std::endl;                             // 将值加载到 x0 寄存器
+    std::cout << "    str x0, [x29, #" << symbolTable[varName] << "]" << std::endl; // 将值存储到栈中
     return 0;
 }
 
@@ -43,14 +45,14 @@ antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *c
     {
         // Si c'est une constante, utiliser `stoi` pour récupérer sa valeur
         int retval = std::stoi(ctx->expr()->CONST()->getText());
-        std::cout << "    movl $" << retval << ", %eax\n";
+        std::cout << "    mov x0, #" << retval << std::endl; // 将返回值加载到 x0 寄存器
     }
     else if (ctx->expr()->VAR())
     {
         // Si c'est une variable, récupérer l'offset dans la table des symboles
         std::string varName = ctx->expr()->VAR()->getText();
         int offset = symbolTable[varName];
-        std::cout << "    movl " << offset << "(%rbp), %eax\n";
+        std::cout << "    ldr x0, [x29, #" << offset << "]" << std::endl; // 从栈中加载变量值到 x0
     }
 
     return 0;
@@ -61,15 +63,15 @@ antlrcpp::Any CodeGenVisitor::visitExpr(ifccParser::ExprContext *ctx)
 {
     if (ctx->CONST())
     {
-        // Si c'est une constante, on la charge directement dans %eax
+        // Si c'est une constante, on la charge directement dans x0
         int value = std::stoi(ctx->CONST()->getText());
-        std::cout << "    movl $" << value << ", %eax" << std::endl;
+        std::cout << "    mov x0, #" << value << std::endl;
     }
     else if (ctx->VAR())
     {
         // Si c'est une variable, on charge sa valeur depuis la pile
         std::string varName = ctx->VAR()->getText();
-        std::cout << "    movl " << symbolTable[varName] << "(%rbp), %eax" << std::endl;
+        std::cout << "    ldr x0, [x29, #" << symbolTable[varName] << "]" << std::endl; // 从栈中加载变量值到 x0
     }
     return 0;
 }
@@ -77,12 +79,12 @@ antlrcpp::Any CodeGenVisitor::visitExpr(ifccParser::ExprContext *ctx)
 // Générer le code pour le programme entier
 antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx)
 {
-    std::cout << ".globl main\n";
-    std::cout << " main: \n";
+    std::cout << ".global _main\n";
+    std::cout << "_main:\n";
 
     // Prologue
-    std::cout << "    pushq %rbp\n";
-    std::cout << "    movq %rsp, %rbp\n";
+    std::cout << "    stp x29, x30, [sp, #-16]!  // Save x29 (frame pointer) and x30 (link register)\n";
+    std::cout << "    mov x29, sp  // Set up frame pointer\n";
 
     // Visite les déclarations et affectations
     for (auto stmt : ctx->stmt())
@@ -94,8 +96,8 @@ antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx)
     this->visit(ctx->return_stmt());
 
     // Epilogue
-    std::cout << "    popq %rbp\n";
-    std::cout << "    ret\n";
+    std::cout << "    ldp x29, x30, [sp], #16  // Restore x29 and x30\n";
+    std::cout << "    ret  // Return\n";
 
     return 0;
 }
