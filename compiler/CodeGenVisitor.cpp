@@ -26,9 +26,6 @@ antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *c
     return 0;
 }
 
-antlrcpp::Any CodeGenVisitor::visitAxiom(ifccParser::AxiomContext *ctx) {
-    std::cout << "a" << std::endl;
-}
 antlrcpp::Any CodeGenVisitor::visitDec(ifccParser::DecContext *ctx) {
     std::cout << "c"<< std::endl;
 }

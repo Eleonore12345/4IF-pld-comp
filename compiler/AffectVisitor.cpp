@@ -1,33 +1,32 @@
 #include "AffectVisitor.h"
 
-antlrcpp::Any AffectVisitor::visitAxiom(ifccParser::AxiomContext *ctx) {
-    cout << "a" << endl;
-}
-
-antlrcpp::Any AffectVisitor::visitProg(ifccParser::ProgContext *ctx) {
-    cout << "b" << endl;
-}
+using namespace std;
 
 antlrcpp::Any AffectVisitor::visitDec(ifccParser::DecContext *ctx) {
-        cout << "c"<< endl;
+        cout << "c" << endl;
+        return 0;
+
 }
 
 antlrcpp::Any AffectVisitor::visitAffDecConst(ifccParser::AffDecConstContext *ctx) {
     cout << "d" << endl;
+    return 0;
+
 }
 
 antlrcpp::Any AffectVisitor::visitAffDecVar(ifccParser::AffDecVarContext *ctx) {
     cout << "e" << endl;
+    return 0;
+
 }
 
 antlrcpp::Any AffectVisitor::visitAffVar(ifccParser::AffVarContext *ctx) {
     cout <<"f" << endl;
+    return 0;
+
 }
 
-antlrcpp::Any AffectVisitor::(ifccParser::AffConstContext *ctx) {
+antlrcpp::Any AffectVisitor::visitAffConst(ifccParser::AffConstContext *ctx) {
     cout << "g" << endl;
-}
-
-antlrcpp::Any AffectVisitor::(ifccParser::Return_stmtContext *ctx) {
-    cout << "h" << endl;
+    return 0;
 }
