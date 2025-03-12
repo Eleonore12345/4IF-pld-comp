@@ -9,6 +9,7 @@
 #include "generated/ifccBaseVisitor.h"
 
 #include "CodeGenVisitor.h"
+#include "IdentifierVisitor.h"
 
 using namespace antlr4;
 using namespace std;
@@ -48,9 +49,19 @@ int main(int argn, const char **argv)
       exit(1);
   }
 
-  
+  SymbolTable* s = new SymbolTable();
+
+  IdentifierVisitor i(s);
+  i.visit(tree);
+
+  if (i.getError()) {
+    delete s;
+    return 1;
+  }
+
   CodeGenVisitor v;
   v.visit(tree);
 
+  delete s;
   return 0;
 }

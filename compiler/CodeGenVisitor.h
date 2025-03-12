@@ -7,7 +7,7 @@
 
 class  CodeGenVisitor : public ifccBaseVisitor {
 	public:
-        virtual antlrcpp::Any visitProg(ifccParser::ProgContext *ctx) override ;
-        virtual antlrcpp::Any visitReturn_stmt(ifccParser::Return_stmtContext *ctx) override;
+                virtual antlrcpp::Any visitProg(ifccParser::ProgContext *ctx) override ;
+                virtual antlrcpp::Any visitReturn_stmt(ifccParser::Return_stmtContext *ctx) override;
 };
 

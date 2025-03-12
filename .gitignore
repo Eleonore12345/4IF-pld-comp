@@ -3,3 +3,4 @@ compiler/generated
 ifcc
 *.mk
 tests/ifcc-test-output
+test.c
