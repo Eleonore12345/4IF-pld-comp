@@ -16,6 +16,7 @@ class  CodeGenVisitor : public ifccBaseVisitor {
                 virtual antlrcpp::Any visitDeclarationVaV(ifccParser::DeclarationVaVContext * ctx) override;
                 virtual antlrcpp::Any visitDeclarationV(ifccParser::DeclarationVContext *ctx) override;
                 virtual antlrcpp::Any visitAffectationVaC(ifccParser::AffectationVaCContext *ctx) override;
+                virtual antlrcpp::Any visitAffectationVaV(ifccParser::AffectationVaVContext *ctx) override;
 
                 int getIndex(std::string varName);
                 //virtual antlrcpp::Any visitDeclarationVaC(ifccParser::visit)

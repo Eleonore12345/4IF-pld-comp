@@ -28,6 +28,21 @@ antlrcpp::Any CodeGenVisitor::visitDeclarationVaC(ifccParser::DeclarationVaCCont
     return 0;
 }
 
+
+antlrcpp::Any CodeGenVisitor::visitDeclarationVaV(ifccParser::DeclarationVaVContext * ctx) {
+    std::string varName0 = ctx->VAR(0)->getText();
+    std::string varName1 = ctx->VAR(1)->getText();
+    int index0 = getIndex(varName0);
+    int index1 = getIndex(varName1);
+
+    std::cout << "    movl	-" << index1 << "(%rbp), %eax\n";
+    std::cout << "    movl	%eax, -" << index0 << "(%rbp)\n";
+
+    visitChildren(ctx);
+
+    return 0;
+}
+
 antlrcpp::Any CodeGenVisitor::visitDeclarationV(ifccParser::DeclarationVContext *ctx) {
     visitChildren(ctx);
     return 0;
@@ -45,7 +60,7 @@ antlrcpp::Any CodeGenVisitor::visitAffectationVaC(ifccParser::AffectationVaCCont
     return 0;
 }
 
-antlrcpp::Any CodeGenVisitor::visitDeclarationVaV(ifccParser::DeclarationVaVContext * ctx) {
+antlrcpp::Any CodeGenVisitor::visitAffectationVaV(ifccParser::AffectationVaVContext *ctx) {
     std::string varName0 = ctx->VAR(0)->getText();
     std::string varName1 = ctx->VAR(1)->getText();
     int index0 = getIndex(varName0);
@@ -53,12 +68,11 @@ antlrcpp::Any CodeGenVisitor::visitDeclarationVaV(ifccParser::DeclarationVaVCont
 
     std::cout << "    movl	-" << index1 << "(%rbp), %eax\n";
     std::cout << "    movl	%eax, -" << index0 << "(%rbp)\n";
-
+    
     visitChildren(ctx);
 
     return 0;
 }
-
 
 antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)
 {
