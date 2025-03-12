@@ -51,9 +51,9 @@ int main(int argn, const char **argv)
   }
 
   std::vector<Variable> s;
-  CodeGenVisitor v(s);
   CodeGenSymboleTable v2(s);
   v2.visit(tree);
+  CodeGenVisitor v(s);
   v.visit(tree);
 
   return 0;

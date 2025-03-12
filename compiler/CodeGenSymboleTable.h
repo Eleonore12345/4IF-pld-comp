@@ -18,7 +18,9 @@ class  CodeGenSymboleTable : public ifccBaseVisitor {
         CodeGenSymboleTable(std::vector<Variable> & s):symboleTable(s){};
 
         virtual antlrcpp::Any visitDeclarationVaC(ifccParser::DeclarationVaCContext *ctx) override;
+        virtual antlrcpp::Any visitDeclarationVaV(ifccParser::DeclarationVaVContext * ctx) override;
         virtual antlrcpp::Any visitDeclarationV(ifccParser::DeclarationVContext *ctx) override;
+        virtual antlrcpp::Any visitAffectationVaC(ifccParser::AffectationVaCContext *ctx) override;
         bool isInTable(std::string varName);
 
     private :

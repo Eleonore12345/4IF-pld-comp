@@ -11,10 +11,13 @@ class  CodeGenVisitor : public ifccBaseVisitor {
                 CodeGenVisitor(std::vector<Variable> & s):symboleTable(s){};
 
                 virtual antlrcpp::Any visitProg(ifccParser::ProgContext *ctx) override ;
-                virtual antlrcpp::Any visitDeclarationVaC(ifccParser::DeclarationVaCContext *ctx) override ;
                 virtual antlrcpp::Any visitReturn_stmt(ifccParser::Return_stmtContext *ctx) override;
+                virtual antlrcpp::Any visitDeclarationVaC(ifccParser::DeclarationVaCContext *ctx) override;
+                virtual antlrcpp::Any visitDeclarationVaV(ifccParser::DeclarationVaVContext * ctx) override;
                 virtual antlrcpp::Any visitDeclarationV(ifccParser::DeclarationVContext *ctx) override;
-                bool isInTable(std::string varName);
+                virtual antlrcpp::Any visitAffectationVaC(ifccParser::AffectationVaCContext *ctx) override;
+
+                int getIndex(std::string varName);
                 //virtual antlrcpp::Any visitDeclarationVaC(ifccParser::visit)
 
         private :

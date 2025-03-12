@@ -10,7 +10,7 @@ expr
     | TYPE VAR '=' VAR ';' expr #declarationVaV
     | TYPE VAR ';' expr #declarationV
     | VAR '=' VAR ';' expr #affectationVaV
-    | VAR '=' CONST ';' expr #affectationCaV
+    | VAR '=' CONST ';' expr #affectationVaC
 ;
 
 return_stmt: RETURN CONST ';' ;

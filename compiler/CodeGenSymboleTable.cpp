@@ -6,9 +6,27 @@ antlrcpp::Any CodeGenSymboleTable::visitDeclarationVaC(ifccParser::DeclarationVa
     if(isInTable(varName)) {
         throw std::runtime_error("Redéclaration d'une variable");
     }
-    symboleTable.push_back(Variable(varName,4));
+    int index = (symboleTable.size()+1)*4;
+    symboleTable.push_back(Variable(varName,index));
     
-    this->visit(ctx->expr());
+    visitChildren(ctx);
+
+    return 0;
+}
+
+antlrcpp::Any CodeGenSymboleTable::visitDeclarationVaV(ifccParser::DeclarationVaVContext *ctx) {
+    std::string varName0 = ctx->VAR(0)->getText();
+    std::string varName1 = ctx->VAR(1)->getText();
+    if(!isInTable(varName1)) {
+        throw std::runtime_error("Redéclaration d'une variable");
+    }
+    if(isInTable(varName0)) {
+        throw std::runtime_error("Redéclaration d'une variable");
+    }
+    int index = (symboleTable.size()+1)*4;
+    symboleTable.push_back(Variable(varName0,index));
+    
+    visitChildren(ctx);
 
     return 0;
 }
@@ -18,12 +36,25 @@ antlrcpp::Any CodeGenSymboleTable::visitDeclarationV(ifccParser::DeclarationVCon
     if(isInTable(varName)) {
         throw std::runtime_error("Redéclaration d'une variable");
     }
-    symboleTable.push_back(Variable(varName,4));
+    int index = (symboleTable.size()+1)*4;
+    symboleTable.push_back(Variable(varName,index));
     
-    this->visit(ctx->expr());
+    visitChildren(ctx);
 
     return 0;
 }
+
+antlrcpp::Any CodeGenSymboleTable::visitAffectationVaC(ifccParser::AffectationVaCContext *ctx) {
+    std::string varName = ctx->VAR()->getText();
+    if(!isInTable(varName)) {
+        throw std::runtime_error("Variable non déclarée");
+    }
+    
+    visitChildren(ctx);
+
+    return 0;
+}
+
 
 bool CodeGenSymboleTable::isInTable(std::string varName) {
     for (size_t i = 0; i < symboleTable.size(); i++) {
