@@ -3,3 +3,7 @@ compiler/generated
 ifcc
 *.mk
 tests/ifcc-test-output
+*.s
+*.o
+*.out
+*.DS_Store
