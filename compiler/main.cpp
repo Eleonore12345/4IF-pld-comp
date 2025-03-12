@@ -9,6 +9,7 @@
 #include "generated/ifccBaseVisitor.h"
 
 #include "CodeGenVisitor.h"
+#include "AffectVisitor.h"
 
 using namespace antlr4;
 using namespace std;
@@ -47,10 +48,11 @@ int main(int argn, const char **argv)
       cerr << "error: syntax error during parsing" << endl;
       exit(1);
   }
-
   
-  CodeGenVisitor v;
-  v.visit(tree);
+  AffectVisitor v1;
+  v1.visit(tree);
+  CodeGenVisitor v2;
+  v2.visit(tree);
 
   return 0;
 }
