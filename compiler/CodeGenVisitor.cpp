@@ -40,3 +40,12 @@ antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *c
 
     return 0;
 }
+
+bool CodeGenVisitor::isInTable(std::string varName) {
+    for (size_t i = 0; i < symboleTable.size(); i++) {
+        if(varName.compare(symboleTable[i].name) == 0) {
+            return true;
+        }
+    }
+    return false;
+}

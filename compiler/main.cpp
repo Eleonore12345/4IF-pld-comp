@@ -50,7 +50,7 @@ int main(int argn, const char **argv)
       exit(1);
   }
 
-  std::vector<Variable> * s;
+  std::vector<Variable> s;
   CodeGenVisitor v(s);
   CodeGenSymboleTable v2(s);
   v2.visit(tree);
