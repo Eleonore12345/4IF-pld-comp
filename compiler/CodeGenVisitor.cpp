@@ -27,16 +27,17 @@ antlrcpp::Any CodeGenVisitor::visitDefinition(ifccParser::DefinitionContext *ctx
     visit(ctx->expr());
 
     std::cout << "    movl %eax, -" << index << "(%rbp)\n";
-
-    visitChildren(ctx);
-
+    visit(ctx->instr());
     return 0;
 }
 
-
+antlrcpp::Any CodeGenVisitor::visitParentheses(ifccParser::ParenthesesContext *ctx) {
+    visitChildren(ctx);
+    return 0;
+}
 
 antlrcpp::Any CodeGenVisitor::visitDeclaration(ifccParser::DeclarationContext *ctx) {
-    visitChildren(ctx);
+    visit(ctx->instr());
     return 0;
 }
 
@@ -63,7 +64,46 @@ antlrcpp::Any CodeGenVisitor::visitConstante(ifccParser::ConstanteContext *ctx) 
     int val = stoi(ctx->CONST()->getText());
 
     std::cout << "    movl $" << val << ", %eax\n";
+    return 0;
+}
 
+antlrcpp::Any CodeGenVisitor::visitOpAddSub(ifccParser::OpAddSubContext *ctx) {
+    visit(ctx->expr(0));
+    string nameVarTmp = "tmp" + symbolTable->size();
+    desc_identifier id;
+    id.identifier = nameVarTmp;
+    id.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(id);
+    std::cout << "    movl $eax, -" << id.offset << "(%rbp)\n";
+
+    visit(ctx->expr(1));
+    std::string op = ctx->OP->getText();
+    if(op == "+") {
+        std::cout << "    add $eax, -" << id.offset << "(%rbp)\n";
+    } else {
+        std::cout << "    sub $eax, -" << id.offset << "(%rbp)\n";
+    }
+    visitChildren(ctx);
+    return 0;
+}
+
+antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) {
+    visit(ctx->expr(0));
+    string nameVarTmp = "tmp" + symbolTable->size();
+    desc_identifier id;
+    id.identifier = nameVarTmp;
+    id.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(id);
+    std::cout << "    movl $eax, -" << id.offset << "(%rbp)\n";
+
+    visit(ctx->expr(1));
+    std::string op = ctx->OP->getText();
+    if(op == "*") {
+        std::cout << "    imul $eax, -" << id.offset << "(%rbp)\n";
+    } else {
+        //TODO : division
+    }
+    visitChildren(ctx);
     return 0;
 }
 

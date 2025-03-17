@@ -1,6 +1,0 @@
-int main() {
-    char ex ='a';
-    char ex2 = 'b';
-    char ex3 = ex + ex2;
-    return ex3;
-}

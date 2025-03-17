@@ -1,5 +1,0 @@
-int main() {
-    char ex = 'z';
-    char ex = 'e';
-    return 0;
-}
