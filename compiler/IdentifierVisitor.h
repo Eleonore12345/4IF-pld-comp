@@ -13,12 +13,10 @@ class  IdentifierVisitor : public ifccBaseVisitor {
                 bool getError();
                 virtual antlrcpp::Any visitAxiom(ifccParser::AxiomContext *ctx) override;
                 virtual antlrcpp::Any visitDeclaration(ifccParser::DeclarationContext *ctx) override;
-                virtual antlrcpp::Any visitDefinitionV(ifccParser::DefinitionVContext *ctx) override;
-                virtual antlrcpp::Any visitDefinitionC(ifccParser::DefinitionCContext *ctx) override;
-                virtual antlrcpp::Any visitAffectationV(ifccParser::AffectationVContext *ctx) override;
-                virtual antlrcpp::Any visitAffectationC(ifccParser::AffectationCContext *ctx) override;
+                virtual antlrcpp::Any visitDefinition(ifccParser::DefinitionContext *ctx) override;
+                virtual antlrcpp::Any visitAffectation(ifccParser::AffectationContext *ctx) override;
+                virtual antlrcpp::Any visitVariableSimple(ifccParser::VariableSimpleContext *ctx) override;
         private:
                 SymbolTable* symTable;
                 bool error;
-
 };

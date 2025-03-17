@@ -2,16 +2,18 @@ grammar ifcc;
 
 axiom : prog EOF ;
 
-prog : 'int' 'main' '(' ')' '{' expr '}' ;
+prog : 'int' 'main' '(' ')' '{' instr '}' ;
 
 
-expr : TYPE VAR ';' expr # declaration
-    | TYPE VAR '=' VAR ';' expr # definitionV
-    | TYPE VAR '=' CONST ';' expr # definitionC
-    | VAR '=' VAR ';' expr # affectationV
-    | VAR '=' CONST ';' expr # affectationC
+instr : TYPE VAR ';' instr # declaration
+    | TYPE VAR '=' expr ';' instr # definition
+    | VAR '=' expr ';' instr # affectation
     | return_stmt  # return
     ;
+
+expr : VAR # variableSimple
+        | CONST # constante
+        ;
 
 return_stmt : RETURN CONST ';' ;
 
