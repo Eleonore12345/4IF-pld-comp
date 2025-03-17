@@ -8,7 +8,7 @@
     movl $2, %eax
     movl %eax, -4(%rbp)
     movl $3, %eax
-    add -4(%rbp), %eax
+    addl -4(%rbp), %eax
 
     # epilogue
     popq %rbp

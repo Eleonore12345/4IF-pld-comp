@@ -79,9 +79,11 @@ antlrcpp::Any CodeGenVisitor::visitOpAddSub(ifccParser::OpAddSubContext *ctx) {
     visit(ctx->expr(1));
     std::string op = ctx->OP->getText();
     if(op == "+") {
-        std::cout << "    add -" << id.offset << "(%rbp), %eax\n";
+        std::cout << "    addl -" << id.offset << "(%rbp), %eax\n";
     } else {
-        std::cout << "    sub -" << id.offset << "(%rbp), %eax\n";
+        std::cout << "    movl %eax, %ecx\n";
+        std::cout << "    movl -" << id.offset << "(%rbp), %eax\n";
+        std::cout << "    subl %ecx, %eax\n";
     }
     return 0;
 }
@@ -102,7 +104,6 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
     } else {
         //TODO : division
     }
-    visitChildren(ctx);
     return 0;
 }
 
