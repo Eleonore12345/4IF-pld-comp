@@ -69,9 +69,7 @@ antlrcpp::Any CodeGenVisitor::visitConstante(ifccParser::ConstanteContext *ctx) 
 
 antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)
 {
-    int retval = stoi(ctx->CONST()->getText());
-
-    std::cout << "    movl $"<<retval<<", %eax\n" ;
+    visit(ctx->expr());
 
     return 0;
 }
