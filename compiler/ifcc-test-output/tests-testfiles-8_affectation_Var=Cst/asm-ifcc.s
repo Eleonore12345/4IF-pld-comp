@@ -7,6 +7,10 @@
     # body
     movl $2, %eax
     movl %eax, -4(%rbp)
+    movl $3, %eax
+    movl %eax, -4(%rbp)
+    movl $3, %eax
+    movl	-4(%rbp), %eax
 
     # epilogue
     popq %rbp

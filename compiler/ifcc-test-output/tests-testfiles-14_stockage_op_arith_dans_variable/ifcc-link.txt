@@ -1,7 +1,4 @@
-asm-ifcc.s: Assembler messages:
-asm-ifcc.s:10: Warning: no instruction mnemonic suffix given and no register operands; using default for `add'
-/usr/bin/ld: /tmp/cckmlVsC.o: relocation R_X86_64_32 against undefined symbol `eax' can not be used when making a PIE object; recompile with -fPIE
-/usr/bin/ld: failed to set dynamic section sizes: bad value
-collect2: error: ld returned 1 exit status
+/usr/bin/ld: warning: /tmp/cceLZZVl.o: missing .note.GNU-stack section implies executable stack
+/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
 
-exit status: 1
+exit status: 0

@@ -5,7 +5,10 @@
     movq %rsp, %rbp
 
     # body
-    movl $0, %eax
+    movl $2, %eax
+    movl %eax, -4(%rbp)
+    movl $3, %eax
+    add -4(%rbp), %eax
 
     # epilogue
     popq %rbp

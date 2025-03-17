@@ -74,16 +74,15 @@ antlrcpp::Any CodeGenVisitor::visitOpAddSub(ifccParser::OpAddSubContext *ctx) {
     id.identifier = nameVarTmp;
     id.offset = (symbolTable->size() + 1) * 4;
     symbolTable->addIdentifier(id);
-    std::cout << "    movl $eax, -" << id.offset << "(%rbp)\n";
+    std::cout << "    movl %eax, -" << id.offset << "(%rbp)\n";
 
     visit(ctx->expr(1));
     std::string op = ctx->OP->getText();
     if(op == "+") {
-        std::cout << "    add $eax, -" << id.offset << "(%rbp)\n";
+        std::cout << "    add -" << id.offset << "(%rbp), %eax\n";
     } else {
-        std::cout << "    sub $eax, -" << id.offset << "(%rbp)\n";
+        std::cout << "    sub -" << id.offset << "(%rbp), %eax\n";
     }
-    visitChildren(ctx);
     return 0;
 }
 
@@ -94,12 +93,12 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
     id.identifier = nameVarTmp;
     id.offset = (symbolTable->size() + 1) * 4;
     symbolTable->addIdentifier(id);
-    std::cout << "    movl $eax, -" << id.offset << "(%rbp)\n";
+    std::cout << "    movl %eax, -" << id.offset << "(%rbp)\n";
 
     visit(ctx->expr(1));
     std::string op = ctx->OP->getText();
     if(op == "*") {
-        std::cout << "    imul $eax, -" << id.offset << "(%rbp)\n";
+        std::cout << "    imull -" << id.offset << "(%rbp)\n";
     } else {
         //TODO : division
     }
