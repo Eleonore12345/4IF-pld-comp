@@ -1,0 +1,6 @@
+int main() {
+    char ex = 'z';
+    char ex2 = 'e';
+    char ex3 = ex2;
+    return 0;
+}
