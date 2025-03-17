@@ -1,4 +1,0 @@
-int main() {
-    char ex = 'z';
-    return 0;
-}

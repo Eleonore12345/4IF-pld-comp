@@ -11,9 +11,12 @@ instr : TYPE VAR ';' instr # declaration
     | return_stmt  # return
     ;
 
-expr : VAR # variableSimple
-        | CONST # constante
-        ;
+expr : expr OP=('*'|'/') expr # opMultDiv
+    | expr OP=('+'|'-') expr # opAddSub
+    | '(' expr ')' # parentheses
+    | VAR # variableSimple
+    | CONST # constante
+    ;
 
 return_stmt : RETURN expr ';' ;
 

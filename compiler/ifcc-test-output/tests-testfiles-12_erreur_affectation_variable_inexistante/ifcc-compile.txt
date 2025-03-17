@@ -1,4 +1,6 @@
-line 1:0 mismatched input '<EOF>' expecting 'int'
-error: syntax error during parsing
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  Variable bnot declared
 
-exit status: 1
+Aborted (core dumped)
+
+exit status: 134

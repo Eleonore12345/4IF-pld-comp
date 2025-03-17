@@ -27,16 +27,17 @@ antlrcpp::Any CodeGenVisitor::visitDefinition(ifccParser::DefinitionContext *ctx
     visit(ctx->expr());
 
     std::cout << "    movl %eax, -" << index << "(%rbp)\n";
-
-    visitChildren(ctx);
-
+    visit(ctx->instr());
     return 0;
 }
 
-
+antlrcpp::Any CodeGenVisitor::visitParentheses(ifccParser::ParenthesesContext *ctx) {
+    visitChildren(ctx);
+    return 0;
+}
 
 antlrcpp::Any CodeGenVisitor::visitDeclaration(ifccParser::DeclarationContext *ctx) {
-    visitChildren(ctx);
+    visit(ctx->instr());
     return 0;
 }
 
@@ -63,7 +64,46 @@ antlrcpp::Any CodeGenVisitor::visitConstante(ifccParser::ConstanteContext *ctx) 
     int val = stoi(ctx->CONST()->getText());
 
     std::cout << "    movl $" << val << ", %eax\n";
+    return 0;
+}
 
+antlrcpp::Any CodeGenVisitor::visitOpAddSub(ifccParser::OpAddSubContext *ctx) {
+    visit(ctx->expr(0));
+    string nameVarTmp = "tmp" + symbolTable->size();
+    desc_identifier id;
+    id.identifier = nameVarTmp;
+    id.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(id);
+    std::cout << "    movl %eax, -" << id.offset << "(%rbp)\n";
+
+    visit(ctx->expr(1));
+    std::string op = ctx->OP->getText();
+    if(op == "+") {
+        std::cout << "    addl -" << id.offset << "(%rbp), %eax\n";
+    } else {
+        std::cout << "    movl %eax, %ecx\n";
+        std::cout << "    movl -" << id.offset << "(%rbp), %eax\n";
+        std::cout << "    subl %ecx, %eax\n";
+    }
+    return 0;
+}
+
+antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) {
+    visit(ctx->expr(0));
+    string nameVarTmp = "tmp" + symbolTable->size();
+    desc_identifier id;
+    id.identifier = nameVarTmp;
+    id.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(id);
+    std::cout << "    movl %eax, -" << id.offset << "(%rbp)\n";
+
+    visit(ctx->expr(1));
+    std::string op = ctx->OP->getText();
+    if(op == "*") {
+        std::cout << "    imull -" << id.offset << "(%rbp)\n";
+    } else {
+        //TODO : division
+    }
     return 0;
 }
 
