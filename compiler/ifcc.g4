@@ -15,7 +15,7 @@ expr : VAR # variableSimple
         | CONST # constante
         ;
 
-return_stmt : RETURN CONST ';' ;
+return_stmt : RETURN expr ';' ;
 
 RETURN : 'return' ;
 TYPE : 'int' ;
