@@ -18,7 +18,7 @@ expr : expr OP=('*'|'/') expr # opMultDiv
     | CONST # constante
     ;
 
-return_stmt : RETURN CONST ';' ;
+return_stmt : RETURN expr ';' ;
 
 RETURN : 'return' ;
 TYPE : 'int' ;
