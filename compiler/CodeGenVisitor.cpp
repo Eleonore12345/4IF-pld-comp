@@ -61,7 +61,12 @@ antlrcpp::Any CodeGenVisitor::visitVariableSimple(ifccParser::VariableSimpleCont
 }
 
 antlrcpp::Any CodeGenVisitor::visitConstante(ifccParser::ConstanteContext *ctx) {
-    int val = stoi(ctx->CONST()->getText());
+    std::string constant = ctx->CONST()->getText();
+    int val;
+    if (constant[0] == '\'')
+        val = (int) constant[1];
+    else 
+        val = stoi(constant);
 
     std::cout << "    movl $" << val << ", %eax\n";
     return 0;

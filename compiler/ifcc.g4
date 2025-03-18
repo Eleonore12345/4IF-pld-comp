@@ -22,7 +22,7 @@ return_stmt : RETURN expr ';' ;
 
 RETURN : 'return' ;
 TYPE : 'int' ;
-CONST : [0-9]+ ;
+CONST : ([0-9]+ | '\''.'\'') ;
 VAR : [a-zA-Z]+ ;
 COMMENT : '/*' .*? '*/' -> skip ;
 DIRECTIVE : '#' .*? '\n' -> skip ;
