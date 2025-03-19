@@ -16,6 +16,7 @@ expr : expr OP=('*'|'/') expr # opMultDiv
     | '(' expr ')' # parentheses
     | VAR # variableSimple
     | CONST # constante
+    | OP_UN expr # opUnaire
     ;
 
 return_stmt : RETURN expr ';' ;
@@ -24,6 +25,7 @@ RETURN : 'return' ;
 TYPE : 'int' ;
 CONST : ([0-9]+ | '\''.'\'') ;
 VAR : [a-zA-Z]+ ;
+OP_UN : ('-' | '+') ;
 COMMENT : '/*' .*? '*/' -> skip ;
 DIRECTIVE : '#' .*? '\n' -> skip ;
 WS    : [ \t\r\n] -> channel(HIDDEN);
