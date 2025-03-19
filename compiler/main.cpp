@@ -60,8 +60,8 @@ int main(int argn, const char **argv)
     return 1;
   }
 
-  //CodeGenVisitor v(s);
-  //v.visit(tree);
+  CodeGenVisitor v(s);
+  v.visit(tree);
 
   delete s;
   return 0;

@@ -30,6 +30,7 @@ antlrcpp::Any CodeGenVisitor::visitInitDecla(ifccParser::InitDeclaContext * ctx)
     if(ctx->expr()) {
         std::string varName = ctx->VAR()->getText();
         int index = symbolTable->getOffset(varName);
+        visit(ctx->expr());
         std::cout << "    movl %eax, -" << index << "(%rbp)\n";
     }
     return 0;
