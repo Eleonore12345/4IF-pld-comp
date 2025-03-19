@@ -101,8 +101,14 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
     std::string op = ctx->OP->getText();
     if(op == "*") {
         std::cout << "    imull -" << id.offset << "(%rbp)\n";
-    } else {
+    } else if (op == "/") {
         //TODO : division
+        std::cout << "    movl %eax, %ecx\n";
+        std::cout << "    movl -" << id.offset << "(%rbp), %eax\n";
+        std::cout << "    cdq" << std::endl;
+        std::cout << "    idivl %ecx\n";
+    } else {
+        //TODO : modulo
     }
     return 0;
 }
