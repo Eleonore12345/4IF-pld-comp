@@ -27,7 +27,6 @@ antlrcpp::Any CodeGenVisitor::visitDefinition(ifccParser::DefinitionContext *ctx
     visit(ctx->expr());
 
     std::cout << "    movl %eax, -" << index << "(%rbp)\n";
-    visit(ctx->instr());
     return 0;
 }
 
@@ -37,7 +36,6 @@ antlrcpp::Any CodeGenVisitor::visitParentheses(ifccParser::ParenthesesContext *c
 }
 
 antlrcpp::Any CodeGenVisitor::visitDeclaration(ifccParser::DeclarationContext *ctx) {
-    visit(ctx->instr());
     return 0;
 }
 
