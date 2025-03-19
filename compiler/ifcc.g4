@@ -4,19 +4,17 @@ axiom : prog EOF ;
 
 prog : 'int' 'main' '(' ')' '{' instr* '}' ;
 
-
 instr : decla ';' # declaration
     | VAR '=' expr ';' # affectation
     | return_stmt  # return
     ;
-
 
 decla : TYPE initDecla (',' initDecla)* ;
 
 initDecla : VAR ('=' expr)? ;
 
 expr : OP=('+'|'-') expr # opUnaire
-    | expr OP=('*'|'/') expr # opMultDiv
+    | expr OP=('*'|'/'|'%') expr # opMultDiv
     | expr OP=('+'|'-') expr # opAddSub
     | '(' expr ')' # parentheses
     | VAR # variableSimple
