@@ -2,14 +2,18 @@ grammar ifcc;
 
 axiom : prog EOF ;
 
-prog : 'int' 'main' '(' ')' '{' instr '}' ;
+prog : 'int' 'main' '(' ')' '{' instr* '}' ;
 
 
-instr : TYPE VAR ';' instr # declaration
-    | TYPE VAR '=' expr ';' instr # definition
-    | VAR '=' expr ';' instr # affectation
+instr : decla ';' # declaration
+    | VAR '=' expr ';' # affectation
     | return_stmt  # return
     ;
+
+
+decla : TYPE initDecla (',' initDecla)* ;
+
+initDecla : VAR ('=' expr)? ;
 
 expr : OP=('+'|'-') expr # opUnaire
     | expr OP=('*'|'/') expr # opMultDiv
