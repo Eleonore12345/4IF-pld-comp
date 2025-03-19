@@ -5,7 +5,7 @@ axiom : prog EOF ;
 prog : 'int' 'main' '(' ')' '{' instr* '}' ;
 
 
-instr : decla # declaration
+instr : decla ';' # declaration
     | VAR '=' expr ';' # affectation
     | return_stmt  # return
     ;
