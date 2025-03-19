@@ -26,7 +26,12 @@ antlrcpp::Any CodeGenVisitor::visitParentheses(ifccParser::ParenthesesContext *c
     return 0;
 }
 
-antlrcpp::Any CodeGenVisitor::visitDeclaration(ifccParser::DeclarationContext *ctx) {
+antlrcpp::Any CodeGenVisitor::visitInitDecla(ifccParser::InitDeclaContext * ctx) {
+    if(ctx->expr()) {
+        std::string varName = ctx->VAR()->getText();
+        int index = symbolTable->getOffset(varName);
+        std::cout << "    movl %eax, -" << index << "(%rbp)\n";
+    }
     return 0;
 }
 
