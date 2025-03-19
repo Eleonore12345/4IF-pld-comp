@@ -112,6 +112,17 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
     return 0;
 }
 
+antlrcpp::Any CodeGenVisitor::visitOpUnaire(ifccParser::OpUnaireContext *ctx) {
+    std::string opName = ctx->OP->getText();
+    visit(ctx->expr());
+
+    if (opName == "-") {
+        std::cout << "    negl	%eax\n";
+    }
+        
+    return 0;
+}
+
 antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)
 {
     visit(ctx->expr());
