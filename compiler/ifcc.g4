@@ -10,11 +10,13 @@ instr : decla ';' # declaration
     | return_stmt  # return
     ;
 
+
 decla : TYPE initDecla (',' initDecla)* ;
 
 initDecla : VAR ('=' expr)? ;
 
-expr : expr OP=('*'|'/') expr # opMultDiv
+expr : OP=('+'|'-') expr # opUnaire
+    | expr OP=('*'|'/') expr # opMultDiv
     | expr OP=('+'|'-') expr # opAddSub
     | '(' expr ')' # parentheses
     | VAR # variableSimple
