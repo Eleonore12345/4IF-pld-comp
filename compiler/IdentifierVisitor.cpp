@@ -17,6 +17,9 @@ antlrcpp::Any IdentifierVisitor::visitInitDecla(ifccParser::InitDeclaContext *ct
         desc_identifier id;
         id.identifier = varName;
         id.offset = (symTable->size() + 1) * 4;
+        if(ctx->expr()) {
+            id.init = true;
+        }
         symTable->addIdentifier(id);
     }
     return visitChildren(ctx);
@@ -34,6 +37,7 @@ antlrcpp::Any IdentifierVisitor::visitAffectation(ifccParser::AffectationContext
         throw std::runtime_error(erreur);
         error = true;
     }
+    symTable->setInit(varName);
     return visitChildren(ctx);
 }
 
@@ -45,6 +49,9 @@ antlrcpp::Any IdentifierVisitor::visitVariableSimple(ifccParser::VariableSimpleC
         error = true;
     }
     else{
+        if(symTable->getInitStatus(varName) == 0) {
+            cerr << "WARNING : variable " << varName << " used but not initialized" << endl;
+        }
         symTable->setUse(varName);
     }
     return visitChildren(ctx);
@@ -55,8 +62,7 @@ antlrcpp::Any IdentifierVisitor::visitVariableSimple(ifccParser::VariableSimpleC
 antlrcpp::Any IdentifierVisitor::visitAxiom(ifccParser::AxiomContext *ctx)
 {
     visitChildren(ctx);
-    if (!symTable->isEachIdUsed()) {
-        //TO-DO : METTRE UN WARNING ET NON UNE ERREUR
-    }
+    symTable->checkIfEachIdUsed();
+    symTable->checkIfEachIdInit();
     return 0;    
 }

@@ -44,6 +44,17 @@ int SymbolTable::getOffset(string name)
     return -1;
 }
 
+int SymbolTable::getInitStatus(string name) {
+    for(int i = 0 ; i < vect.size() ; i++)
+    {
+        if (vect[i].identifier == name) 
+        {
+            return vect[i].init;
+        }
+    }
+    return -1;
+}
+
 void SymbolTable::setUse(string name) {
     int index = getIndex(name);
     if (index != -1) 
@@ -52,15 +63,30 @@ void SymbolTable::setUse(string name) {
     }
 }
 
-bool SymbolTable::isEachIdUsed() {
-    bool res = true;
+void SymbolTable::setInit(string name) {
+    int index = getIndex(name);
+    if (index != -1) 
+    {
+        vect[index].init = true;
+    }
+}
+
+void SymbolTable::checkIfEachIdUsed() {
     for (auto a : vect)
     {
         if (a.use == false) 
         {
-            //cout << "Variable " << a.identifier << " not used" << endl;
-            res = false;
+            cerr << "WARNING : variable " << a.identifier << " not used" << endl;
         }
     }
-    return res;
+}
+
+void SymbolTable::checkIfEachIdInit() {
+    for (auto a : vect)
+    {
+        if (a.init == false) 
+        {
+            cerr << "WARNING : variable " << a.identifier << " declared but not initialized" << endl;
+        }
+    }
 }
