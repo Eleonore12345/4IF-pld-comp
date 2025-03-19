@@ -21,21 +21,17 @@ antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx)
     return 0;
 }
 
-antlrcpp::Any CodeGenVisitor::visitDefinition(ifccParser::DefinitionContext *ctx) {
-    std::string varName = ctx->VAR()->getText();
-    int index = symbolTable->getOffset(varName);
-    visit(ctx->expr());
-
-    std::cout << "    movl %eax, -" << index << "(%rbp)\n";
-    return 0;
-}
-
 antlrcpp::Any CodeGenVisitor::visitParentheses(ifccParser::ParenthesesContext *ctx) {
     visitChildren(ctx);
     return 0;
 }
 
-antlrcpp::Any CodeGenVisitor::visitDeclaration(ifccParser::DeclarationContext *ctx) {
+antlrcpp::Any CodeGenVisitor::visitInitDecla(ifccParser::InitDeclaContext * ctx) {
+    if(ctx->expr()) {
+        std::string varName = ctx->VAR()->getText();
+        int index = symbolTable->getOffset(varName);
+        std::cout << "    movl %eax, -" << index << "(%rbp)\n";
+    }
     return 0;
 }
 
