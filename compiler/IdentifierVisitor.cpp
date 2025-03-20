@@ -75,9 +75,9 @@ antlrcpp::Any IdentifierVisitor::visitConstante(ifccParser::ConstanteContext *ct
         val = stoi(constant);
     }
     if(val == 0) {
-        return antlrcpp::Any(val == 0);
+        return antlrcpp::Any(true);
     }
-    return antlrcpp::Any(val == 1);
+    return antlrcpp::Any(false);
 }
 
 
