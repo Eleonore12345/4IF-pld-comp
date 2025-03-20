@@ -61,7 +61,7 @@ antlrcpp::Any CodeGenVisitor::visitConstante(ifccParser::ConstanteContext *ctx) 
     if (constant[0] == '\'')
         val = (int) constant[1];
     else 
-        val = stoi(constant);
+        val = stol(constant);
 
     std::cout << "    movl $" << val << ", %eax\n";
     return 0;
@@ -107,7 +107,27 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
     return 0;
 }
 
-antlrcpp::Any CodeGenVisitor::visitOpUnaire(ifccParser::OpUnaireContext *ctx) {
+antlrcpp::Any CodeGenVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ctx) {
+    std::string opName = ctx->OP->getText();
+    std::string constant = ctx->CONST()->getText();
+
+    int val;
+    if (constant[0] == '\''){
+        val = (int) constant[1];
+    } else {
+        val = stol(constant);
+    }
+    
+    if (opName == "-") {
+        std::cout << "    movl $-" << val << ", %eax\n";
+    } else {
+        std::cout << "    movl $" << val << ", %eax\n";
+    }
+        
+    return 0;
+}
+
+antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
     std::string opName = ctx->OP->getText();
     visit(ctx->expr());
 

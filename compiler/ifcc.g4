@@ -15,7 +15,8 @@ decla : TYPE initDecla (',' initDecla)* ;
 
 initDecla : VAR ('=' expr)? ;
 
-expr : OP=('+'|'-') expr # opUnaire
+expr : OP=('+'|'-') CONST # opUnConst
+    | OP=('+'|'-') expr # opUnExpr
     | expr OP=('*'|'/') expr # opMultDiv
     | expr OP=('+'|'-') expr # opAddSub
     | '(' expr ')' # parentheses
