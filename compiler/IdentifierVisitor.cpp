@@ -57,6 +57,28 @@ antlrcpp::Any IdentifierVisitor::visitVariableSimple(ifccParser::VariableSimpleC
     return visitChildren(ctx);
 }
 
+antlrcpp::Any IdentifierVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) {
+    antlrcpp::Any result = visit(ctx->expr(1));
+    if (result.is<bool>() && result.as<bool>()) {
+        cerr << "WARNING : division by zero" << endl;
+    }
+    return visitChildren(ctx);
+}
+
+antlrcpp::Any IdentifierVisitor::visitConstante(ifccParser::ConstanteContext *ctx) {
+    std::string constant = ctx->CONST()->getText();
+    int val;
+    if (constant[0] == '\'') {
+        val = (int) constant[1];
+    }
+    else {
+        val = stoi(constant);
+    }
+    if(val == 0) {
+        return antlrcpp::Any(val == 0);
+    }
+    return antlrcpp::Any(val == 1);
+}
 
 
 antlrcpp::Any IdentifierVisitor::visitAxiom(ifccParser::AxiomContext *ctx)
