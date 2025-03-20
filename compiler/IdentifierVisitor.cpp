@@ -72,7 +72,7 @@ antlrcpp::Any IdentifierVisitor::visitConstante(ifccParser::ConstanteContext *ct
         val = (int) constant[1];
     }
     else {
-        val = stoi(constant);
+        val = stol(constant);
     }
     if(val == 0) {
         return antlrcpp::Any(true);
