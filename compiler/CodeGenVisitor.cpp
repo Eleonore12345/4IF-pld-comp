@@ -1,34 +1,35 @@
 #include "CodeGenVisitor.h"
+#include <iostream>
 
-CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable) : ifccBaseVisitor()
+using namespace std;
+
+CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable, CFG* c) : ifccBaseVisitor()
 {
     symbolTable = symboleTable;
+    cfg = c;
 }
 
 antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx) 
 {
-    std::cout<< ".globl main\n" ;
-    std::cout<< " main: \n" ;
+    //ajout du premier bloc de base dans le cfg
+    BasicBlock* bb = new BasicBlock(cfg, cfg->new_BB_name());
+    cfg->add_bb(bb);
+    cfg->current_bb = bb;
 
-    std::cout << "    # prologue\n" << "    pushq %rbp\n" << "    movq %rsp, %rbp\n" << "\n" ;
-
-    std::cout << "    # body\n" ;
     visitChildren(ctx);
-    
-    std::cout << "\n" << "    # epilogue\n" << "    popq %rbp\n" ;
-    std::cout << "    ret\n";
 
     return 0;
 }
 
 antlrcpp::Any CodeGenVisitor::visitDefinition(ifccParser::DefinitionContext *ctx) {
-    std::string varName = ctx->VAR()->getText();
-    int index = symbolTable->getOffset(varName);
-    visit(ctx->expr());
 
-    std::cout << "    movl %eax, -" << index << "(%rbp)\n";
+    string expr_content = visit(ctx->expr());
+    // pour gérer si on a une constante ou une variable à droite
+    VariableOrConstante(ctx->VAR()->getText(), expr_content);
+   
     visit(ctx->instr());
     return 0;
+    
 }
 
 antlrcpp::Any CodeGenVisitor::visitParentheses(ifccParser::ParenthesesContext *ctx) {
@@ -42,10 +43,11 @@ antlrcpp::Any CodeGenVisitor::visitDeclaration(ifccParser::DeclarationContext *c
 }
 
 antlrcpp::Any CodeGenVisitor::visitAffectation(ifccParser::AffectationContext *ctx) {
-    std::string varName = ctx->VAR()->getText();
-    visit(ctx->expr());
-    int index = symbolTable->getOffset(varName);
-    std::cout << "    movl %eax, -" << index << "(%rbp)\n";
+
+    string expr_content = visit(ctx->expr());
+    // pour gérer si on a une constante ou une variable à droite
+    VariableOrConstante(ctx->VAR()->getText(), expr_content);
+
     visitChildren(ctx);
 
     return 0;
@@ -55,66 +57,81 @@ antlrcpp::Any CodeGenVisitor::visitVariableSimple(ifccParser::VariableSimpleCont
     std::string varName = ctx->VAR()->getText();
     int index = symbolTable->getOffset(varName);
 
-    std::cout << "    movl	-" << index << "(%rbp), %eax\n";
-
-    return 0;
+    return varName;
 }
 
 antlrcpp::Any CodeGenVisitor::visitConstante(ifccParser::ConstanteContext *ctx) {
     std::string constant = ctx->CONST()->getText();
-    int val;
-    if (constant[0] == '\'')
-        val = (int) constant[1];
-    else 
-        val = stoi(constant);
-
-    std::cout << "    movl $" << val << ", %eax\n";
-    return 0;
+    return constant;
 }
 
 antlrcpp::Any CodeGenVisitor::visitOpAddSub(ifccParser::OpAddSubContext *ctx) {
-    visit(ctx->expr(0));
-    string nameVarTmp = "tmp" + symbolTable->size();
-    desc_identifier id;
-    id.identifier = nameVarTmp;
-    id.offset = (symbolTable->size() + 1) * 4;
-    symbolTable->addIdentifier(id);
-    std::cout << "    movl %eax, -" << id.offset << "(%rbp)\n";
+    string operandeG = visit(ctx->expr(0));
+    string nameVarTmpG = "tmp" + to_string(symbolTable->size());
+    desc_identifier idG;
+    idG.identifier = nameVarTmpG;
+    idG.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idG);
+    VariableOrConstante(nameVarTmpG, operandeG);
+    
+    string operandeD = visit(ctx->expr(1));
+    string nameVarTmpD = "tmp" + to_string(symbolTable->size());
+    desc_identifier idD;
+    idD.identifier = nameVarTmpD;
+    idD.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idD);
+    VariableOrConstante(nameVarTmpD, operandeD);
 
-    visit(ctx->expr(1));
     std::string op = ctx->OP->getText();
     if(op == "+") {
-        std::cout << "    addl -" << id.offset << "(%rbp), %eax\n";
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::add, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     } else {
-        std::cout << "    movl %eax, %ecx\n";
-        std::cout << "    movl -" << id.offset << "(%rbp), %eax\n";
-        std::cout << "    subl %ecx, %eax\n";
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::sub, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     }
-    return 0;
+    return nameVarTmpG;
 }
 
 antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) {
-    visit(ctx->expr(0));
-    string nameVarTmp = "tmp" + symbolTable->size();
-    desc_identifier id;
-    id.identifier = nameVarTmp;
-    id.offset = (symbolTable->size() + 1) * 4;
-    symbolTable->addIdentifier(id);
-    std::cout << "    movl %eax, -" << id.offset << "(%rbp)\n";
+    string operandeG = visit(ctx->expr(0));
+    string nameVarTmpG = "tmp" + symbolTable->size();
+    desc_identifier idG;
+    idG.identifier = nameVarTmpG;
+    idG.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idG);
+    VariableOrConstante(nameVarTmpG, operandeG);
+    
+    string operandeD = visit(ctx->expr(1));
+    string nameVarTmpD = "tmp" + symbolTable->size();
+    
+    desc_identifier idD;
+    idD.identifier = nameVarTmpD;
+    idD.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idD);
+    VariableOrConstante(nameVarTmpD, operandeD);
 
-    visit(ctx->expr(1));
     std::string op = ctx->OP->getText();
     if(op == "*") {
-        std::cout << "    imull -" << id.offset << "(%rbp)\n";
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::mul, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     } else {
         //TODO : division
     }
-    return 0;
+    return nameVarTmpG;
 }
 
 antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)
 {
-    visit(ctx->expr());
+    string expr_finale = visit(ctx->expr());
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {expr_finale});
 
     return 0;
+}
+
+void CodeGenVisitor::VariableOrConstante(string name1, string name2) {
+    // pour gérer si on a une constante ou une variable à droite
+    if (symbolTable->getIndex(name2) == -1){
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {name1, name2});
+    }
+    else{
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::copy, INT, {name1, name2});
+    }
 }
