@@ -113,8 +113,33 @@ antlrcpp::Any CodeGenVisitor::visitOpUnaire(ifccParser::OpUnaireContext *ctx) {
 
     if (opName == "-") {
         std::cout << "    negl	%eax\n";
+    } else if (opName == "!") {
+        std::cout << "    cmpl $0, %eax\n";
+        std::cout << "    sete %al\n";
     }
         
+    return 0;
+}
+
+antlrcpp::Any CodeGenVisitor::visitOpComp(ifccParser::OpCompContext *ctx) {
+    std::string opName = ctx->OP->getText();
+    visit(ctx->expr(0));
+    std::cout << "    movl %eax, %ecx\n"; 
+
+    visit(ctx->expr(1));
+    std::cout << "    cmpl %eax, %ecx\n";
+
+    if (opName == "==") {
+        std::cout << "    sete %al\n";
+    } else if (opName == "!=") {
+        std::cout << "    setne %al\n";
+    } else if (opName == "<") {
+        std::cout << "    setl %al\n";
+    } else if (opName == ">") {
+        std::cout << "    setg %al\n";
+    }
+    std::cout << "    movzbl %al, %eax\n";
+
     return 0;
 }
 

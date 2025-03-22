@@ -21,6 +21,7 @@ class  CodeGenVisitor : public ifccBaseVisitor {
                 virtual antlrcpp::Any visitOpUnaire(ifccParser::OpUnaireContext *ctx) override;
                 virtual antlrcpp::Any visitAffectation(ifccParser::AffectationContext *ctx) override;
                 virtual antlrcpp::Any visitInitDecla(ifccParser::InitDeclaContext * ctx) override;
+                virtual antlrcpp::Any visitOpComp(ifccParser::OpCompContext *ctx) override;
 
         private :
                 SymbolTable * symbolTable;

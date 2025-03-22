@@ -10,14 +10,14 @@ instr : decla ';' # declaration
     | return_stmt  # return
     ;
 
-
 decla : TYPE initDecla (',' initDecla)* ;
 
 initDecla : VAR ('=' expr)? ;
 
-expr : OP=('+'|'-') expr # opUnaire
+expr : OP=('+'|'-'|'!') expr # opUnaire
     | expr OP=('*'|'/') expr # opMultDiv
     | expr OP=('+'|'-') expr # opAddSub
+    | expr OP=('<'|'>'|'==' | '!=') expr #opComp
     | '(' expr ')' # parentheses
     | VAR # variableSimple
     | CONST # constante
