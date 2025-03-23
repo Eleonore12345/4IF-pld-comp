@@ -18,6 +18,7 @@ initDecla : VAR ('=' expr)? ;
 expr : OP=('+'|'-') expr # opUnaire
     | expr OP=('*'|'/') expr # opMultDiv
     | expr OP=('+'|'-') expr # opAddSub
+    | expr OP=('&'|'|'|'^') expr # opBitwise
     | '(' expr ')' # parentheses
     | VAR # variableSimple
     | CONST # constante

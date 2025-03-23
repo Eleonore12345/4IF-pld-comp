@@ -118,6 +118,33 @@ antlrcpp::Any CodeGenVisitor::visitOpUnaire(ifccParser::OpUnaireContext *ctx) {
     return 0;
 }
 
+antlrcpp::Any CodeGenVisitor::visitOpBitwise(ifccParser::OpBitwiseContext *ctx)
+{
+    visit(ctx->expr(0));
+    string nameVarTmp = "tmp" + symbolTable->size();
+    desc_identifier id;
+    id.identifier = nameVarTmp;
+    id.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(id);
+    std::cout << "    movl %eax, -" << id.offset << "(%rbp)\n";
+
+    visit(ctx->expr(1));
+    std::string op = ctx->OP->getText();
+    if (op == "&")
+    {
+        std::cout << "    andl -" << id.offset << "(%rbp), %eax\n";
+    }
+    else if (op == "|")
+    {
+        std::cout << "    orl -" << id.offset << "(%rbp), %eax\n";
+    }
+    else if (op == "^")
+    {
+        std::cout << "    xorl -" << id.offset << "(%rbp), %eax\n";
+    }
+    return 0;
+}
+
 antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)
 {
     visit(ctx->expr());
