@@ -16,9 +16,7 @@ antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx)
     cfg->add_bb(bb);
     cfg->current_bb = bb;
 
-    visitChildren(ctx);
-
-    return 0;
+    return visitChildren(ctx);
 }
 
 antlrcpp::Any CodeGenVisitor::visitInitDecla(ifccParser::InitDeclaContext * ctx) {
@@ -30,8 +28,7 @@ antlrcpp::Any CodeGenVisitor::visitInitDecla(ifccParser::InitDeclaContext * ctx)
 }
 
 antlrcpp::Any CodeGenVisitor::visitParentheses(ifccParser::ParenthesesContext *ctx) {
-    visitChildren(ctx);
-    return 0;
+    return visit(ctx->expr());
 }
 
 antlrcpp::Any CodeGenVisitor::visitAffectation(ifccParser::AffectationContext *ctx) {
@@ -40,9 +37,7 @@ antlrcpp::Any CodeGenVisitor::visitAffectation(ifccParser::AffectationContext *c
     // pour gérer si on a une constante ou une variable à droite
     VariableOrConstante(ctx->VAR()->getText(), expr_content);
 
-    visitChildren(ctx);
-
-    return 0;
+    return visitChildren(ctx);
 }
 
 antlrcpp::Any CodeGenVisitor::visitVariableSimple(ifccParser::VariableSimpleContext *ctx) {
@@ -139,7 +134,6 @@ antlrcpp::Any CodeGenVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ctx) 
 antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
     std::string opName = ctx->OP->getText();
     visit(ctx->expr());
-
     if (opName == "-") {
         std::cout << "    negl	%eax\n";
     }
