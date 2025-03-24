@@ -44,6 +44,10 @@ class IRInstr {
 		and_bit,
 		or_bit,
 		xor_bit,
+		inf,
+		sup,
+		eq,
+		diff
 	} Operation;
 
 
