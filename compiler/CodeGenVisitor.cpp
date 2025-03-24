@@ -37,8 +37,13 @@ antlrcpp::Any CodeGenVisitor::visitParentheses(ifccParser::ParenthesesContext *c
     return 0;
 }
 
-antlrcpp::Any CodeGenVisitor::visitDeclaration(ifccParser::DeclarationContext *ctx) {
-    visit(ctx->instr());
+antlrcpp::Any CodeGenVisitor::visitInitDecla(ifccParser::InitDeclaContext * ctx) {
+    if(ctx->expr()) {
+        std::string varName = ctx->VAR()->getText();
+        int index = symbolTable->getOffset(varName);
+        visit(ctx->expr());
+        std::cout << "    movl %eax, -" << index << "(%rbp)\n";
+    }
     return 0;
 }
 
@@ -113,9 +118,45 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
     if(op == "*") {
         cfg->current_bb->add_IRInstr(IRInstr::Operation::mul, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     } else {
-        //TODO : division
+        std::cout << "    movl %eax, %ecx\n";
+        std::cout << "    movl -" << id.offset << "(%rbp), %eax\n";
+        std::cout << "    cdq" << std::endl;
+        std::cout << "    idivl %ecx\n";
+        if (op == "%") {
+            std::cout << "    movl %edx, %eax\n";
+        }
     }
     return nameVarTmpG;
+}
+
+antlrcpp::Any CodeGenVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ctx) {
+    std::string opName = ctx->OP->getText();
+    std::string constant = ctx->CONST()->getText();
+
+    int val;
+    if (constant[0] == '\''){
+        val = (int) constant[1];
+    } else {
+        val = stol(constant);
+    }
+    
+    if (opName == "-") {
+        std::cout << "    movl $-" << val << ", %eax\n";
+    } else {
+        std::cout << "    movl $" << val << ", %eax\n";
+    }
+        
+    return 0;
+}
+
+antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
+    std::string opName = ctx->OP->getText();
+    visit(ctx->expr());
+
+    if (opName == "-") {
+        std::cout << "    negl	%eax\n";
+    }
+    return 0;
 }
 
 antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)

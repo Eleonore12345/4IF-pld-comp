@@ -9,6 +9,7 @@ typedef struct {
     string identifier;
     int offset;
     bool use = false;
+    bool init = false;
 } desc_identifier;
 
 class SymbolTable {
@@ -20,8 +21,11 @@ class SymbolTable {
         void addIdentifier(desc_identifier id);
         int getIndex(string name);
         int getOffset(string name);
+        int getInitStatus(string name);
         void setUse(string name);
-        bool isEachIdUsed();
+        void setInit(string name);
+        void checkIfEachIdUsed();
+        void checkIfEachIdInit();
 
     private:
         vector<desc_identifier> vect;
