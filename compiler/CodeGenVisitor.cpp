@@ -21,29 +21,16 @@ antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx)
     return 0;
 }
 
-antlrcpp::Any CodeGenVisitor::visitDefinition(ifccParser::DefinitionContext *ctx) {
-
-    string expr_content = visit(ctx->expr());
-    // pour gérer si on a une constante ou une variable à droite
-    VariableOrConstante(ctx->VAR()->getText(), expr_content);
-   
-    visit(ctx->instr());
+antlrcpp::Any CodeGenVisitor::visitInitDecla(ifccParser::InitDeclaContext * ctx) {
+    if(ctx->expr()) {
+        std::string exprResult = visit(ctx->expr());
+        VariableOrConstante(ctx->VAR()->getText(),exprResult);
+    }
     return 0;
-    
 }
 
 antlrcpp::Any CodeGenVisitor::visitParentheses(ifccParser::ParenthesesContext *ctx) {
     visitChildren(ctx);
-    return 0;
-}
-
-antlrcpp::Any CodeGenVisitor::visitInitDecla(ifccParser::InitDeclaContext * ctx) {
-    if(ctx->expr()) {
-        std::string varName = ctx->VAR()->getText();
-        int index = symbolTable->getOffset(varName);
-        visit(ctx->expr());
-        std::cout << "    movl %eax, -" << index << "(%rbp)\n";
-    }
     return 0;
 }
 
@@ -119,7 +106,7 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
         cfg->current_bb->add_IRInstr(IRInstr::Operation::mul, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     } else {
         std::cout << "    movl %eax, %ecx\n";
-        std::cout << "    movl -" << id.offset << "(%rbp), %eax\n";
+        std::cout << "    movl -" << idG.offset << "(%rbp), %eax\n";
         std::cout << "    cdq" << std::endl;
         std::cout << "    idivl %ecx\n";
         if (op == "%") {
