@@ -4,16 +4,21 @@
 #include <string>
 #include <iostream>
 
-void AssemblyX86::generateAssemblyX86(){
-    std::cout<< ".globl main\n" ;
-    std::cout<< " main: \n" ;
+void AssemblyX86::generateAssemblyX86()
+{
+    std::cout << ".globl main\n";
+    std::cout << " main: \n";
 
-    std::cout << "    # prologue\n" << "    pushq %rbp\n" << "    movq %rsp, %rbp\n" << "\n" ;
-
-    std::cout << "    # body\n" ;
-    vector<BasicBlock*> bbs = cfgX86->get_bbs();
-    for (BasicBlock* bb : bbs){
-        for (IRInstr* instr : bb->instrs){
+    std::cout << "    # prologue\n"
+              << "    pushq %rbp\n"
+              << "    movq %rsp, %rbp\n"
+              << "\n";
+    std::cout << "    # body\n";
+    vector<BasicBlock *> bbs = cfgX86->get_bbs();
+    for (BasicBlock *bb : bbs)
+    {
+        for (IRInstr *instr : bb->instrs)
+        {
             IRInstr::Operation op = instr->getOperation();
             vector<string> params = instr->getParams();
             //switch pour chaque opération
@@ -60,6 +65,21 @@ void AssemblyX86::generateAssemblyX86(){
                     std::cout << "    idivl %ecx\n";
                     std::cout << "    movl %edx, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
                     break;
+                case IRInstr::and_bit: // and_bit
+                    std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                    std::cout << "    andl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
+                    std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
+                case IRInstr::or_bit: // or_bit
+                    std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                    std::cout << "    orl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
+                    std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
+                case IRInstr::xor_bit: // xor_bit
+                    std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                    std::cout << "    xorl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
+                    std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
                 case IRInstr::retour :
                     if (symbolTable->getIndex(params[0]) != -1){
                         std::cout << "    movl -" << symbolTable->getOffset(params[0]) << "(%rbp), %eax\n";
@@ -78,7 +98,8 @@ void AssemblyX86::generateAssemblyX86(){
             }
         }
     }
-    
-    std::cout << "\n" << "    # epilogue\n" << "    popq %rbp\n" ;
+    std::cout << "\n"
+              << "    # epilogue\n"
+              << "    popq %rbp\n";
     std::cout << "    ret\n";
 }
