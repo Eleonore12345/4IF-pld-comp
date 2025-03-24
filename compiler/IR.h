@@ -37,6 +37,7 @@ class IRInstr {
 		cmp_eq,
 		cmp_lt,
 		cmp_le,
+		functionCall, // a = function(arg1, arg2, ...) {a, function, arg[]}
 
 	} Operation;
 

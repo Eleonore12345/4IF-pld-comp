@@ -6,6 +6,7 @@ prog : 'int' 'main' '(' ')' '{' instr* '}' ;
 
 instr : decla ';' # declaration
     | VAR '=' expr ';' # affectation
+    | expr ';' # expression
     | return_stmt  # return
     ;
 
@@ -13,7 +14,8 @@ decla : TYPE initDecla (',' initDecla)* ;
 
 initDecla : VAR ('=' expr)? ;
 
-expr : OP=('+'|'-') CONST # opUnConst
+expr : VAR '(' args ')' # functionCall
+    | OP=('+'|'-') CONST # opUnConst
     | OP=('+'|'-') expr # opUnExpr
     | expr OP=('*'|'/'|'%') expr # opMultDiv
     | expr OP=('+'|'-') expr # opAddSub
@@ -22,12 +24,16 @@ expr : OP=('+'|'-') CONST # opUnConst
     | CONST # constante
     ;
 
+args : # noArg
+    | expr (',' expr)* # withArgs
+    ;
+    
 return_stmt : RETURN expr ';' ;
 
 RETURN : 'return' ;
 TYPE : 'int' ;
 CONST : ([0-9]+ | '\''.'\'') ;
-VAR : [a-zA-Z]+ ;
+VAR : ([a-zA-Z] | '_') ([a-zA-Z0-9] | '_')* ;
 COMMENT : '/*' .*? '*/' -> skip ;
 DIRECTIVE : '#' .*? '\n' -> skip ;
 WS    : [ \t\r\n] -> channel(HIDDEN);

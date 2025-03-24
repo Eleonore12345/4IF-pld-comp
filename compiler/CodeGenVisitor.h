@@ -24,7 +24,11 @@ class  CodeGenVisitor : public ifccBaseVisitor {
                 virtual antlrcpp::Any visitOpUnExpr(ifccParser::OpUnExprContext *ctx) override;
                 virtual antlrcpp::Any visitAffectation(ifccParser::AffectationContext *ctx) override;
                 virtual antlrcpp::Any visitInitDecla(ifccParser::InitDeclaContext * ctx) override;
-
+                virtual antlrcpp::Any visitExpression(ifccParser::ExpressionContext *ctx) override;
+                virtual antlrcpp::Any visitFunctionCall(ifccParser::FunctionCallContext *ctx) override;
+                virtual antlrcpp::Any visitNoArg(ifccParser::NoArgContext *ctx) override;
+                virtual antlrcpp::Any visitWithArgs(ifccParser::WithArgsContext *ctx) override;
+                
                 void VariableOrConstante(string name1, string name2);
         private :
                 SymbolTable * symbolTable;
