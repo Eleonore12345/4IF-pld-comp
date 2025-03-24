@@ -37,7 +37,9 @@ class IRInstr {
 		cmp_eq,
 		cmp_lt,
 		cmp_le,
-
+		and_bit,
+		or_bit,
+		xor_bit,
 	} Operation;
 
 
