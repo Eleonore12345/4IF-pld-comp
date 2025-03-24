@@ -146,7 +146,27 @@ antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
     return 0;
 }
 
-antlrcpp::Any CodeGenVisitor::visitOpBitwise(ifccParser::OpBitwiseContext *ctx)
+
+
+antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)
+{
+    string expr_finale = visit(ctx->expr());
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {expr_finale});
+
+    return 0;
+}
+
+void CodeGenVisitor::VariableOrConstante(string name1, string name2) {
+    // pour gérer si on a une constante ou une variable à droite
+    if (symbolTable->getIndex(name2) == -1){
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {name1, name2});
+    }
+    else{
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::copy, INT, {name1, name2});
+    }
+}
+
+antlrcpp::Any CodeGenVisitor::visitOpBitwiseAnd(ifccParser::OpBitwiseAndContext *ctx)
 {
     // Visit the left operand and store the result
     string operandeG = visit(ctx->expr(0));
@@ -166,37 +186,54 @@ antlrcpp::Any CodeGenVisitor::visitOpBitwise(ifccParser::OpBitwiseContext *ctx)
     symbolTable->addIdentifier(idD);
     VariableOrConstante(nameVarTmpD, operandeD);
 
-    // Determine the operation and add the corresponding IR instruction
-    std::string op = ctx->OP->getText();
-    if (op == "&")
-    {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::and_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
-    }
-    else if (op == "|")
-    {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::or_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
-    }
-    else if (op == "^")
-    {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::xor_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
-    }
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::and_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     return nameVarTmpG;
 }
 
-antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)
+antlrcpp::Any CodeGenVisitor::visitOpBitwiseXor(ifccParser::OpBitwiseXorContext *ctx)
 {
-    string expr_finale = visit(ctx->expr());
-    cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {expr_finale});
+    // Visit the left operand and store the result
+    string operandeG = visit(ctx->expr(0));
+    string nameVarTmpG = "tmp" + to_string(symbolTable->size());
+    desc_identifier idG;
+    idG.identifier = nameVarTmpG;
+    idG.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idG);
+    VariableOrConstante(nameVarTmpG, operandeG);
 
-    return 0;
+    // Visit the right operand and store the result
+    string operandeD = visit(ctx->expr(1));
+    string nameVarTmpD = "tmp" + to_string(symbolTable->size());
+    desc_identifier idD;
+    idD.identifier = nameVarTmpD;
+    idD.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idD);
+    VariableOrConstante(nameVarTmpD, operandeD);
+
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::xor_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+    return nameVarTmpG;
 }
 
-void CodeGenVisitor::VariableOrConstante(string name1, string name2) {
-    // pour gérer si on a une constante ou une variable à droite
-    if (symbolTable->getIndex(name2) == -1){
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {name1, name2});
-    }
-    else{
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::copy, INT, {name1, name2});
-    }
+    antlrcpp::Any CodeGenVisitor::visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *ctx)
+{
+    // Visit the left operand and store the result
+    string operandeG = visit(ctx->expr(0));
+    string nameVarTmpG = "tmp" + to_string(symbolTable->size());
+    desc_identifier idG;
+    idG.identifier = nameVarTmpG;
+    idG.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idG);
+    VariableOrConstante(nameVarTmpG, operandeG);
+
+    // Visit the right operand and store the result
+    string operandeD = visit(ctx->expr(1));
+    string nameVarTmpD = "tmp" + to_string(symbolTable->size());
+    desc_identifier idD;
+    idD.identifier = nameVarTmpD;
+    idD.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idD);
+    VariableOrConstante(nameVarTmpD, operandeD);
+
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::or_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+    return nameVarTmpG;
 }
