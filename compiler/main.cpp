@@ -11,7 +11,6 @@
 
 #include "CodeGenVisitor.h"
 #include "IdentifierVisitor.h"
-
 using namespace antlr4;
 using namespace std;
 

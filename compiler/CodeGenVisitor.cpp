@@ -123,11 +123,19 @@ antlrcpp::Any CodeGenVisitor::visitOpUnaire(ifccParser::OpUnaireContext *ctx) {
 
 antlrcpp::Any CodeGenVisitor::visitOpComp(ifccParser::OpCompContext *ctx) {
     std::string opName = ctx->OP->getText();
-    visit(ctx->expr(0));
-    std::cout << "    movl %eax, %ecx\n"; 
 
+    // Evaluate left-hand side and store it in a tmp
+    visit(ctx->expr(0));
+    std::string nameVarTmp = "tmp" + std::to_string(symbolTable->size());
+    desc_identifier id;
+    id.identifier = nameVarTmp;
+    id.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(id);
+    std::cout << "    movl %eax, -" << id.offset << "(%rbp)\n";
+
+    // Evaluate the right-hand side
     visit(ctx->expr(1));
-    std::cout << "    cmpl %eax, %ecx\n";
+    std::cout << "    cmpl %eax, -" << id.offset << "(%rbp)\n"; 
 
     if (opName == "==") {
         std::cout << "    sete %al\n";
