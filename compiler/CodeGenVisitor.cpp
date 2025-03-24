@@ -110,30 +110,35 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
 antlrcpp::Any CodeGenVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ctx) {
     std::string opName = ctx->OP->getText();
     std::string constant = ctx->CONST()->getText();
+    string nameVarTmp = "tmp" + symbolTable->size();
+    desc_identifier id;
+    id.identifier = nameVarTmp;
+    id.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(id);
 
-    int val;
-    if (constant[0] == '\''){
-        val = (int) constant[1];
-    } else {
-        val = stol(constant);
-    }
-    
     if (opName == "-") {
-        std::cout << "    movl $-" << val << ", %eax\n";
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::ldconstneg, INT, {nameVarTmp, constant});
     } else {
-        std::cout << "    movl $" << val << ", %eax\n";
-    }
-        
-    return 0;
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {nameVarTmp, constant});
+    }  
+    return nameVarTmp;
 }
 
 antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
     std::string opName = ctx->OP->getText();
-    visit(ctx->expr());
+    string operande = visit(ctx->expr());
+    string nameVarTmp = "tmp" + symbolTable->size();
+    desc_identifier id;
+    id.identifier = nameVarTmp;
+    id.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(id);
+
     if (opName == "-") {
-        std::cout << "    negl	%eax\n";
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::negexpr, INT, {nameVarTmp, operande});
+    } else {
+        return operande;
     }
-    return 0;
+    return nameVarTmp;
 }
 
 

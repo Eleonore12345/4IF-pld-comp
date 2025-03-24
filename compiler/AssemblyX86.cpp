@@ -21,19 +21,30 @@ void AssemblyX86::generateAssemblyX86()
         {
             IRInstr::Operation op = instr->getOperation();
             vector<string> params = instr->getParams();
-            //switch pour chaque opération
             switch (op){
                 case IRInstr::ldconst :
                     int val;
                     if (params[1][0] == '\'')
                         val = (int) params[1][1];
                     else 
-                        val = stoi(params[1]);
-
+                        val = stol(params[1]);
                     std::cout << "    movl $" << val << ", -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
+                case IRInstr::ldconstneg :
+                    int valNeg;
+                    if (params[1][0] == '\'')
+                        valNeg = (int) params[1][1];
+                    else 
+                        valNeg = stol(params[1]);
+                    std::cout << "    movl $-" << valNeg << ", -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
                     break;
                 case IRInstr::copy :
                     std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                    std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
+                case IRInstr::negexpr :
+                    std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                    std::cout << "    negl	%eax\n";
                     std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
                     break;
                 case IRInstr::add : 

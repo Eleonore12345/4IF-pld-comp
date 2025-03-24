@@ -26,7 +26,9 @@ class IRInstr {
 	Précisez les paramètres et l'ordre pour éviter les embrouilles*/
 	typedef enum {
 		ldconst, // a=4 {a,4}
+		ldconstneg, //a=-2 {a,2}
 		copy, // a=b {a,b}
+		negexpr, // a=-b {a,b}
 		add, // a=b+c {a,b,c}
 		sub, // a=b-c {a,b,c}
 		mul, // a=b*c {a,b,c}
