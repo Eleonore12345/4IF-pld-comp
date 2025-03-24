@@ -13,7 +13,6 @@ void AssemblyX86::generateAssemblyX86()
               << "    pushq %rbp\n"
               << "    movq %rsp, %rbp\n"
               << "\n";
-
     std::cout << "    # body\n";
     vector<BasicBlock *> bbs = cfgX86->get_bbs();
     for (BasicBlock *bb : bbs)
@@ -99,7 +98,6 @@ void AssemblyX86::generateAssemblyX86()
             }
         }
     }
-
     std::cout << "\n"
               << "    # epilogue\n"
               << "    popq %rbp\n";
