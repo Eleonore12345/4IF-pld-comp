@@ -20,7 +20,9 @@ OBJECTS=build/ifccBaseVisitor.o \
 	build/main.o \
 	build/CodeGenVisitor.o \
 	build/IdentifierVisitor.o \
-	build/SymbolTable.o
+	build/SymbolTable.o \
+	build/IR.o \
+	build/AssemblyX86.o
 
 ifcc: $(OBJECTS)
 	@mkdir -p build

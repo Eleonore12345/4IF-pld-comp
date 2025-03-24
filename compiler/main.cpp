@@ -11,6 +11,7 @@
 
 #include "CodeGenVisitor.h"
 #include "IdentifierVisitor.h"
+#include "AssemblyX86.h"
 
 using namespace antlr4;
 using namespace std;
@@ -51,6 +52,7 @@ int main(int argn, const char **argv)
   }
 
   SymbolTable* s = new SymbolTable();
+  CFG * c = new CFG();
 
   IdentifierVisitor i(s);
   i.visit(tree);
@@ -60,9 +62,18 @@ int main(int argn, const char **argv)
     return 1;
   }
 
-  CodeGenVisitor v(s);
+  CodeGenVisitor v(s,c);
   v.visit(tree);
+  //c->afficher_CFG();
 
+  //TODO target en argument
+
+  AssemblyX86 a(c,s);
+  a.generateAssemblyX86();
+
+  //s->print();
+
+  delete c;
   delete s;
   return 0;
 }
