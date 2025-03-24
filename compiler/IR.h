@@ -30,9 +30,9 @@ class IRInstr {
 		add, // a=b+c {a,b,c}
 		sub, // a=b-c {a,b,c}
 		mul, // a=b*c {a,b,c}
-		retour,  // return expr {expr}
 		div, // a=b/c {a,b,c}
 		mod, // a=b%c {a,b,c}
+		retour,  // return expr {expr}
 		rmem,
 		wmem,
 		call, 
