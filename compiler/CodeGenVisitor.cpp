@@ -16,9 +16,7 @@ antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx)
     cfg->add_bb(bb);
     cfg->current_bb = bb;
 
-    visitChildren(ctx);
-
-    return 0;
+    return visitChildren(ctx);
 }
 
 antlrcpp::Any CodeGenVisitor::visitInitDecla(ifccParser::InitDeclaContext * ctx) {
@@ -30,8 +28,7 @@ antlrcpp::Any CodeGenVisitor::visitInitDecla(ifccParser::InitDeclaContext * ctx)
 }
 
 antlrcpp::Any CodeGenVisitor::visitParentheses(ifccParser::ParenthesesContext *ctx) {
-    visitChildren(ctx);
-    return 0;
+    return visit(ctx->expr());
 }
 
 antlrcpp::Any CodeGenVisitor::visitAffectation(ifccParser::AffectationContext *ctx) {
@@ -40,9 +37,7 @@ antlrcpp::Any CodeGenVisitor::visitAffectation(ifccParser::AffectationContext *c
     // pour gérer si on a une constante ou une variable à droite
     VariableOrConstante(ctx->VAR()->getText(), expr_content);
 
-    visitChildren(ctx);
-
-    return 0;
+    return visitChildren(ctx);
 }
 
 antlrcpp::Any CodeGenVisitor::visitVariableSimple(ifccParser::VariableSimpleContext *ctx) {
@@ -104,14 +99,10 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
     std::string op = ctx->OP->getText();
     if(op == "*") {
         cfg->current_bb->add_IRInstr(IRInstr::Operation::mul, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+    } else if(op == "/") {
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::div, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     } else {
-        std::cout << "    movl %eax, %ecx\n";
-        std::cout << "    movl -" << idG.offset << "(%rbp), %eax\n";
-        std::cout << "    cdq" << std::endl;
-        std::cout << "    idivl %ecx\n";
-        if (op == "%") {
-            std::cout << "    movl %edx, %eax\n";
-        }
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::mod, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     }
     return nameVarTmpG;
 }
@@ -139,7 +130,6 @@ antlrcpp::Any CodeGenVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ctx) 
 antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
     std::string opName = ctx->OP->getText();
     visit(ctx->expr());
-
     if (opName == "-") {
         std::cout << "    negl	%eax\n";
     }

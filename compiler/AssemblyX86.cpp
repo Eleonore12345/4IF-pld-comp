@@ -22,71 +22,80 @@ void AssemblyX86::generateAssemblyX86()
         {
             IRInstr::Operation op = instr->getOperation();
             vector<string> params = instr->getParams();
-            // switch pour chaque opération
-            switch (op)
-            {
-            case 0: // ldconst
-
-                // gestion des char
-                int val;
-                if (params[1][0] == '\'')
-                    val = (int)params[1][1];
-                else
-                    val = stoi(params[1]);
-
-                std::cout << "    movl $" << val << ", -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
-                break;
-            case 1: // copy
-                std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
-                std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
-                break;
-            case 2: // add
-                std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
-                std::cout << "    addl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
-                std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
-                break;
-            case 3: // sub
-                std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
-                std::cout << "    subl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
-                std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
-                break;
-            case 4: // mul
-                std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
-                std::cout << "    imull -" << symbolTable->getOffset(params[2]) << "(%rbp)\n";
-                std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
-                break;
-            case 5: // retour
-                if (symbolTable->getIndex(params[0]) != -1)
-                {
-                    std::cout << "    movl -" << symbolTable->getOffset(params[0]) << "(%rbp), %eax\n";
-                }
-                else
-                {
+            //switch pour chaque opération
+            switch (op){
+                case IRInstr::ldconst :
                     int val;
-                    if (params[0][0] == '\'')
-                        val = (int)params[0][1];
-                    else
-                        val = stoi(params[0]);
-                    std::cout << "    movl $" << val << ", %eax\n";
-                }
-                break;
-            case 12: // and_bit
-                std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
-                std::cout << "    andl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
-                std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
-                break;
-            case 13: // or_bit
-                std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
-                std::cout << "    orl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
-                std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
-                break;
-            case 14: // xor_bit
-                std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
-                std::cout << "    xorl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
-                std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
-                break;
-            default:
-                break;
+                    if (params[1][0] == '\'')
+                        val = (int) params[1][1];
+                    else 
+                        val = stoi(params[1]);
+
+                    std::cout << "    movl $" << val << ", -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
+                case IRInstr::copy :
+                    std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                    std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
+                case IRInstr::add : 
+                    std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                    std::cout << "    addl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
+                    std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
+                case IRInstr::sub : 
+                    std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                    std::cout << "    subl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
+                    std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
+                case IRInstr::mul : 
+                    std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                    std::cout << "    imull -" << symbolTable->getOffset(params[2]) << "(%rbp)\n";
+                    std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
+                case IRInstr::div :
+                    std::cout << "    movl -" << symbolTable->getOffset(params[2]) << "(%rbp), %ecx\n";
+                    std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                    std::cout << "    cdq" << std::endl;
+                    std::cout << "    idivl %ecx\n";
+                    std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
+                case IRInstr::mod :
+                    std::cout << "    movl -" << symbolTable->getOffset(params[2]) << "(%rbp), %ecx\n";
+                    std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                    std::cout << "    cdq" << std::endl;
+                    std::cout << "    idivl %ecx\n";
+                    std::cout << "    movl %edx, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
+                case and_bit:
+                  std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                  std::cout << "    andl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
+                  std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                  break;
+              case or_bit:
+                  std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                  std::cout << "    orl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
+                  std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                  break;
+              case xor_bit:
+                  std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                  std::cout << "    xorl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
+                  std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                  break;
+                case IRInstr::retour :
+                    if (symbolTable->getIndex(params[0]) != -1){
+                        std::cout << "    movl -" << symbolTable->getOffset(params[0]) << "(%rbp), %eax\n";
+                    }
+                    else{
+                        int val;
+                        if (params[0][0] == '\'')
+                            val = (int) params[0][1];
+                        else 
+                            val = stoi(params[0]);
+                            std::cout << "    movl $" << val << ", %eax\n";
+                    }
+                    break;
+                default :
+                    break;
             }
         }
     }
