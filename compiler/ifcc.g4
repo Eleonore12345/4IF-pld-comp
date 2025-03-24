@@ -17,6 +17,7 @@ expr : OP=('+'|'-') CONST # opUnConst
     | OP=('+'|'-') expr # opUnExpr
     | expr OP=('*'|'/'|'%') expr # opMultDiv
     | expr OP=('+'|'-') expr # opAddSub
+    | expr OP=('&'|'|'|'^') expr # opBitwise
     | '(' expr ')' # parentheses
     | VAR # variableSimple
     | CONST # constante
