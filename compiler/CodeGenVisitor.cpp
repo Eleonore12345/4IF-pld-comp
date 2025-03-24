@@ -99,14 +99,10 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
     std::string op = ctx->OP->getText();
     if(op == "*") {
         cfg->current_bb->add_IRInstr(IRInstr::Operation::mul, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+    } else if(op == "/") {
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::div, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     } else {
-        std::cout << "    movl %eax, %ecx\n";
-        std::cout << "    movl -" << idG.offset << "(%rbp), %eax\n";
-        std::cout << "    cdq" << std::endl;
-        std::cout << "    idivl %ecx\n";
-        if (op == "%") {
-            std::cout << "    movl %edx, %eax\n";
-        }
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::mod, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     }
     return nameVarTmpG;
 }

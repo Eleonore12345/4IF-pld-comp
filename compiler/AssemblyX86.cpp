@@ -61,6 +61,20 @@ void AssemblyX86::generateAssemblyX86(){
                             std::cout << "    movl $" << val << ", %eax\n";
                     }
                     break;
+                case 6 : //div
+                    std::cout << "    movl -" << symbolTable->getOffset(params[2]) << "(%rbp), %ecx\n";
+                    std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                    std::cout << "    cdq" << std::endl;
+                    std::cout << "    idivl %ecx\n";
+                    std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
+                case 7 : //mod
+                    std::cout << "    movl -" << symbolTable->getOffset(params[2]) << "(%rbp), %ecx\n";
+                    std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
+                    std::cout << "    cdq" << std::endl;
+                    std::cout << "    idivl %ecx\n";
+                    std::cout << "    movl %edx, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    break;
                 default :
                     break;
             }
