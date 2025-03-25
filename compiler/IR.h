@@ -43,11 +43,13 @@ class IRInstr {
 		cmp_le,
 		and_bit,
 		or_bit,
-		xor_bit,
+		xor_bit,		
 		inf,
 		sup,
 		eq,
-		diff
+		diff,
+		functionCall, // a = function(arg1, arg2, ...) {a, function, arg[]}
+
 	} Operation;
 
 

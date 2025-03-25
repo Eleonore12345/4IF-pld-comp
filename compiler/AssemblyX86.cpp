@@ -132,9 +132,20 @@ void AssemblyX86::generateAssemblyX86()
                             std::cout << "    movl $" << val << ", %eax\n";
                     }
                     break;
+                case IRInstr::functionCall:
+                    {
+                        vector<string> registers = {"edi", "esi", "edx", "ecx", "r8", "r9"};
+                        for (int i = 2; i < params.size() ; i++) {
+                            std::cout << "    movl -" << symbolTable->getOffset(params[i]) << "(%rbp), %" << registers[i-2] << "\n";
+                        }
+                        std::cout << "    call " << params[1] << "\n";
+                        std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                        break;
+                    }
                 default :
                     break;
             }
+        
         }
     }
     std::cout << "\n"

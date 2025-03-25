@@ -272,3 +272,60 @@ antlrcpp::Any CodeGenVisitor::visitOpComp(ifccParser::OpCompContext *ctx) {
     }
     return nameVarTmp;
 }
+
+antlrcpp::Any CodeGenVisitor::visitExpression(ifccParser::ExpressionContext *ctx)
+{
+    return visit(ctx->expr());
+}
+                
+antlrcpp::Any CodeGenVisitor::visitFunctionCall(ifccParser::FunctionCallContext *ctx) 
+{
+    std::string fctName = ctx->VAR()->getText();
+    vector<string> argNames = visit(ctx->args());
+
+    map<string, int> argsStdFct;
+    argsStdFct["putchar"] = 1;
+    argsStdFct["getchar"] = 0;
+
+
+    if (argsStdFct.find(fctName) != argsStdFct.end() && argNames.size() != argsStdFct.at(fctName)) {
+        std::string erreur;
+        if (argNames.size() > argsStdFct.at(fctName)) {
+            erreur =  "too many arguments to function '" + fctName + "'\n";
+        } else {
+            erreur =  "too few arguments to function '" + fctName + "'\n";
+        }
+        throw std::runtime_error(erreur);
+    }
+    
+    argNames.insert(argNames.begin(), fctName);
+
+    string nameVarTmp = "tmp" + symbolTable->size();
+    desc_identifier idD;
+    idD.identifier = nameVarTmp;
+    idD.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idD);
+
+    argNames.insert(argNames.begin(), nameVarTmp);
+
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::functionCall, INT, argNames);
+
+    return nameVarTmp;
+}
+
+antlrcpp::Any CodeGenVisitor::visitNoArg(ifccParser::NoArgContext *ctx)
+{
+    vector<string> argNames;
+    return argNames;
+}
+                
+antlrcpp::Any CodeGenVisitor::visitWithArgs(ifccParser::WithArgsContext *ctx)
+{
+    int size = ctx->expr().size();
+    vector<string> argNames;
+    for (int i = 0 ; i < size ; i++) {
+        string varTmpName = visit(ctx->expr(i));
+        argNames.push_back(varTmpName);
+    }
+    return argNames;
+}

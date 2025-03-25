@@ -173,6 +173,15 @@ for jobname in jobs:
 
     print('TEST-CASE: '+jobname)
     os.chdir(jobname)
+
+    replace_stdin = ""
+
+    with open("input.c", 'r') as file:
+            for line in file:
+                if "getchar" in line:
+                    with open("input.txt", "w") as f:
+                        f.write("a")
+                        replace_stdin = " < input.txt"
     
     ## Reference compiler = GCC
     gccstatus=command("gcc -S -o asm-gcc.s input.c", "gcc-compile.txt")
@@ -180,7 +189,7 @@ for jobname in jobs:
         # test-case is a valid program. we should run it
         gccstatus=command("gcc -o exe-gcc asm-gcc.s", "gcc-link.txt")
     if gccstatus == 0: # then both compile and link stage went well
-        exegccstatus=command("./exe-gcc", "gcc-execute.txt")
+        exegccstatus=command("./exe-gcc" + replace_stdin, "gcc-execute.txt")
         if args.verbose >=2:
             dumpfile("gcc-execute.txt")
             
@@ -213,7 +222,7 @@ for jobname in jobs:
     ## both compilers  did produce an  executable, so now we  run both
     ## these executables and compare the results.
         
-    command("./exe-ifcc","ifcc-execute.txt")
+    command("./exe-ifcc" + replace_stdin,"ifcc-execute.txt")
     if open("gcc-execute.txt").read() != open("ifcc-execute.txt").read() :
         print(RED_BG+"TEST FAIL"+RESET_COLOR+RED_FG+"(different results at execution)"+RESET_COLOR)
         if args.verbose:
