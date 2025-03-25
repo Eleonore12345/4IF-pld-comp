@@ -167,6 +167,22 @@ antlrcpp::Any CodeGenVisitor::visitFunctionCall(ifccParser::FunctionCallContext 
 {
     std::string fctName = ctx->VAR()->getText();
     vector<string> argNames = visit(ctx->args());
+
+    map<string, int> argsStdFct;
+    argsStdFct["putchar"] = 1;
+    argsStdFct["getchar"] = 0;
+
+
+    if (argsStdFct.find(fctName) != argsStdFct.end() && argNames.size() != argsStdFct.at(fctName)) {
+        std::string erreur;
+        if (argNames.size() > argsStdFct.at(fctName)) {
+            erreur =  "too many arguments to function '" + fctName + "'\n";
+        } else {
+            erreur =  "too few arguments to function '" + fctName + "'\n";
+        }
+        throw std::runtime_error(erreur);
+    }
+    
     argNames.insert(argNames.begin(), fctName);
 
     string nameVarTmp = "tmp" + symbolTable->size();
