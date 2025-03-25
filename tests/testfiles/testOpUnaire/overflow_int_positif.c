@@ -1,4 +1,4 @@
 int main() {
-    int a = (1==2);
+    int a = +2147483649;
     return a;
 }

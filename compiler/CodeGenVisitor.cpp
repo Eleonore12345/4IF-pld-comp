@@ -233,6 +233,86 @@ antlrcpp::Any CodeGenVisitor::visitOpBitwiseXor(ifccParser::OpBitwiseXorContext 
     return nameVarTmpG;
 }
 
+antlrcpp::Any CodeGenVisitor::visitOpComp(ifccParser::OpCompContext *ctx) {
+    std::string opName = ctx->OP->getText();
+
+    // Evaluate left-hand side and store it in a tmp
+    string operandeG = visit(ctx->expr(0));
+    std::string nameVarTmpG = "tmp" + std::to_string(symbolTable->size());
+    desc_identifier idG;
+    idG.identifier = nameVarTmpG;
+    idG.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idG);
+    VariableOrConstante(nameVarTmpG, operandeG);
+
+    // Evaluate the right-hand side and store it in a tmp
+    string operandeD = visit(ctx->expr(1));
+    std::string nameVarTmpD = "tmp" + std::to_string(symbolTable->size());
+
+    desc_identifier idD;
+    idD.identifier = nameVarTmpD;
+    idD.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idD);
+    VariableOrConstante(nameVarTmpD, operandeD);
+
+    std::string nameVarTmp = "tmp" + std::to_string(symbolTable->size());
+    desc_identifier idR;
+    idR.identifier = nameVarTmp;
+    idR.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idR);
+
+    if (opName == "==") {
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::eq, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
+    } else if (opName == "!=") {
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::diff, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
+    } else if (opName == "<") {
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::inf, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
+    } else if (opName == ">") {
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::sup, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
+    }
+    return nameVarTmp;
+}
+
+antlrcpp::Any CodeGenVisitor::visitOpComp(ifccParser::OpCompContext *ctx) {
+    std::string opName = ctx->OP->getText();
+
+    // Evaluate left-hand side and store it in a tmp
+    string operandeG = visit(ctx->expr(0));
+    std::string nameVarTmpG = "tmp" + std::to_string(symbolTable->size());
+    desc_identifier idG;
+    idG.identifier = nameVarTmpG;
+    idG.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idG);
+    VariableOrConstante(nameVarTmpG, operandeG);
+
+    // Evaluate the right-hand side and store it in a tmp
+    string operandeD = visit(ctx->expr(1));
+    std::string nameVarTmpD = "tmp" + std::to_string(symbolTable->size());
+
+    desc_identifier idD;
+    idD.identifier = nameVarTmpD;
+    idD.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idD);
+    VariableOrConstante(nameVarTmpD, operandeD);
+
+    std::string nameVarTmp = "tmp" + std::to_string(symbolTable->size());
+    desc_identifier idR;
+    idR.identifier = nameVarTmp;
+    idR.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idR);
+
+    if (opName == "==") {
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::eq, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
+    } else if (opName == "!=") {
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::diff, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
+    } else if (opName == "<") {
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::inf, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
+    } else if (opName == ">") {
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::sup, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
+    }
+    return nameVarTmp;
+}
+
 
 antlrcpp::Any CodeGenVisitor::visitExpression(ifccParser::ExpressionContext *ctx)
 {
