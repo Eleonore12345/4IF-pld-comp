@@ -4,4 +4,4 @@ ifcc
 *.mk
 tests/ifcc-test-output
 test.c
-settings.json
+.vscode
