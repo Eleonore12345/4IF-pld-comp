@@ -47,7 +47,7 @@ class IRInstr {
 		inf,
 		sup,
 		eq,
-		diff
+		diff,
 		functionCall, // a = function(arg1, arg2, ...) {a, function, arg[]}
 
 	} Operation;
