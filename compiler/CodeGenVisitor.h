@@ -27,6 +27,7 @@ class  CodeGenVisitor : public ifccBaseVisitor {
                 virtual antlrcpp::Any visitOpBitwiseAnd(ifccParser::OpBitwiseAndContext *ctx) override;
                 virtual antlrcpp::Any visitOpBitwiseXor(ifccParser::OpBitwiseXorContext *ctx) override;
                 virtual antlrcpp::Any visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *ctx) override;
+                virtual antlrcpp::Any visitOpComp(ifccParser::OpCompContext *ctx) override;
 
                 void VariableOrConstante(string name1, string name2);
         private :
