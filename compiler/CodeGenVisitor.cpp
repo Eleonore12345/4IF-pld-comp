@@ -99,14 +99,10 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
     std::string op = ctx->OP->getText();
     if(op == "*") {
         cfg->current_bb->add_IRInstr(IRInstr::Operation::mul, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+    } else if(op == "/") {
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::div, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     } else {
-        std::cout << "    movl %eax, %ecx\n";
-        std::cout << "    movl -" << idG.offset << "(%rbp), %eax\n";
-        std::cout << "    cdq" << std::endl;
-        std::cout << "    idivl %ecx\n";
-        if (op == "%") {
-            std::cout << "    movl %edx, %eax\n";
-        }
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::mod, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     }
     return nameVarTmpG;
 }
@@ -114,31 +110,38 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
 antlrcpp::Any CodeGenVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ctx) {
     std::string opName = ctx->OP->getText();
     std::string constant = ctx->CONST()->getText();
+    string nameVarTmp = "tmp" + symbolTable->size();
+    desc_identifier id;
+    id.identifier = nameVarTmp;
+    id.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(id);
 
-    int val;
-    if (constant[0] == '\''){
-        val = (int) constant[1];
-    } else {
-        val = stol(constant);
-    }
-    
     if (opName == "-") {
-        std::cout << "    movl $-" << val << ", %eax\n";
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::ldconstneg, INT, {nameVarTmp, constant});
     } else {
-        std::cout << "    movl $" << val << ", %eax\n";
-    }
-        
-    return 0;
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {nameVarTmp, constant});
+    }  
+    return nameVarTmp;
 }
 
 antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
     std::string opName = ctx->OP->getText();
-    visit(ctx->expr());
+    string operande = visit(ctx->expr());
+    string nameVarTmp = "tmp" + symbolTable->size();
+    desc_identifier id;
+    id.identifier = nameVarTmp;
+    id.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(id);
+
     if (opName == "-") {
-        std::cout << "    negl	%eax\n";
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::negexpr, INT, {nameVarTmp, operande});
+    } else {
+        return operande;
     }
-    return 0;
+    return nameVarTmp;
 }
+
+
 
 antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)
 {
@@ -157,6 +160,79 @@ void CodeGenVisitor::VariableOrConstante(string name1, string name2) {
         cfg->current_bb->add_IRInstr(IRInstr::Operation::copy, INT, {name1, name2});
     }
 }
+
+antlrcpp::Any CodeGenVisitor::visitOpBitwiseAnd(ifccParser::OpBitwiseAndContext *ctx)
+{
+    // Visit the left operand and store the result
+    string operandeG = visit(ctx->expr(0));
+    string nameVarTmpG = "tmp" + to_string(symbolTable->size());
+    desc_identifier idG;
+    idG.identifier = nameVarTmpG;
+    idG.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idG);
+    VariableOrConstante(nameVarTmpG, operandeG);
+
+    // Visit the right operand and store the result
+    string operandeD = visit(ctx->expr(1));
+    string nameVarTmpD = "tmp" + to_string(symbolTable->size());
+    desc_identifier idD;
+    idD.identifier = nameVarTmpD;
+    idD.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idD);
+    VariableOrConstante(nameVarTmpD, operandeD);
+
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::and_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+    return nameVarTmpG;
+}
+
+antlrcpp::Any CodeGenVisitor::visitOpBitwiseXor(ifccParser::OpBitwiseXorContext *ctx)
+{
+    // Visit the left operand and store the result
+    string operandeG = visit(ctx->expr(0));
+    string nameVarTmpG = "tmp" + to_string(symbolTable->size());
+    desc_identifier idG;
+    idG.identifier = nameVarTmpG;
+    idG.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idG);
+    VariableOrConstante(nameVarTmpG, operandeG);
+
+    // Visit the right operand and store the result
+    string operandeD = visit(ctx->expr(1));
+    string nameVarTmpD = "tmp" + to_string(symbolTable->size());
+    desc_identifier idD;
+    idD.identifier = nameVarTmpD;
+    idD.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idD);
+    VariableOrConstante(nameVarTmpD, operandeD);
+
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::xor_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+    return nameVarTmpG;
+}
+
+    antlrcpp::Any CodeGenVisitor::visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *ctx)
+{
+    // Visit the left operand and store the result
+    string operandeG = visit(ctx->expr(0));
+    string nameVarTmpG = "tmp" + to_string(symbolTable->size());
+    desc_identifier idG;
+    idG.identifier = nameVarTmpG;
+    idG.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idG);
+    VariableOrConstante(nameVarTmpG, operandeG);
+
+    // Visit the right operand and store the result
+    string operandeD = visit(ctx->expr(1));
+    string nameVarTmpD = "tmp" + to_string(symbolTable->size());
+    desc_identifier idD;
+    idD.identifier = nameVarTmpD;
+    idD.offset = (symbolTable->size() + 1) * 4;
+    symbolTable->addIdentifier(idD);
+    VariableOrConstante(nameVarTmpD, operandeD);
+
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::or_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+    return nameVarTmpG;
+}
+
 
 antlrcpp::Any CodeGenVisitor::visitExpression(ifccParser::ExpressionContext *ctx)
 {

@@ -26,10 +26,14 @@ class IRInstr {
 	Précisez les paramètres et l'ordre pour éviter les embrouilles*/
 	typedef enum {
 		ldconst, // a=4 {a,4}
+		ldconstneg, //a=-2 {a,2}
 		copy, // a=b {a,b}
+		negexpr, // a=-b {a,b}
 		add, // a=b+c {a,b,c}
 		sub, // a=b-c {a,b,c}
 		mul, // a=b*c {a,b,c}
+		div, // a=b/c {a,b,c}
+		mod, // a=b%c {a,b,c}
 		retour,  // return expr {expr}
 		rmem,
 		wmem,
@@ -37,6 +41,9 @@ class IRInstr {
 		cmp_eq,
 		cmp_lt,
 		cmp_le,
+		and_bit,
+		or_bit,
+		xor_bit,		
 		functionCall, // a = function(arg1, arg2, ...) {a, function, arg[]}
 
 	} Operation;
