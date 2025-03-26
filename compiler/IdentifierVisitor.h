@@ -4,10 +4,11 @@
 #include "antlr4-runtime.h"
 #include "generated/ifccBaseVisitor.h"
 #include "SymbolTable.h"
+#include "FunctionTable.h"
 
 class  IdentifierVisitor : public ifccBaseVisitor {
 	public:
-                IdentifierVisitor(SymbolTable* symboleTable, map<string,int> * fonctionsDef);
+                IdentifierVisitor(SymbolTable* symboleTable, FunctionTable * functionTable);
                 virtual ~IdentifierVisitor(){};
                 bool getError();
                 virtual antlrcpp::Any visitAxiom(ifccParser::AxiomContext *ctx) override;
@@ -23,6 +24,6 @@ class  IdentifierVisitor : public ifccBaseVisitor {
 
         private:
                 SymbolTable* symTable;
-                map<string,int> * fonctionsDefined;
+                FunctionTable * funcTable;
                 bool error;
 };

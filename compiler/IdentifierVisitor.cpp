@@ -1,10 +1,10 @@
 #include "IdentifierVisitor.h"
 #include <iostream>
 
-IdentifierVisitor::IdentifierVisitor(SymbolTable* symboleTable, map<string,int> * fonctionsDef) : ifccBaseVisitor()
+IdentifierVisitor::IdentifierVisitor(SymbolTable* symboleTable, FunctionTable * functionTable) : ifccBaseVisitor()
 {
     symTable = symboleTable;
-    fonctionsDefined = fonctionsDef;
+    funcTable = functionTable;
     error = false;
 }
 
@@ -83,7 +83,7 @@ antlrcpp::Any IdentifierVisitor::visitConstante(ifccParser::ConstanteContext *ct
 
 antlrcpp::Any IdentifierVisitor::visitFunctionCall(ifccParser::FunctionCallContext *ctx) {
     std::string funcName = ctx->VAR()->getText();
-    if(fonctionsDefined->find(funcName) == fonctionsDefined->end()) {
+    if(!funcTable->isDefined(funcName)) {
         std::cerr << "WARNING : implicit declaration of function " << funcName << std::endl;
     }
     return visitChildren(ctx);
@@ -92,7 +92,7 @@ antlrcpp::Any IdentifierVisitor::visitFunctionCall(ifccParser::FunctionCallConte
 antlrcpp::Any IdentifierVisitor::visitAxiom(ifccParser::AxiomContext *ctx)
 {
     visitChildren(ctx);
-    if(fonctionsDefined->find("main") == fonctionsDefined->end()) {
+    if(!funcTable->isDefined("main")) {
         std::string erreur = "undefined reference to main\n";
         throw std::runtime_error(erreur);
         error = true;
@@ -105,7 +105,11 @@ antlrcpp::Any IdentifierVisitor::visitAxiom(ifccParser::AxiomContext *ctx)
 antlrcpp::Any IdentifierVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     std::string funcName = ctx->VAR()->getText();
     int nbParams = visit(ctx->params());
-    (*fonctionsDefined)[funcName] = nbParams;
+    function_identifier f;
+    f.functionName = funcName;
+    f.nbParams = nbParams;
+    f.def = true;
+    funcTable->addFunction(f);
     return visitChildren(ctx);
 }
 

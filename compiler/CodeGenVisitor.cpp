@@ -3,11 +3,11 @@
 
 using namespace std;
 
-CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable, CFG* c, map<string,int> * fonctionsDef) : ifccBaseVisitor()
+CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable, CFG* c, FunctionTable * functionTable) : ifccBaseVisitor()
 {
     symbolTable = symboleTable;
     cfg = c;
-    fonctionsDefined = fonctionsDef;
+    funcTable = functionTable;
 }
 
 antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx) 
@@ -295,9 +295,9 @@ antlrcpp::Any CodeGenVisitor::visitFunctionCall(ifccParser::FunctionCallContext 
     std::string fctName = ctx->VAR()->getText();
     vector<string> argNames = visit(ctx->args());
 
-    if (fonctionsDefined->find(fctName) != fonctionsDefined->end() && argNames.size() != fonctionsDefined->at(fctName)) {
+    if (funcTable->isDefined(fctName) && argNames.size() != funcTable->getNbParams(fctName)) {
         std::string erreur;
-        if (argNames.size() > fonctionsDefined->at(fctName)) {
+        if (argNames.size() > funcTable->getNbParams(fctName)) {
             erreur =  "too many arguments to function '" + fctName + "'\n";
         } else {
             erreur =  "too few arguments to function '" + fctName + "'\n";
