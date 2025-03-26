@@ -330,12 +330,12 @@ antlrcpp::Any CodeGenVisitor::visitNoArg(ifccParser::NoArgContext *ctx)
 antlrcpp::Any CodeGenVisitor::visitWithArgs(ifccParser::WithArgsContext *ctx)
 {
     int size = ctx->expr().size();
-    vector<string> argNames;
+    vector<string> args;
     for (int i = 0 ; i < size ; i++) {
-        string varTmpName = visit(ctx->expr(i));
-        argNames.push_back(varTmpName);
+        string arg = visit(ctx->expr(i));
+        args.push_back(arg);
     }
-    return argNames;
+    return args;
 }
 
 antlrcpp::Any CodeGenVisitor::visitNoParam(ifccParser::NoParamContext *ctx)

@@ -90,35 +90,47 @@ int SymbolTable::size()
 
 int SymbolTable::getIndex(string name) 
 {
-    for (int i = 0 ; i < currentScope->vect.size() ; i++)
-    {
-        if ((currentScope->vect)[i].identifier == name) 
+    scopeNode* scope = currentScope;
+    while (scope != nullptr){
+        for (int i = 0 ; i < scope->vect.size() ; i++)
         {
-            return i;
+            if ((scope->vect)[i].identifier == name) 
+            {
+                return i;
+            }
         }
+        scope = scope->parent;
     }
     return -1;
 }
 
 int SymbolTable::getOffset(string name)
 {
-    for(int i = 0 ; i < currentScope->vect.size() ; i++)
-    {
-        if ((currentScope->vect)[i].identifier == name) 
+    scopeNode* scope = currentScope;
+    while (scope != nullptr){
+        for(int i = 0 ; i < scope->vect.size() ; i++)
         {
-            return (currentScope->vect)[i].offset;
+            if ((scope->vect)[i].identifier == name) 
+            {
+                return (scope->vect)[i].offset;
+            }
         }
+        scope = scope->parent;
     }
     return -1;
 }
 
 int SymbolTable::getInitStatus(string name) {
-    for(int i = 0 ; i < currentScope->vect.size() ; i++)
-    {
-        if ((currentScope->vect)[i].identifier == name) 
+    scopeNode* scope = currentScope;
+    while (scope != nullptr){
+        for(int i = 0 ; i < scope->vect.size() ; i++)
         {
-            return (currentScope->vect)[i].init;
+            if ((scope->vect)[i].identifier == name) 
+            {
+                return (scope->vect)[i].init;
+            }
         }
+        scope = scope->parent;
     }
     return -1;
 }

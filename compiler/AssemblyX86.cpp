@@ -130,10 +130,13 @@ void AssemblyX86::generateAssemblyX86()
                     break;
                 case IRInstr::functionCall :
                 {
-                    vector<string> registers = {"edi", "esi", "edx", "ecx", "r8", "r9"};
-                    //symbolTable->printCurrentScope();
+                    vector<string> registers = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
                     for (int i = 2; i < params.size() ; i++) {
-                        std::cout << "    movl -" << symbolTable->getOffset(params[i]) << "(%rbp), %" << registers[i-2] << "\n";
+                        if(symbolTable->getOffset(params[i]) == -1) {
+                            std::cout << "    movl $" << params[i] << ", %" << registers[i-2] << "\n";
+                        } else {
+                            std::cout << "    movl -" << symbolTable->getOffset(params[i]) << "(%rbp), %" << registers[i-2] << "\n";
+                        }
                     }
                     std::cout << "    call " << params[1] << "\n";
                     std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
@@ -148,7 +151,7 @@ void AssemblyX86::generateAssemblyX86()
                         << "    movq %rsp, %rbp\n"
                         << "\n";
                     std::cout << "    # body\n";
-                    vector<string> registers = {"edi", "esi", "edx", "ecx", "r8", "r9"};
+                    vector<string> registers = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
                     for (int i = 1; i < params.size() ; i++) {
                         std::cout << "    movl %" << registers[i-1] <<", -" << symbolTable->getOffset(params[i]) << "(%rbp)\n";
                     }
