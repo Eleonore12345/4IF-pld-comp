@@ -131,6 +131,8 @@ void AssemblyX86::generateAssemblyX86()
                             val = stoi(params[0]);
                             std::cout << "    movl $" << val << ", %eax\n";
                     }
+                    std::cout << "\n" << "    # epilogue\n" << "    movq %rbp, %rsp\n" << "    popq %rbp\n";
+                    std::cout << "    ret\n";
                     break;
                 case IRInstr::functionCall:
                     {
@@ -148,8 +150,4 @@ void AssemblyX86::generateAssemblyX86()
         
         }
     }
-    std::cout << "\n"
-              << "    # epilogue\n"
-              << "    popq %rbp\n";
-    std::cout << "    ret\n";
 }

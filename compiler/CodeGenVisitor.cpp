@@ -209,7 +209,7 @@ antlrcpp::Any CodeGenVisitor::visitOpBitwiseXor(ifccParser::OpBitwiseXorContext 
     return nameVarTmpG;
 }
 
-    antlrcpp::Any CodeGenVisitor::visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *ctx)
+antlrcpp::Any CodeGenVisitor::visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *ctx)
 {
     // Visit the left operand and store the result
     string operandeG = visit(ctx->expr(0));
