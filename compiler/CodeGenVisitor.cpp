@@ -277,6 +277,17 @@ antlrcpp::Any CodeGenVisitor::visitExpression(ifccParser::ExpressionContext *ctx
 {
     return visit(ctx->expr());
 }
+
+antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
+    std::string fctName = ctx->VAR()->getText();
+    vector<string> paramNames = visit(ctx->params());
+
+    paramNames.insert(paramNames.begin(), fctName);
+
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::functionDef, INT, paramNames);
+
+    return visitChildren(ctx);
+}
                 
 antlrcpp::Any CodeGenVisitor::visitFunctionCall(ifccParser::FunctionCallContext *ctx) 
 {
@@ -328,4 +339,21 @@ antlrcpp::Any CodeGenVisitor::visitWithArgs(ifccParser::WithArgsContext *ctx)
         argNames.push_back(varTmpName);
     }
     return argNames;
+}
+
+antlrcpp::Any CodeGenVisitor::visitNoParam(ifccParser::NoParamContext *ctx)
+{
+    vector<string> paramNames;
+    return paramNames;
+}
+                
+antlrcpp::Any CodeGenVisitor::visitWithParams(ifccParser::WithParamsContext *ctx)
+{
+    int size = ctx->expr().size();
+    vector<string> paramNames;
+    for (int i = 0 ; i < size ; i++) {
+        string varTmpName = visit(ctx->expr(i));
+        paramNames.push_back(varTmpName);
+    }
+    return paramNames;
 }

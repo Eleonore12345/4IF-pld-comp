@@ -2,9 +2,9 @@ grammar ifcc;
 
 axiom : prog EOF ;
 
-prog : defFunc* 'int' 'main' '(' ')' '{' instr* '}' ;
+prog : defFunc*;
 
-defFunc : TYPE VAR '(' params')' '{' instr* '}' ;
+defFunc : TYPE VAR '(' params ')' '{' instr* '}' ;
 
 instr : decla ';' # declaration
     | VAR '=' expr ';' # affectation
