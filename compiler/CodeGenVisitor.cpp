@@ -3,10 +3,11 @@
 
 using namespace std;
 
-CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable, CFG* c) : ifccBaseVisitor()
+CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable, CFG* c, map<string,int> * fonctionsDef) : ifccBaseVisitor()
 {
     symbolTable = symboleTable;
     cfg = c;
+    fonctionsDefined = fonctionsDef;
 }
 
 antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx) 

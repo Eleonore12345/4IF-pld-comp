@@ -51,10 +51,15 @@ int main(int argn, const char **argv)
       exit(1);
   }
 
+  // Map répertoriant les fonctions définies avec leur nombre d'arguments
+  map<string, int> fonctionsDefined;
+  fonctionsDefined["putchar"] = 1;
+  fonctionsDefined["getchar"] = 0;
+  // Table de symboles pour les variables
   SymbolTable* s = new SymbolTable();
   CFG * c = new CFG();
 
-  IdentifierVisitor i(s);
+  IdentifierVisitor i(s,&fonctionsDefined);
   i.visit(tree);
 
   if (i.getError()) {
@@ -62,7 +67,7 @@ int main(int argn, const char **argv)
     return 1;
   }
 
-  CodeGenVisitor v(s,c);
+  CodeGenVisitor v(s,c,&fonctionsDefined);
   v.visit(tree);
   //c->afficher_CFG();
 
