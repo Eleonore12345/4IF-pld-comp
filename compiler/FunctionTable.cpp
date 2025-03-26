@@ -1,4 +1,5 @@
 #include "FunctionTable.h"
+#include <stdexcept>
 
 FunctionTable::FunctionTable() {
     function_identifier f1;
@@ -54,4 +55,23 @@ bool FunctionTable::isDefined(string name) {
         return vect[index].def;
     }
     return false;
+}
+
+bool FunctionTable::isPresent(string name) {
+    int index = getIndex(name);
+    if (index != -1) {
+        return true;
+    }
+    return false;
+}
+
+void FunctionTable::checkIfEachFuncDefined() {
+    for (auto a : vect)
+    {
+        if (a.def == false) 
+        {
+            std::string erreur = "undefined reference to " + a.functionName + "\n";
+            throw std::runtime_error(erreur);
+        }
+    }
 }

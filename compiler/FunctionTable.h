@@ -20,6 +20,8 @@ class FunctionTable {
         int getIndex(string name); 
         int getNbParams(string name);
         bool isDefined(string name);
+        bool isPresent(string name);
+        void checkIfEachFuncDefined();
 
     private:
         vector<function_identifier> vect;
