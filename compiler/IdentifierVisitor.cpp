@@ -140,13 +140,18 @@ antlrcpp::Any IdentifierVisitor::visitNoParam(ifccParser::NoParamContext *ctx)
 antlrcpp::Any IdentifierVisitor::visitWithParams(ifccParser::WithParamsContext *ctx)
 {
     int size = ctx->VAR().size();
-    for(int i = 0; i < size; i++) {
-        string varName = ctx->VAR(i)->getText();
-        desc_identifier id;
-        id.identifier = varName;
-        id.offset = (symTable->size() + 1) * 4;
-        id.init = true;
-        symTable->addIdentifier(id);
+    if(size > 6) {
+        std::string erreur = "Fonctions avec plus de 6 paramètres non implémentées\n";
+        throw std::runtime_error(erreur);
+    } else {
+        for(int i = 0; i < size; i++) {
+            string varName = ctx->VAR(i)->getText();
+            desc_identifier id;
+            id.identifier = varName;
+            id.offset = (symTable->size() + 1) * 4;
+            id.init = true;
+            symTable->addIdentifier(id);
+        }
     }
     return size;
 }

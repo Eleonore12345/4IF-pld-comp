@@ -39,7 +39,7 @@ antlrcpp::Any CodeGenVisitor::visitAffectation(ifccParser::AffectationContext *c
     // pour gérer si on a une constante ou une variable à droite
     VariableOrConstante(ctx->VAR()->getText(), expr_content);
 
-    return visitChildren(ctx);
+    return 0;
 }
 
 antlrcpp::Any CodeGenVisitor::visitVariableSimple(ifccParser::VariableSimpleContext *ctx) {
