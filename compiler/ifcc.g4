@@ -31,7 +31,7 @@ expr : VAR '(' args ')' # functionCall
     ;
 
 params : # noParam
-    | TYPE expr (',' TYPE expr)* # withParams
+    | TYPE VAR (',' TYPE VAR)* # withParams
     ;
 
 args : # noArg

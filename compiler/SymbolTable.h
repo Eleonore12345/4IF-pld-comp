@@ -12,11 +12,19 @@ typedef struct {
     bool init = false;
 } desc_identifier;
 
+typedef struct scopeNode {
+    string nameScope;
+    vector<desc_identifier> vect;
+    scopeNode* parent;
+    vector<scopeNode*> children;
+} scopeNode;
+
 class SymbolTable {
     public:
-        SymbolTable(){};
-        virtual ~SymbolTable(){};
+        SymbolTable();
+        virtual ~SymbolTable();
         void print();
+        void printCurrentScope();
         int size();
         void addIdentifier(desc_identifier id);
         int getIndex(string name);
@@ -26,7 +34,17 @@ class SymbolTable {
         void setInit(string name);
         void checkIfEachIdUsed();
         void checkIfEachIdInit();
+        void createAndEnterScope(string name);
+        void enterScope(string name);
+        void leaveScope();
+        void rootToCurrent();
 
     private:
-        vector<desc_identifier> vect;
+        void printScope(scopeNode* scope, int level);
+        void checkIfEachIdUsedInScope(scopeNode* scope);
+        void checkIfEachIdInitInScope(scopeNode* scope);
+        void freeScopes(scopeNode* scope);
+
+        scopeNode * rootScope;
+        scopeNode * currentScope;
 };

@@ -6,6 +6,7 @@ using namespace std;
 CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable, CFG* c, FunctionTable * functionTable) : ifccBaseVisitor()
 {
     symbolTable = symboleTable;
+    symbolTable->rootToCurrent();
     cfg = c;
     funcTable = functionTable;
 }
@@ -141,8 +142,6 @@ antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
     }
     return nameVarTmp;
 }
-
-
 
 antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)
 {
@@ -281,13 +280,15 @@ antlrcpp::Any CodeGenVisitor::visitExpression(ifccParser::ExpressionContext *ctx
 
 antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     std::string fctName = ctx->VAR()->getText();
+    symbolTable->enterScope(fctName);
     vector<string> paramNames = visit(ctx->params());
 
     paramNames.insert(paramNames.begin(), fctName);
 
     cfg->current_bb->add_IRInstr(IRInstr::Operation::functionDef, INT, paramNames);
-
-    return visitChildren(ctx);
+    visitChildren(ctx);
+    symbolTable->leaveScope();
+    return 0;
 }
                 
 antlrcpp::Any CodeGenVisitor::visitFunctionCall(ifccParser::FunctionCallContext *ctx) 
@@ -345,11 +346,11 @@ antlrcpp::Any CodeGenVisitor::visitNoParam(ifccParser::NoParamContext *ctx)
                 
 antlrcpp::Any CodeGenVisitor::visitWithParams(ifccParser::WithParamsContext *ctx)
 {
-    int size = ctx->expr().size();
+    int size = ctx->VAR().size();
     vector<string> paramNames;
     for (int i = 0 ; i < size ; i++) {
-        string varTmpName = visit(ctx->expr(i));
-        paramNames.push_back(varTmpName);
+        string varName = ctx->VAR(i)->getText();
+        paramNames.push_back(varName);
     }
     return paramNames;
 }

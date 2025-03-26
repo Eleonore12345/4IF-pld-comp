@@ -121,15 +121,17 @@ void AssemblyX86::generateAssemblyX86()
                         if (params[0][0] == '\'')
                             val = (int) params[0][1];
                         else 
-                            val = stoi(params[0]);
+                            val = stol(params[0]);
                             std::cout << "    movl $" << val << ", %eax\n";
                     }
                     std::cout << "\n" << "    # epilogue\n" << "    movq %rbp, %rsp\n" << "    popq %rbp\n";
                     std::cout << "    ret\n";
+                    symbolTable->leaveScope();
                     break;
                 case IRInstr::functionCall :
                 {
                     vector<string> registers = {"edi", "esi", "edx", "ecx", "r8", "r9"};
+                    //symbolTable->printCurrentScope();
                     for (int i = 2; i < params.size() ; i++) {
                         std::cout << "    movl -" << symbolTable->getOffset(params[i]) << "(%rbp), %" << registers[i-2] << "\n";
                     }
@@ -139,12 +141,17 @@ void AssemblyX86::generateAssemblyX86()
                 }
                 case IRInstr::functionDef :
                 {
+                    symbolTable->enterScope(params[0]);
                     std::cout << params[0] << ":" << std::endl;
                     std::cout << "    # prologue\n"
                         << "    pushq %rbp\n"
                         << "    movq %rsp, %rbp\n"
                         << "\n";
                     std::cout << "    # body\n";
+                    vector<string> registers = {"edi", "esi", "edx", "ecx", "r8", "r9"};
+                    for (int i = 1; i < params.size() ; i++) {
+                        std::cout << "    movl %" << registers[i-1] <<", -" << symbolTable->getOffset(params[i]) << "(%rbp)\n";
+                    }
                 }
                 default :
                     break;

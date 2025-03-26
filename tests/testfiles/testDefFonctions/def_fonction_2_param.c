@@ -3,5 +3,7 @@ int addition(int a, int b) {
 }
 
 int main() {
-    return addition(2,3);
+    int x = 2;
+    int y = 3;
+    return addition(x,y);
 }

@@ -114,6 +114,7 @@ antlrcpp::Any IdentifierVisitor::visitAxiom(ifccParser::AxiomContext *ctx)
 
 antlrcpp::Any IdentifierVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     std::string funcName = ctx->VAR()->getText();
+    symTable->createAndEnterScope(funcName);
     int nbParams = visit(ctx->params());
     if(!funcTable->isPresent(funcName)) {
         function_identifier f;
@@ -123,8 +124,12 @@ antlrcpp::Any IdentifierVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) 
         funcTable->addFunction(f);
     } else {
         funcTable->setDef(funcName);
-    }    
-    return visitChildren(ctx);
+    }
+    for(int i = 0; i < ctx->instr().size(); i++) {
+        visit(ctx->instr(i));
+    }
+    symTable->leaveScope();
+    return 0;
 }
 
 antlrcpp::Any IdentifierVisitor::visitNoParam(ifccParser::NoParamContext *ctx)
@@ -134,7 +139,16 @@ antlrcpp::Any IdentifierVisitor::visitNoParam(ifccParser::NoParamContext *ctx)
                 
 antlrcpp::Any IdentifierVisitor::visitWithParams(ifccParser::WithParamsContext *ctx)
 {
-    return ctx->expr().size();
+    int size = ctx->VAR().size();
+    for(int i = 0; i < size; i++) {
+        string varName = ctx->VAR(i)->getText();
+        desc_identifier id;
+        id.identifier = varName;
+        id.offset = (symTable->size() + 1) * 4;
+        id.init = true;
+        symTable->addIdentifier(id);
+    }
+    return size;
 }
 
 antlrcpp::Any IdentifierVisitor::visitNoArg(ifccParser::NoArgContext *ctx)
@@ -144,5 +158,9 @@ antlrcpp::Any IdentifierVisitor::visitNoArg(ifccParser::NoArgContext *ctx)
                 
 antlrcpp::Any IdentifierVisitor::visitWithArgs(ifccParser::WithArgsContext *ctx)
 {
-    return ctx->expr().size();
+    int size = ctx->expr().size();
+    for(int i = 0; i < size; i++) {
+        visit(ctx->expr(i));
+    }
+    return size;
 }
