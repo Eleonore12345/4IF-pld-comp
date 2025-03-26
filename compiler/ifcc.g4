@@ -2,7 +2,9 @@ grammar ifcc;
 
 axiom : prog EOF ;
 
-prog : 'int' 'main' '(' ')' '{' instr* '}' ;
+prog : defFunc* 'int' 'main' '(' ')' '{' instr* '}' ;
+
+defFunc : TYPE VAR '(' params')' '{' instr* '}' ;
 
 instr : decla ';' # declaration
     | VAR '=' expr ';' # affectation
@@ -26,6 +28,10 @@ expr : VAR '(' args ')' # functionCall
     | '(' expr ')' # parentheses
     | VAR # variableSimple
     | CONST # constante
+    ;
+
+params : # noParam
+    | TYPE expr (',' TYPE expr)* # withParams
     ;
 
 args : # noArg
