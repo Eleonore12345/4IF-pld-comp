@@ -23,6 +23,7 @@ class  IdentifierVisitor : public ifccBaseVisitor {
                 virtual antlrcpp::Any visitWithParams(ifccParser::WithParamsContext *ctx) override;
                 virtual antlrcpp::Any visitNoArg(ifccParser::NoArgContext *ctx) override;
                 virtual antlrcpp::Any visitWithArgs(ifccParser::WithArgsContext *ctx) override;
+                virtual antlrcpp::Any visitReturn_stmt(ifccParser::Return_stmtContext *ctx) override;
 
         private:
                 SymbolTable* symTable;

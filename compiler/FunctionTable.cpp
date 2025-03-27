@@ -51,6 +51,14 @@ void FunctionTable::setReturnType(string name, string type) {
     }
 }
 
+void FunctionTable::setCurrentFunction(string name) {
+    currentFunction = name;
+}
+
+string FunctionTable::getCurrentFunction() {
+    return currentFunction;
+}
+
 int FunctionTable::getNbParams(string name) {
     int index = getIndex(name);
     if (index != -1) {

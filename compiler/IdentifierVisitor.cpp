@@ -116,6 +116,7 @@ antlrcpp::Any IdentifierVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) 
     std::string funcName = ctx->VAR()->getText();
     std::string returnType = ctx->typeFunc()->getText();
     symTable->createAndEnterScope(funcName);
+    funcTable->setCurrentFunction(funcName);
     int nbParams = visit(ctx->params());
     if(!funcTable->isPresent(funcName)) {
         function_identifier f;
@@ -171,4 +172,14 @@ antlrcpp::Any IdentifierVisitor::visitWithArgs(ifccParser::WithArgsContext *ctx)
         visit(ctx->expr(i));
     }
     return size;
+}
+
+antlrcpp::Any IdentifierVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx) {   
+    if(ctx->expr()) {
+        visit(ctx->expr());
+        if(funcTable->getReturnType(funcTable->getCurrentFunction()) == "void") {
+            std::cerr << "WARNING : return with a value, in function returning void : " << funcTable->getCurrentFunction() << std::endl;
+        }
+    }
+    return 0;
 }
