@@ -42,7 +42,7 @@ args : # noArg
     | expr (',' expr)* # withArgs
     ;
     
-return_stmt : RETURN expr ';' ;
+return_stmt : RETURN expr? ';' ;
 
 RETURN : 'return' ;
 TYPE : 'int' ;

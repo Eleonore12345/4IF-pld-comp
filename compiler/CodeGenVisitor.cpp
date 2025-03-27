@@ -145,9 +145,12 @@ antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
 
 antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)
 {
-    string expr_finale = visit(ctx->expr());
-    cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {expr_finale});
-
+    if(ctx->expr()) {
+        string expr_finale = visit(ctx->expr());
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {expr_finale});
+    } else {
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {});
+    }
     return 0;
 }
 
@@ -288,7 +291,15 @@ antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
 
     cfg->current_bb->add_IRInstr(IRInstr::Operation::functionDef, INT, paramNames);
     visitChildren(ctx);
-    if(returnType == "void") {
+
+    //Verification si un return est present dans la fonction sinon on ret vide
+    bool foundReturn = false;
+    for(int i = 0; i < ctx->instr().size(); i++) {
+        if(ctx->instr(i)->getText().rfind("return",0) == 0) {
+            foundReturn = true;
+        }
+    }
+    if(!foundReturn) {
         cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {});
     }
     symbolTable->leaveScope();
