@@ -25,6 +25,7 @@ antlrcpp::Any IdentifierVisitor::visitInitDecla(ifccParser::InitDeclaContext *ct
         id.identifier = varName;
         id.offset = (symTable->size() + 1) * 4;
         if(ctx->expr()) {
+            verifExprPasFctVoid(ctx->expr());
             id.init = true;
         }
         symTable->addIdentifier(id);
@@ -39,6 +40,7 @@ bool IdentifierVisitor::getError() {
 antlrcpp::Any IdentifierVisitor::visitAffectation(ifccParser::AffectationContext *ctx)
 {
     string varName = ctx->VAR()->getText();
+    verifExprPasFctVoid(ctx->expr());
     if (symTable->getIndex(varName) == -1) {
         std::string erreur = "Variable " + varName + "not declared\n";
         throw std::runtime_error(erreur);
@@ -65,6 +67,8 @@ antlrcpp::Any IdentifierVisitor::visitVariableSimple(ifccParser::VariableSimpleC
 }
 
 antlrcpp::Any IdentifierVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) {
+    verifExprPasFctVoid(ctx->expr(0));
+    verifExprPasFctVoid(ctx->expr(1));
     antlrcpp::Any result = visit(ctx->expr(1));
     if (result.is<bool>() && result.as<bool>()) {
         cerr << "WARNING : division by zero" << endl;
@@ -169,6 +173,7 @@ antlrcpp::Any IdentifierVisitor::visitWithArgs(ifccParser::WithArgsContext *ctx)
 {
     int size = ctx->expr().size();
     for(int i = 0; i < size; i++) {
+        verifExprPasFctVoid(ctx->expr(i));
         visit(ctx->expr(i));
     }
     return size;
@@ -176,10 +181,63 @@ antlrcpp::Any IdentifierVisitor::visitWithArgs(ifccParser::WithArgsContext *ctx)
 
 antlrcpp::Any IdentifierVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx) {   
     if(ctx->expr()) {
+        verifExprPasFctVoid(ctx->expr());
         visit(ctx->expr());
         if(funcTable->getReturnType(funcTable->getCurrentFunction()) == "void") {
             std::cerr << "WARNING : return with a value, in function returning void : " << funcTable->getCurrentFunction() << std::endl;
         }
     }
     return 0;
+}
+
+antlrcpp::Any IdentifierVisitor::verifExprPasFctVoid(ifccParser::ExprContext * ctx) {
+    if (auto funcCallCtx = dynamic_cast<ifccParser::FunctionCallContext*>(ctx)) {
+        std::string funcName = funcCallCtx->VAR()->getText();
+        std::string returnType = funcTable->getReturnType(funcName);
+        if (returnType == "void") {
+            std::string erreur = "error: void value not ignored as it ought to be\n";
+            throw std::runtime_error(erreur);
+        }
+    }
+    return 0;
+}
+
+antlrcpp::Any IdentifierVisitor::visitParentheses(ifccParser::ParenthesesContext *ctx) {
+    verifExprPasFctVoid(ctx->expr());
+    return visitChildren(ctx);
+}
+
+antlrcpp::Any IdentifierVisitor::visitOpAddSub(ifccParser::OpAddSubContext *ctx) {
+    verifExprPasFctVoid(ctx->expr(0));
+    verifExprPasFctVoid(ctx->expr(1));
+    return visitChildren(ctx);
+}
+
+antlrcpp::Any IdentifierVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
+    verifExprPasFctVoid(ctx->expr());
+    return visitChildren(ctx);
+}
+
+antlrcpp::Any IdentifierVisitor::visitOpBitwiseAnd(ifccParser::OpBitwiseAndContext *ctx) {
+    verifExprPasFctVoid(ctx->expr(0));
+    verifExprPasFctVoid(ctx->expr(1));
+    return visitChildren(ctx);
+}
+
+antlrcpp::Any IdentifierVisitor::visitOpBitwiseXor(ifccParser::OpBitwiseXorContext *ctx) {
+    verifExprPasFctVoid(ctx->expr(0));
+    verifExprPasFctVoid(ctx->expr(1));    
+    return visitChildren(ctx);
+}
+
+antlrcpp::Any IdentifierVisitor::visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *ctx) {
+    verifExprPasFctVoid(ctx->expr(0));
+    verifExprPasFctVoid(ctx->expr(1));
+    return visitChildren(ctx);
+}
+
+antlrcpp::Any IdentifierVisitor::visitOpComp(ifccParser::OpCompContext *ctx) {
+    verifExprPasFctVoid(ctx->expr(0));
+    verifExprPasFctVoid(ctx->expr(1));
+    return visitChildren(ctx);
 }
