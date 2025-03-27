@@ -113,16 +113,18 @@ void AssemblyX86::generateAssemblyX86()
                     std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
                     break;
                 case IRInstr::retour :
-                    if (symbolTable->getIndex(params[0]) != -1){
-                        std::cout << "    movl -" << symbolTable->getOffset(params[0]) << "(%rbp), %eax\n";
-                    }
-                    else{
-                        int val;
-                        if (params[0][0] == '\'')
-                            val = (int) params[0][1];
-                        else 
-                            val = stol(params[0]);
-                            std::cout << "    movl $" << val << ", %eax\n";
+                    if(!params.empty()) {
+                        if (symbolTable->getIndex(params[0]) != -1){
+                            std::cout << "    movl -" << symbolTable->getOffset(params[0]) << "(%rbp), %eax\n";
+                        }
+                        else{
+                            int val;
+                            if (params[0][0] == '\'')
+                                val = (int) params[0][1];
+                            else 
+                                val = stol(params[0]);
+                                std::cout << "    movl $" << val << ", %eax\n";
+                        }
                     }
                     std::cout << "\n" << "    # epilogue\n" << "    movq %rbp, %rsp\n" << "    popq %rbp\n";
                     std::cout << "    ret\n";
@@ -131,15 +133,17 @@ void AssemblyX86::generateAssemblyX86()
                 case IRInstr::functionCall :
                 {
                     vector<string> registers = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
-                    for (int i = 2; i < params.size() ; i++) {
+                    for (int i = 3; i < params.size() ; i++) {
                         if(symbolTable->getOffset(params[i]) == -1) {
-                            std::cout << "    movl $" << params[i] << ", %" << registers[i-2] << "\n";
+                            std::cout << "    movl $" << params[i] << ", %" << registers[i-3] << "\n";
                         } else {
-                            std::cout << "    movl -" << symbolTable->getOffset(params[i]) << "(%rbp), %" << registers[i-2] << "\n";
+                            std::cout << "    movl -" << symbolTable->getOffset(params[i]) << "(%rbp), %" << registers[i-3] << "\n";
                         }
                     }
-                    std::cout << "    call " << params[1] << "\n";
-                    std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
+                    std::cout << "    call " << params[2] << "\n";
+                    if(params[0] != "void") {
+                        std::cout << "    movl %eax, -" << symbolTable->getOffset(params[1]) << "(%rbp)\n";
+                    }
                     break;
                 }
                 case IRInstr::functionDef :

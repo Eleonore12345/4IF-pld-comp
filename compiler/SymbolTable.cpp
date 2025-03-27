@@ -42,7 +42,7 @@ void SymbolTable::enterScope(string name) {
         }
     }
     if(!found) {
-        string erreur = "Error : Scope not found !";
+        string erreur = "Error : Scope " + name + " not found depuis Scope " + currentScope->nameScope + " !";
         throw runtime_error(erreur);
     }
 }

@@ -114,16 +114,19 @@ antlrcpp::Any IdentifierVisitor::visitAxiom(ifccParser::AxiomContext *ctx)
 
 antlrcpp::Any IdentifierVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     std::string funcName = ctx->VAR()->getText();
+    std::string returnType = ctx->typeFunc()->getText();
     symTable->createAndEnterScope(funcName);
     int nbParams = visit(ctx->params());
     if(!funcTable->isPresent(funcName)) {
         function_identifier f;
         f.functionName = funcName;
+        f.retourType = returnType;
         f.nbParams = nbParams;
         f.def = true;
         funcTable->addFunction(f);
     } else {
         funcTable->setDef(funcName);
+        funcTable->setReturnType(funcName,returnType);
     }
     for(int i = 0; i < ctx->instr().size(); i++) {
         visit(ctx->instr(i));

@@ -280,6 +280,7 @@ antlrcpp::Any CodeGenVisitor::visitExpression(ifccParser::ExpressionContext *ctx
 
 antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     std::string fctName = ctx->VAR()->getText();
+    std::string returnType = ctx->typeFunc()->getText();
     symbolTable->enterScope(fctName);
     vector<string> paramNames = visit(ctx->params());
 
@@ -287,6 +288,9 @@ antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
 
     cfg->current_bb->add_IRInstr(IRInstr::Operation::functionDef, INT, paramNames);
     visitChildren(ctx);
+    if(returnType == "void") {
+        cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {});
+    }
     symbolTable->leaveScope();
     return 0;
 }
@@ -316,6 +320,7 @@ antlrcpp::Any CodeGenVisitor::visitFunctionCall(ifccParser::FunctionCallContext 
 
     argNames.insert(argNames.begin(), nameVarTmp);
 
+    argNames.insert(argNames.begin(), funcTable->getReturnType(fctName));
     cfg->current_bb->add_IRInstr(IRInstr::Operation::functionCall, INT, argNames);
 
     return nameVarTmp;

@@ -4,7 +4,11 @@ axiom : prog EOF ;
 
 prog : defFunc*;
 
-defFunc : TYPE VAR '(' params ')' '{' instr* '}' ;
+defFunc : typeFunc VAR '(' params ')' '{' instr* '}';
+
+typeFunc : 'void' # typeFunctionVoid
+    | TYPE # typeFunctionNoVoid
+    ;
 
 instr : decla ';' # declaration
     | VAR '=' expr ';' # affectation
