@@ -24,7 +24,6 @@ class  IdentifierVisitor : public ifccBaseVisitor {
                 virtual antlrcpp::Any visitNoArg(ifccParser::NoArgContext *ctx) override;
                 virtual antlrcpp::Any visitWithArgs(ifccParser::WithArgsContext *ctx) override;
                 virtual antlrcpp::Any visitReturn_stmt(ifccParser::Return_stmtContext *ctx) override;
-
                 virtual antlrcpp::Any visitParentheses(ifccParser::ParenthesesContext *ctx) override;
                 virtual antlrcpp::Any visitOpAddSub(ifccParser::OpAddSubContext *ctx) override;
                 virtual antlrcpp::Any visitOpUnExpr(ifccParser::OpUnExprContext *ctx) override;
@@ -32,7 +31,7 @@ class  IdentifierVisitor : public ifccBaseVisitor {
                 virtual antlrcpp::Any visitOpBitwiseXor(ifccParser::OpBitwiseXorContext *ctx) override;
                 virtual antlrcpp::Any visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *ctx) override;
                 virtual antlrcpp::Any visitOpComp(ifccParser::OpCompContext *ctx) override;
-
+                
         private:
                 antlrcpp::Any verifExprPasFctVoid(ifccParser::ExprContext * ctx);
                 SymbolTable* symTable;
