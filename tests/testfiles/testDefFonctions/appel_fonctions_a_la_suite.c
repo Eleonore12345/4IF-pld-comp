@@ -4,6 +4,6 @@ int addition(int a, int b) {
 
 int main() {
     int a = addition(2,3);
-    int b = addition(addition(4,5),a);
-    return b;
+    int b = addition(4,5);
+    return a;
 }

@@ -323,7 +323,7 @@ antlrcpp::Any CodeGenVisitor::visitFunctionCall(ifccParser::FunctionCallContext 
     
     argNames.insert(argNames.begin(), fctName);
 
-    string nameVarTmp = "tmp" + symbolTable->size();
+    string nameVarTmp = "tmp" + std::to_string(symbolTable->size());
     desc_identifier idD;
     idD.identifier = nameVarTmp;
     idD.offset = (symbolTable->size() + 1) * 4;
