@@ -161,7 +161,7 @@ void SymbolTable::checkIfEachIdInit() {
 
 void SymbolTable::checkIfEachIdUsedInScope(scopeNode* scope) {
     for (const auto& a : scope->vect) {
-        if (a.use == false && a.isTemp == false) {
+        if (a.isTemp == false && a.use == false) {
             cerr << "WARNING : variable " << a.identifier << " not used" << endl;
         }
     }
@@ -172,7 +172,7 @@ void SymbolTable::checkIfEachIdUsedInScope(scopeNode* scope) {
 
 void SymbolTable::checkIfEachIdInitInScope(scopeNode* scope) {
     for (const auto& a : scope->vect) {
-        if (a.init == false) 
+        if (a.isTemp == false && a.init == false) 
         {
             cerr << "WARNING : variable " << a.identifier << " declared but not initialized" << endl;
         }
