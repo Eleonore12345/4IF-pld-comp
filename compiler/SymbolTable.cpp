@@ -42,7 +42,7 @@ void SymbolTable::enterScope(string name) {
         }
     }
     if(!found) {
-        string erreur = "Error : Scope " + name + " not found depuis Scope " + currentScope->nameScope + " !";
+        string erreur = "Error : Scope " + name + " not found from Scope " + currentScope->nameScope + " !";
         throw runtime_error(erreur);
     }
 }
@@ -161,7 +161,7 @@ void SymbolTable::checkIfEachIdInit() {
 
 void SymbolTable::checkIfEachIdUsedInScope(scopeNode* scope) {
     for (const auto& a : scope->vect) {
-        if (a.use == false) {
+        if (a.use == false && a.isTemp == false) {
             cerr << "WARNING : variable " << a.identifier << " not used" << endl;
         }
     }
@@ -180,4 +180,20 @@ void SymbolTable::checkIfEachIdInitInScope(scopeNode* scope) {
     for (auto* child : scope->children) {
         checkIfEachIdInitInScope(child);
     }
+}
+
+string SymbolTable::getNextNotUsedTempVar() {
+    for (const auto& a : currentScope->vect) {
+        if (a.isTemp == true && a.use == false) 
+        {
+            return a.identifier;
+        }
+    }
+    string erreur = "No temp variable available\n";
+    throw runtime_error(erreur);
+    return "";
+}
+
+int SymbolTable::getNbVariablesInScope() {
+    return currentScope->vect.size();
 }

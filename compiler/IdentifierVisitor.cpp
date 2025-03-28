@@ -69,6 +69,8 @@ antlrcpp::Any IdentifierVisitor::visitVariableSimple(ifccParser::VariableSimpleC
 antlrcpp::Any IdentifierVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) {
     verifExprPasFctVoid(ctx->expr(0));
     verifExprPasFctVoid(ctx->expr(1));
+    addTempVariable();
+    addTempVariable();
     antlrcpp::Any result = visit(ctx->expr(1));
     if (result.is<bool>() && result.as<bool>()) {
         cerr << "WARNING : division by zero" << endl;
@@ -93,6 +95,7 @@ antlrcpp::Any IdentifierVisitor::visitConstante(ifccParser::ConstanteContext *ct
 
 antlrcpp::Any IdentifierVisitor::visitFunctionCall(ifccParser::FunctionCallContext *ctx) {
     std::string funcName = ctx->VAR()->getText();
+    addTempVariable();
     if(!funcTable->isDefined(funcName)) {
         std::cerr << "WARNING : implicit declaration of function " << funcName << std::endl;
         if(!funcTable->isPresent(funcName)) {
@@ -190,7 +193,7 @@ antlrcpp::Any IdentifierVisitor::visitReturn_stmt(ifccParser::Return_stmtContext
     return 0;
 }
 
-antlrcpp::Any IdentifierVisitor::verifExprPasFctVoid(ifccParser::ExprContext * ctx) {
+void IdentifierVisitor::verifExprPasFctVoid(ifccParser::ExprContext * ctx) {
     if (auto funcCallCtx = dynamic_cast<ifccParser::FunctionCallContext*>(ctx)) {
         std::string funcName = funcCallCtx->VAR()->getText();
         std::string returnType = funcTable->getReturnType(funcName);
@@ -199,7 +202,6 @@ antlrcpp::Any IdentifierVisitor::verifExprPasFctVoid(ifccParser::ExprContext * c
             throw std::runtime_error(erreur);
         }
     }
-    return 0;
 }
 
 antlrcpp::Any IdentifierVisitor::visitParentheses(ifccParser::ParenthesesContext *ctx) {
@@ -210,34 +212,60 @@ antlrcpp::Any IdentifierVisitor::visitParentheses(ifccParser::ParenthesesContext
 antlrcpp::Any IdentifierVisitor::visitOpAddSub(ifccParser::OpAddSubContext *ctx) {
     verifExprPasFctVoid(ctx->expr(0));
     verifExprPasFctVoid(ctx->expr(1));
+    addTempVariable();
+    addTempVariable();
     return visitChildren(ctx);
 }
 
 antlrcpp::Any IdentifierVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
     verifExprPasFctVoid(ctx->expr());
+    addTempVariable();
     return visitChildren(ctx);
 }
 
 antlrcpp::Any IdentifierVisitor::visitOpBitwiseAnd(ifccParser::OpBitwiseAndContext *ctx) {
     verifExprPasFctVoid(ctx->expr(0));
     verifExprPasFctVoid(ctx->expr(1));
+    addTempVariable();
+    addTempVariable();
     return visitChildren(ctx);
 }
 
 antlrcpp::Any IdentifierVisitor::visitOpBitwiseXor(ifccParser::OpBitwiseXorContext *ctx) {
     verifExprPasFctVoid(ctx->expr(0));
-    verifExprPasFctVoid(ctx->expr(1));    
+    verifExprPasFctVoid(ctx->expr(1)); 
+    addTempVariable();
+    addTempVariable();   
     return visitChildren(ctx);
 }
 
 antlrcpp::Any IdentifierVisitor::visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *ctx) {
     verifExprPasFctVoid(ctx->expr(0));
     verifExprPasFctVoid(ctx->expr(1));
+    addTempVariable();
+    addTempVariable();
     return visitChildren(ctx);
 }
 
 antlrcpp::Any IdentifierVisitor::visitOpComp(ifccParser::OpCompContext *ctx) {
     verifExprPasFctVoid(ctx->expr(0));
     verifExprPasFctVoid(ctx->expr(1));
+    addTempVariable();
+    addTempVariable();
+    addTempVariable();
+    return visitChildren(ctx);
+}
+
+void IdentifierVisitor::addTempVariable() {
+    string nameVarTmp = "tmp" + to_string(symTable->size());
+    desc_identifier id;
+    id.identifier = nameVarTmp;
+    id.isTemp = true;
+    id.offset = (symTable->size() + 1) * 4;
+    symTable->addIdentifier(id);
+}
+
+antlrcpp::Any IdentifierVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ctx) {
+    addTempVariable();
     return visitChildren(ctx);
 }

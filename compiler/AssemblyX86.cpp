@@ -149,10 +149,16 @@ void AssemblyX86::generateAssemblyX86()
                 case IRInstr::functionDef :
                 {
                     symbolTable->enterScope(params[0]);
+                    int nbVariablesInScope = symbolTable->getNbVariablesInScope();
+                    int sizeSub = (nbVariablesInScope+1)*4;
+                    while(sizeSub % 16 != 0) {
+                        sizeSub += 4;
+                    }
                     std::cout << params[0] << ":" << std::endl;
                     std::cout << "    # prologue\n"
                         << "    pushq %rbp\n"
                         << "    movq %rsp, %rbp\n"
+                        << "    subq $" << sizeSub << ", %rsp\n"
                         << "\n";
                     std::cout << "    # body\n";
                     vector<string> registers = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};

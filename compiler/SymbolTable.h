@@ -10,6 +10,7 @@ typedef struct {
     int offset;
     bool use = false;
     bool init = false;
+    bool isTemp = false;
 } desc_identifier;
 
 typedef struct scopeNode {
@@ -38,6 +39,8 @@ class SymbolTable {
         void enterScope(string name);
         void leaveScope();
         void rootToCurrent();
+        string getNextNotUsedTempVar();
+        int getNbVariablesInScope();
 
     private:
         void printScope(scopeNode* scope, int level);

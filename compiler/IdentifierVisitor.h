@@ -27,13 +27,15 @@ class  IdentifierVisitor : public ifccBaseVisitor {
                 virtual antlrcpp::Any visitParentheses(ifccParser::ParenthesesContext *ctx) override;
                 virtual antlrcpp::Any visitOpAddSub(ifccParser::OpAddSubContext *ctx) override;
                 virtual antlrcpp::Any visitOpUnExpr(ifccParser::OpUnExprContext *ctx) override;
+                virtual antlrcpp::Any visitOpUnConst(ifccParser::OpUnConstContext *ctx) override;
                 virtual antlrcpp::Any visitOpBitwiseAnd(ifccParser::OpBitwiseAndContext *ctx) override;
                 virtual antlrcpp::Any visitOpBitwiseXor(ifccParser::OpBitwiseXorContext *ctx) override;
                 virtual antlrcpp::Any visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *ctx) override;
                 virtual antlrcpp::Any visitOpComp(ifccParser::OpCompContext *ctx) override;
                 
         private:
-                antlrcpp::Any verifExprPasFctVoid(ifccParser::ExprContext * ctx);
+                void verifExprPasFctVoid(ifccParser::ExprContext * ctx);
+                void addTempVariable();
                 SymbolTable* symTable;
                 FunctionTable * funcTable;
                 bool error;
