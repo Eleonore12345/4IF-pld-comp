@@ -12,6 +12,7 @@
 #include "CodeGenVisitor.h"
 #include "IdentifierVisitor.h"
 #include "AssemblyX86.h"
+#include "FunctionTable.h"
 
 using namespace antlr4;
 using namespace std;
@@ -51,10 +52,11 @@ int main(int argn, const char **argv)
       exit(1);
   }
 
+  FunctionTable* f = new FunctionTable();
   SymbolTable* s = new SymbolTable();
   CFG * c = new CFG();
 
-  IdentifierVisitor i(s);
+  IdentifierVisitor i(s,f);
   i.visit(tree);
 
   if (i.getError()) {
@@ -62,7 +64,7 @@ int main(int argn, const char **argv)
     return 1;
   }
 
-  CodeGenVisitor v(s,c);
+  CodeGenVisitor v(s,c,f);
   v.visit(tree);
   //c->afficher_CFG();
 
@@ -75,5 +77,6 @@ int main(int argn, const char **argv)
 
   delete c;
   delete s;
+  delete f;
   return 0;
 }

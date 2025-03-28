@@ -4,13 +4,14 @@
 #include "antlr4-runtime.h"
 #include "generated/ifccBaseVisitor.h"
 #include "SymbolTable.h"
+#include "FunctionTable.h"
 #include "IR.h"
 
 
 
 class  CodeGenVisitor : public ifccBaseVisitor {
 	public:
-                CodeGenVisitor(SymbolTable * s, CFG * c);
+                CodeGenVisitor(SymbolTable * s, CFG * c, FunctionTable * functionTable);
                 virtual ~CodeGenVisitor(){};
 
                 virtual antlrcpp::Any visitProg(ifccParser::ProgContext *ctx) override ;
@@ -29,6 +30,9 @@ class  CodeGenVisitor : public ifccBaseVisitor {
                 virtual antlrcpp::Any visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *ctx) override;
                 virtual antlrcpp::Any visitOpComp(ifccParser::OpCompContext *ctx) override;
                 virtual antlrcpp::Any visitExpression(ifccParser::ExpressionContext *ctx) override;
+                virtual antlrcpp::Any visitDefFunc(ifccParser::DefFuncContext * ctx) override;
+                virtual antlrcpp::Any visitNoParam(ifccParser::NoParamContext *ctx) override;
+                virtual antlrcpp::Any visitWithParams(ifccParser::WithParamsContext *ctx) override;
                 virtual antlrcpp::Any visitFunctionCall(ifccParser::FunctionCallContext *ctx) override;
                 virtual antlrcpp::Any visitNoArg(ifccParser::NoArgContext *ctx) override;
                 virtual antlrcpp::Any visitWithArgs(ifccParser::WithArgsContext *ctx) override;
@@ -36,6 +40,7 @@ class  CodeGenVisitor : public ifccBaseVisitor {
                 void VariableOrConstante(string name1, string name2);
         private :
                 SymbolTable * symbolTable;
+                FunctionTable * funcTable;
                 CFG * cfg;
 };
 
