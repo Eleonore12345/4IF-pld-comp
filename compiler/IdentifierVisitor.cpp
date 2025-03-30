@@ -133,8 +133,13 @@ antlrcpp::Any IdentifierVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) 
         f.def = true;
         funcTable->addFunction(f);
     } else {
-        funcTable->setDef(funcName);
-        funcTable->setReturnType(funcName,returnType);
+        if(funcTable->isDefined(funcName)) {
+            std::string erreur = "Function " + funcName + " already defined\n";
+            throw std::runtime_error(erreur);
+        } else {
+            funcTable->setDef(funcName);
+            funcTable->setReturnType(funcName,returnType);
+        }
     }
     for(int i = 0; i < ctx->instr().size(); i++) {
         visit(ctx->instr(i));
