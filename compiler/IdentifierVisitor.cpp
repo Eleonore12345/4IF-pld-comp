@@ -141,9 +141,7 @@ antlrcpp::Any IdentifierVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) 
             funcTable->setReturnType(funcName,returnType);
         }
     }
-    for(int i = 0; i < ctx->instr().size(); i++) {
-        visit(ctx->instr(i));
-    }
+    visitChildren(ctx);
     symTable->leaveScope();
     return 0;
 }
@@ -188,6 +186,9 @@ antlrcpp::Any IdentifierVisitor::visitWithArgs(ifccParser::WithArgsContext *ctx)
 }
 
 antlrcpp::Any IdentifierVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx) {   
+    
+    funcTable->setHasReturnTrue(funcTable->getCurrentFunction());
+    
     if(ctx->expr()) {
         verifExprPasFctVoid(ctx->expr());
         visit(ctx->expr());

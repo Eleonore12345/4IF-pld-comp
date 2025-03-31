@@ -17,7 +17,7 @@ typeFunc : 'void' # typeFunctionVoid
     ;
 
 instr : expr ';' # expression
-    | bloc # bloc
+    | bloc # instrBloc
     | return_stmt  # return
     ;
 

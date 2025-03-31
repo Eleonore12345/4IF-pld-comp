@@ -10,6 +10,7 @@ typedef struct {
     string retourType;
     int nbParams;
     bool def = false;
+    bool hasReturn = false;
 } function_identifier;
 
 class FunctionTable {
@@ -19,6 +20,7 @@ class FunctionTable {
         void addFunction(function_identifier f);
         void setDef(string name);
         void setReturnType(string name, string type);
+        void setHasReturnTrue(string name);
         void setCurrentFunction(string name);
         string getCurrentFunction();
         int getIndex(string name); 
@@ -26,6 +28,7 @@ class FunctionTable {
         string getReturnType(string name);
         bool isDefined(string name);
         bool isPresent(string name);
+        bool hasReturn(string name);
         void checkIfEachFuncDefined();
 
     private:

@@ -101,3 +101,20 @@ void FunctionTable::checkIfEachFuncDefined() {
         }
     }
 }
+
+void FunctionTable::setHasReturnTrue(string name) {
+    int index = getIndex(name);
+    if (index != -1) 
+    {
+        vect[index].hasReturn = true;
+    }
+}
+
+bool FunctionTable::hasReturn(string name) {
+    int index = getIndex(name);
+    if (index != -1) 
+    {
+        return vect[index].hasReturn;
+    } 
+    return false;
+}

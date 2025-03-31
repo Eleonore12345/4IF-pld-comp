@@ -122,7 +122,7 @@ antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
 }
 
 antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)
-{
+{   
     if(ctx->expr()) {
         string expr_finale = visit(ctx->expr());
         cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {expr_finale});
@@ -234,25 +234,19 @@ antlrcpp::Any CodeGenVisitor::visitExpression(ifccParser::ExpressionContext *ctx
 antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     std::string fctName = ctx->VAR()->getText();
     std::string returnType = ctx->typeFunc()->getText();
-    symbolTable->enterScope(fctName);
     vector<string> paramNames = visit(ctx->params());
+
+    funcTable->setCurrentFunction(fctName);
 
     paramNames.insert(paramNames.begin(), fctName);
 
     cfg->current_bb->add_IRInstr(IRInstr::Operation::functionDef, INT, paramNames);
-    visitChildren(ctx);
+    visit(ctx->bloc());
 
     //Verification si un return est present dans la fonction sinon on ret vide
-    bool foundReturn = false;
-    for(int i = 0; i < ctx->instr().size(); i++) {
-        if(ctx->instr(i)->getText().rfind("return",0) == 0) {
-            foundReturn = true;
-        }
-    }
-    if(!foundReturn) {
+    if(!funcTable->hasReturn(fctName)) {
         cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {});
     }
-    symbolTable->leaveScope();
     return 0;
 }
                 
@@ -316,4 +310,11 @@ antlrcpp::Any CodeGenVisitor::visitWithParams(ifccParser::WithParamsContext *ctx
         paramNames.push_back(varName);
     }
     return paramNames;
+}
+
+antlrcpp::Any CodeGenVisitor::visitBloc(ifccParser::BlocContext *ctx) {
+    symbolTable->enterScope(funcTable->getCurrentFunction());
+    visitChildren(ctx);
+    symbolTable->leaveScope();
+    return 0;
 }
