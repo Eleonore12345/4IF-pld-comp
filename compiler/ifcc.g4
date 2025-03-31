@@ -11,7 +11,6 @@ typeFunc : 'void' # typeFunctionVoid
     ;
 
 instr : decla ';' # declaration
-    | VAR '=' expr ';' # affectation
     | expr ';' # expression
     | return_stmt  # return
     ;
@@ -30,6 +29,7 @@ expr : VAR '(' args ')' # functionCall
     | expr '^' expr # opBitwiseXor
     | expr '|' expr # opBitwiseOr
     | '(' expr ')' # parentheses
+    | VAR '=' expr # affectation
     | VAR # variableSimple
     | CONST # constante
     ;
