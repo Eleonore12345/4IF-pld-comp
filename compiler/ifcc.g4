@@ -4,18 +4,24 @@ axiom : prog EOF ;
 
 prog : defFunc*;
 
-defFunc : typeFunc VAR '(' params ')' '{' instr* '}';
+defFunc : typeFunc VAR '(' params ')' bloc;
+
+bloc : '{' instrOrDecla* '}';
+
+instrOrDecla : instr # instruction
+            | decla # declaration
+            ;
 
 typeFunc : 'void' # typeFunctionVoid
     | TYPE # typeFunctionNoVoid
     ;
 
-instr : decla ';' # declaration
-    | expr ';' # expression
+instr : expr ';' # expression
+    | bloc # bloc
     | return_stmt  # return
     ;
 
-decla : TYPE initDecla (',' initDecla)* ;
+decla : TYPE initDecla (',' initDecla)* ';' ;
 
 initDecla : VAR ('=' expr)? ;
 
