@@ -11,7 +11,7 @@
 
 class  CodeGenVisitor : public ifccBaseVisitor {
 	public:
-                CodeGenVisitor(SymbolTable * s, CFG * c, FunctionTable * functionTable);
+                CodeGenVisitor(SymbolTable * s, FunctionTable * functionTable);
                 virtual ~CodeGenVisitor(){};
 
                 virtual antlrcpp::Any visitProg(ifccParser::ProgContext *ctx) override ;
@@ -38,9 +38,11 @@ class  CodeGenVisitor : public ifccBaseVisitor {
                 virtual antlrcpp::Any visitWithArgs(ifccParser::WithArgsContext *ctx) override;
                 
                 void VariableOrConstante(string name1, string name2);
+                vector<CFG*> getCfgs(){return cfgs;};
         private :
                 SymbolTable * symbolTable;
                 FunctionTable * funcTable;
-                CFG * cfg;
+                vector<CFG*> cfgs;
+                CFG * currentCfg;
 };
 
