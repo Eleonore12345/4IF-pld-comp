@@ -156,7 +156,6 @@ void AssemblyX86::generateAssemblyX86()
                         while(sizeSub % 16 != 0) {
                             sizeSub += 4;
                         }
-                        //std::cout << params[0] << ":" << std::endl;
                         std::cout << "    # prologue\n"
                             << "    pushq %rbp\n"
                             << "    movq %rsp, %rbp\n"
