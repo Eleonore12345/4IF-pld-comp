@@ -1,8 +1,8 @@
 int addition(int a, int b, int c, int d, int e, int f, int g) {
     c = a + b;
     d = c + e;
-    g = d + f;
-    return g;
+    int h = g + f;
+    return h;
 }
 
 int main() {
