@@ -29,7 +29,7 @@ class IRInstr {
 		ldconstneg, //a=-2 {a,2}
 		copy, // a=b {a,b}
 		negexpr, // a=-b {a,b}
-		notexpr, //a=!a
+		notexpr, //a=!b
 		notconst, //a=!const
 		add, // a=b+c {a,b,c}
 		sub, // a=b-c {a,b,c}
