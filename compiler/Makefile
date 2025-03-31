@@ -55,7 +55,16 @@ generated/ifccParser.cpp: ifcc.g4
 	$(ANTLR) -visitor -no-listener -Dlanguage=Cpp -o generated ifcc.g4
 
 # prevent automatic cleanup of "intermediate" files like ifccLexer.cpp etc
-.PRECIOUS: generated/ifcc%.cpp   
+.PRECIOUS: generated/ifcc%.cpp  
+
+##########################################
+# launch all the tests
+
+# Usage: `make test DIR=testfiles`
+DIR ?= testfiles
+
+test:
+	cd ../tests && python3 ifcc-test.py $(DIR)
 
 ##########################################
 # view the parse tree in a graphical window
