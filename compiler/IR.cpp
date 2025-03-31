@@ -23,8 +23,13 @@ IRInstr::IRInstr(BasicBlock* bb_, Operation op, Type t, vector<string> params){
     this->params = params;
 }
 
-string CFG::new_BB_name(){
-    return "BB" + to_string(bbs.size());
+string CFG::new_BB_name(string name){
+    if (bbs.size()==0){
+        return name;
+    }
+    else {
+        return "." + name + to_string(bbs.size());
+    }
 }
 
 void CFG::add_bb(BasicBlock* bb){

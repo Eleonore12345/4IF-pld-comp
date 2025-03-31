@@ -3,20 +3,16 @@
 
 using namespace std;
 
-CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable, CFG* c, FunctionTable * functionTable) : ifccBaseVisitor()
+CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable, FunctionTable * functionTable) : ifccBaseVisitor()
 {
     symbolTable = symboleTable;
     symbolTable->rootToCurrent();
-    cfg = c;
     funcTable = functionTable;
 }
 
 antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx) 
 {
-    //ajout du premier bloc de base dans le cfg
-    BasicBlock* bb = new BasicBlock(cfg, cfg->new_BB_name());
-    cfg->add_bb(bb);
-    cfg->current_bb = bb;
+    
 
     return visitChildren(ctx);
 }
@@ -66,9 +62,9 @@ antlrcpp::Any CodeGenVisitor::visitOpAddSub(ifccParser::OpAddSubContext *ctx) {
 
     std::string op = ctx->OP->getText();
     if(op == "+") {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::add, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::add, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     } else {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::sub, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::sub, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     }
     return nameVarTmpG;
 }
@@ -86,11 +82,11 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
 
     std::string op = ctx->OP->getText();
     if(op == "*") {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::mul, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::mul, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     } else if(op == "/") {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::div, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::div, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     } else {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::mod, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::mod, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     }
     return nameVarTmpG;
 }
@@ -101,9 +97,9 @@ antlrcpp::Any CodeGenVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ctx) 
     string nameVarTmp = symbolTable->getNextNotUsedTempVar();
     symbolTable->setUse(nameVarTmp);
     if (opName == "-") {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::ldconstneg, INT, {nameVarTmp, constant});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::ldconstneg, INT, {nameVarTmp, constant});
     } else {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {nameVarTmp, constant});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {nameVarTmp, constant});
     }  
     return nameVarTmp;
 }
@@ -114,7 +110,7 @@ antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
     string nameVarTmp = symbolTable->getNextNotUsedTempVar();
     symbolTable->setUse(nameVarTmp);
     if (opName == "-") {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::negexpr, INT, {nameVarTmp, operande});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::negexpr, INT, {nameVarTmp, operande});
     } else {
         return operande;
     }
@@ -125,9 +121,9 @@ antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *c
 {
     if(ctx->expr()) {
         string expr_finale = visit(ctx->expr());
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {expr_finale});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {expr_finale});
     } else {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {});
     }
     return 0;
 }
@@ -135,10 +131,10 @@ antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *c
 void CodeGenVisitor::VariableOrConstante(string name1, string name2) {
     // pour gérer si on a une constante ou une variable à droite
     if (symbolTable->getIndex(name2) == -1){
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {name1, name2});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {name1, name2});
     }
     else{
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::copy, INT, {name1, name2});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::copy, INT, {name1, name2});
     }
 }
 
@@ -156,7 +152,7 @@ antlrcpp::Any CodeGenVisitor::visitOpBitwiseAnd(ifccParser::OpBitwiseAndContext 
     symbolTable->setUse(nameVarTmpD);
     VariableOrConstante(nameVarTmpD, operandeD);
 
-    cfg->current_bb->add_IRInstr(IRInstr::Operation::and_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+    currentCfg->current_bb->add_IRInstr(IRInstr::Operation::and_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     return nameVarTmpG;
 }
 
@@ -174,7 +170,7 @@ antlrcpp::Any CodeGenVisitor::visitOpBitwiseXor(ifccParser::OpBitwiseXorContext 
     symbolTable->setUse(nameVarTmpD);
     VariableOrConstante(nameVarTmpD, operandeD);
 
-    cfg->current_bb->add_IRInstr(IRInstr::Operation::xor_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+    currentCfg->current_bb->add_IRInstr(IRInstr::Operation::xor_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     return nameVarTmpG;
 }
 
@@ -192,7 +188,7 @@ antlrcpp::Any CodeGenVisitor::visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *c
     symbolTable->setUse(nameVarTmpD);
     VariableOrConstante(nameVarTmpD, operandeD);
 
-    cfg->current_bb->add_IRInstr(IRInstr::Operation::or_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
+    currentCfg->current_bb->add_IRInstr(IRInstr::Operation::or_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
     return nameVarTmpG;
 }
 
@@ -215,13 +211,13 @@ antlrcpp::Any CodeGenVisitor::visitOpComp(ifccParser::OpCompContext *ctx) {
     symbolTable->setUse(nameVarTmp);
 
     if (opName == "==") {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::eq, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::eq, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
     } else if (opName == "!=") {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::diff, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::diff, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
     } else if (opName == "<") {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::inf, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::inf, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
     } else if (opName == ">") {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::sup, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::sup, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
     }
     return nameVarTmp;
 }
@@ -233,13 +229,23 @@ antlrcpp::Any CodeGenVisitor::visitExpression(ifccParser::ExpressionContext *ctx
 
 antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     std::string fctName = ctx->VAR()->getText();
+
+    //création d'un cfg par fonction
+    //ajout du premier bloc de base dans le cfg
+    CFG * c = new CFG();
+    currentCfg = c;
+    cfgs.push_back(c);
+    BasicBlock* bb = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
+    currentCfg->add_bb(bb);
+    currentCfg->current_bb = bb;
+
     std::string returnType = ctx->typeFunc()->getText();
     symbolTable->enterScope(fctName);
     vector<string> paramNames = visit(ctx->params());
 
     paramNames.insert(paramNames.begin(), fctName);
 
-    cfg->current_bb->add_IRInstr(IRInstr::Operation::functionDef, INT, paramNames);
+    currentCfg->current_bb->add_IRInstr(IRInstr::Operation::functionDef, INT, paramNames);
     visitChildren(ctx);
 
     //Verification si un return est present dans la fonction sinon on ret vide
@@ -250,7 +256,7 @@ antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
         }
     }
     if(!foundReturn) {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {});
     }
     symbolTable->leaveScope();
     return 0;
@@ -279,7 +285,7 @@ antlrcpp::Any CodeGenVisitor::visitFunctionCall(ifccParser::FunctionCallContext 
     argNames.insert(argNames.begin(), nameVarTmp);
 
     argNames.insert(argNames.begin(), funcTable->getReturnType(fctName));
-    cfg->current_bb->add_IRInstr(IRInstr::Operation::functionCall, INT, argNames);
+    currentCfg->current_bb->add_IRInstr(IRInstr::Operation::functionCall, INT, argNames);
 
     return nameVarTmp;
 }
@@ -316,4 +322,13 @@ antlrcpp::Any CodeGenVisitor::visitWithParams(ifccParser::WithParamsContext *ctx
         paramNames.push_back(varName);
     }
     return paramNames;
+}
+
+void CodeGenVisitor::deleteCfgs(){
+    for (CFG* cfg : cfgs){
+        for (BasicBlock* bb : cfg->get_bbs()){
+            delete(bb);
+        }
+        delete(cfg);
+    }
 }
