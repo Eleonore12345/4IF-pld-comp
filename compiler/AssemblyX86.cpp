@@ -7,13 +7,6 @@
 void AssemblyX86::generateAssemblyX86()
 {
     std::cout << ".globl main\n";
-    std::cout << " main: \n";
-
-    std::cout << "    # prologue\n"
-              << "    pushq %rbp\n"
-              << "    movq %rsp, %rbp\n"
-              << "\n";
-    std::cout << "    # body\n";
     vector<BasicBlock *> bbs = cfgX86->get_bbs();
     for (BasicBlock *bb : bbs)
     {
@@ -76,17 +69,17 @@ void AssemblyX86::generateAssemblyX86()
                     std::cout << "    idivl %ecx\n";
                     std::cout << "    movl %edx, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
                     break;
-                case IRInstr::and_bit: // and_bit
+                case IRInstr::and_bit:
                     std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
                     std::cout << "    andl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
                     std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
                     break;
-                case IRInstr::or_bit: // or_bit
+                case IRInstr::or_bit:
                     std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
                     std::cout << "    orl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
                     std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
                     break;
-                case IRInstr::xor_bit: // xor_bit
+                case IRInstr::xor_bit:
                     std::cout << "    movl -" << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
                     std::cout << "    xorl -" << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";
                     std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
@@ -120,36 +113,62 @@ void AssemblyX86::generateAssemblyX86()
                     std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
                     break;
                 case IRInstr::retour :
-                    if (symbolTable->getIndex(params[0]) != -1){
-                        std::cout << "    movl -" << symbolTable->getOffset(params[0]) << "(%rbp), %eax\n";
+                    if(!params.empty()) {
+                        if (symbolTable->getIndex(params[0]) != -1){
+                            std::cout << "    movl -" << symbolTable->getOffset(params[0]) << "(%rbp), %eax\n";
+                        }
+                        else{
+                            int val;
+                            if (params[0][0] == '\'')
+                                val = (int) params[0][1];
+                            else 
+                                val = stol(params[0]);
+                                std::cout << "    movl $" << val << ", %eax\n";
+                        }
                     }
-                    else{
-                        int val;
-                        if (params[0][0] == '\'')
-                            val = (int) params[0][1];
-                        else 
-                            val = stoi(params[0]);
-                            std::cout << "    movl $" << val << ", %eax\n";
+                    std::cout << "\n" << "    # epilogue\n" << "    movq %rbp, %rsp\n" << "    popq %rbp\n";
+                    std::cout << "    ret\n";
+                    symbolTable->leaveScope();
+                    break;
+                case IRInstr::functionCall :
+                {
+                    vector<string> registers = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
+                    for (int i = 3; i < params.size() ; i++) {
+                        if(symbolTable->getOffset(params[i]) == -1) {
+                            std::cout << "    movl $" << params[i] << ", %" << registers[i-3] << "\n";
+                        } else {
+                            std::cout << "    movl -" << symbolTable->getOffset(params[i]) << "(%rbp), %" << registers[i-3] << "\n";
+                        }
+                    }
+                    std::cout << "    call " << params[2] << "\n";
+                    if(params[0] != "void") {
+                        std::cout << "    movl %eax, -" << symbolTable->getOffset(params[1]) << "(%rbp)\n";
                     }
                     break;
-                case IRInstr::functionCall:
-                    {
-                        vector<string> registers = {"edi", "esi", "edx", "ecx", "r8", "r9"};
-                        for (int i = 2; i < params.size() ; i++) {
-                            std::cout << "    movl -" << symbolTable->getOffset(params[i]) << "(%rbp), %" << registers[i-2] << "\n";
-                        }
-                        std::cout << "    call " << params[1] << "\n";
-                        std::cout << "    movl %eax, -" << symbolTable->getOffset(params[0]) << "(%rbp)\n";
-                        break;
+                }
+                case IRInstr::functionDef :
+                {
+                    symbolTable->enterScope(params[0]);
+                    int nbVariablesInScope = symbolTable->getNbVariablesInScope();
+                    int sizeSub = (nbVariablesInScope+1)*4;
+                    while(sizeSub % 16 != 0) {
+                        sizeSub += 4;
                     }
+                    std::cout << params[0] << ":" << std::endl;
+                    std::cout << "    # prologue\n"
+                        << "    pushq %rbp\n"
+                        << "    movq %rsp, %rbp\n"
+                        << "    subq $" << sizeSub << ", %rsp\n"
+                        << "\n";
+                    std::cout << "    # body\n";
+                    vector<string> registers = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
+                    for (int i = 1; i < params.size() ; i++) {
+                        std::cout << "    movl %" << registers[i-1] <<", -" << symbolTable->getOffset(params[i]) << "(%rbp)\n";
+                    }
+                }
                 default :
                     break;
             }
-        
         }
     }
-    std::cout << "\n"
-              << "    # epilogue\n"
-              << "    popq %rbp\n";
-    std::cout << "    ret\n";
 }
