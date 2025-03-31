@@ -42,6 +42,24 @@ void AssemblyX86::generateAssemblyX86()
                         std::cout << "    negl	%eax\n";
                         std::cout << "    movl %eax, " << symbolTable->getOffset(params[0]) << "(%rbp)\n";
                         break;
+                    case IRInstr::notconst :
+                        int valNotConst;
+                        if (params[1][0] == '\'')
+                            valNotConst = (int) params[1][1];
+                        else 
+                            valNotConst = stol(params[1]);
+                        std::cout << "    xor %ecx, %ecx \n";
+                        std::cout << "    cmpl $" << valNotConst << ", %ecx\n";
+                        std::cout << "    sete %al\n"; 
+                        std::cout << "    movzbl %al, %eax\n"; 
+                        std::cout << "    movl %eax, " << symbolTable->getOffset(params[0]) << "(%rbp)\n"; 
+                        break;
+                    case IRInstr::notexpr :
+                        std::cout << "    cmpl  $0, " << symbolTable->getOffset(params[1]) << "(%rbp)\n"; 
+                        std::cout << "    sete %al\n"; 
+                        std::cout << "    movzbl %al, %eax\n"; 
+                        std::cout << "    movl %eax, " << symbolTable->getOffset(params[0]) << "(%rbp)\n"; 
+                        break;
                     case IRInstr::add : 
                         std::cout << "    movl " << symbolTable->getOffset(params[1]) << "(%rbp), %eax\n";
                         std::cout << "    addl " << symbolTable->getOffset(params[2]) << "(%rbp), %eax\n";

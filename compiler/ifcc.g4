@@ -20,8 +20,8 @@ decla : TYPE initDecla (',' initDecla)* ;
 initDecla : VAR ('=' expr)? ;
 
 expr : VAR '(' args ')' # functionCall
-    | OP=('+'|'-') CONST # opUnConst
-    | OP=('+'|'-') expr # opUnExpr
+    | OP=('+'|'-'|'!') CONST # opUnConst
+    | OP=('+'|'-'|'!') expr # opUnExpr
     | expr OP=('*'|'/'|'%') expr # opMultDiv
     | expr OP=('+'|'-') expr # opAddSub
     | expr OP=('<'|'>'|'==' | '!=') expr #opComp

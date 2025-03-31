@@ -98,9 +98,11 @@ antlrcpp::Any CodeGenVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ctx) 
     symbolTable->setUse(nameVarTmp);
     if (opName == "-") {
         currentCfg->current_bb->add_IRInstr(IRInstr::Operation::ldconstneg, INT, {nameVarTmp, constant});
-    } else {
+    } else if (opName == "+") {
         currentCfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {nameVarTmp, constant});
-    }  
+    } else if (opName == "!") {
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::notconst, INT, {nameVarTmp, constant});
+    }
     return nameVarTmp;
 }
 
@@ -111,8 +113,10 @@ antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
     symbolTable->setUse(nameVarTmp);
     if (opName == "-") {
         currentCfg->current_bb->add_IRInstr(IRInstr::Operation::negexpr, INT, {nameVarTmp, operande});
-    } else {
-        return operande;
+    } else if (opName == "+") {
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {nameVarTmp, operande});
+    } else if (opName == "!") {
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::notexpr, INT, {nameVarTmp, operande});
     }
     return nameVarTmp;
 }
