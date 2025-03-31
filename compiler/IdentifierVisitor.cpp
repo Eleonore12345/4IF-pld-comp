@@ -23,7 +23,7 @@ antlrcpp::Any IdentifierVisitor::visitInitDecla(ifccParser::InitDeclaContext *ct
     } else {
         desc_identifier id;
         id.identifier = varName;
-        id.offset = (symTable->size() + 1) * 4;
+        id.offset = -(symTable->size() + 1) * 4;
         if(ctx->expr()) {
             verifExprPasFctVoid(ctx->expr());
             id.init = true;
@@ -156,18 +156,21 @@ antlrcpp::Any IdentifierVisitor::visitNoParam(ifccParser::NoParamContext *ctx)
 antlrcpp::Any IdentifierVisitor::visitWithParams(ifccParser::WithParamsContext *ctx)
 {
     int size = ctx->VAR().size();
-    if(size > 6) {
-        std::string erreur = "Fonctions avec plus de 6 paramètres non implémentées\n";
-        throw std::runtime_error(erreur);
-    } else {
-        for(int i = 0; i < size; i++) {
-            string varName = ctx->VAR(i)->getText();
-            desc_identifier id;
-            id.identifier = varName;
-            id.offset = (symTable->size() + 1) * 4;
-            id.init = true;
-            symTable->addIdentifier(id);
-        }
+    for(int i = 0; i < 6 && i < size; i++) {
+        string varName = ctx->VAR(i)->getText();
+        desc_identifier id;
+        id.identifier = varName;
+        id.offset = -(symTable->size() + 1) * 4;
+        id.init = true;
+        symTable->addIdentifier(id);
+    }
+    for(int i = size-1; i > 5; --i) {
+        string varName = ctx->VAR(i)->getText();
+        desc_identifier id;
+        id.identifier = varName;
+        id.offset = 16 + (i-6) * 8;
+        id.init = true;
+        symTable->addIdentifier(id);
     }
     return size;
 }
@@ -266,7 +269,7 @@ void IdentifierVisitor::addTempVariable() {
     desc_identifier id;
     id.identifier = nameVarTmp;
     id.isTemp = true;
-    id.offset = (symTable->size() + 1) * 4;
+    id.offset = -(symTable->size() + 1) * 4;
     symTable->addIdentifier(id);
 }
 
