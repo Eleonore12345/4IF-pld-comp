@@ -324,3 +324,12 @@ antlrcpp::Any CodeGenVisitor::visitWithParams(ifccParser::WithParamsContext *ctx
     }
     return paramNames;
 }
+
+void CodeGenVisitor::deleteCfgs(){
+    for (CFG* cfg : cfgs){
+        for (BasicBlock* bb : cfg->get_bbs()){
+            delete(bb);
+        }
+        delete(cfg);
+    }
+}

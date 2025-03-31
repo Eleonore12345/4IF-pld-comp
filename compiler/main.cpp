@@ -73,7 +73,7 @@ int main(int argn, const char **argv)
   a.generateAssemblyX86();
 
   //s->print();
-
+  v.deleteCfgs();
   delete s;
   delete f;
   return 0;
