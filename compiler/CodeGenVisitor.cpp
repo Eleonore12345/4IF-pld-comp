@@ -34,12 +34,11 @@ antlrcpp::Any CodeGenVisitor::visitParentheses(ifccParser::ParenthesesContext *c
 }
 
 antlrcpp::Any CodeGenVisitor::visitAffectation(ifccParser::AffectationContext *ctx) {
-
     string expr_content = visit(ctx->expr());
     // pour gérer si on a une constante ou une variable à droite
     VariableOrConstante(ctx->VAR()->getText(), expr_content);
 
-    return 0;
+    return ctx->VAR()->getText();
 }
 
 antlrcpp::Any CodeGenVisitor::visitVariableSimple(ifccParser::VariableSimpleContext *ctx) {
