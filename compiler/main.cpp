@@ -17,24 +17,50 @@
 using namespace antlr4;
 using namespace std;
 
-int main(int argn, const char **argv)
+int main(int argc, const char **argv)
 {
-  stringstream in;
-  if (argn==2)
-  {
-     ifstream lecture(argv[1]);
-     if( !lecture.good() )
-     {
-         cerr<<"error: cannot read file: " << argv[1] << endl ;
-         exit(1);
-     }
-     in << lecture.rdbuf();
-  }
-  else
-  {
-      cerr << "usage: ifcc path/to/file.c" << endl ;
-      exit(1);
-  }
+
+    string target = "";
+    string inputFile = "";
+    stringstream in;
+    
+    for (int i = 1; i < argc; i++) {
+        string arg = argv[i];
+        
+        if (arg == "-target") {
+            if (i+1 < argc) {
+                string val = argv[++i];
+                if (val == "x86" || val == "arm" ) {
+                    target = val;
+                } else {
+                    cerr << "Erreur, valeur invalide pour -target. Valeurs attendues : x86 ou arm " << endl;
+                    exit(1);
+                }
+            } else {
+                cerr << "Erreur l'option -target nécessite une valeur. Valeurs attendues : x86 ou arm " << endl;
+                exit(1);
+            }
+        } else if (inputFile.empty()) {
+            inputFile = arg;
+        }
+    } 
+    
+    if (target.empty()) {
+        cerr << "usage: ifcc [-target option] path/to/file.c" << endl;
+        exit(1);
+    }
+
+    if (inputFile.empty()) {
+        cerr << "usage: ifcc [-target option] path/to/file.c" << endl;
+        exit(1);
+    }
+    
+    ifstream lecture(inputFile);
+    if (!lecture.good()) {
+        cerr << "error: cannot read file: " << inputFile << endl;
+        exit(1);
+    }
+    in << lecture.rdbuf();
   
   ANTLRInputStream input(in.str());
 
@@ -68,9 +94,11 @@ int main(int argn, const char **argv)
   v.visit(tree);
   vector<CFG*> listeCFG = v.getCfgs();
   //TODO target en argument
+  if (target == "x86") {
+    AssemblyX86 a(listeCFG,s);
+    a.generateAssemblyX86();
+  }
 
-  AssemblyX86 a(listeCFG,s);
-  a.generateAssemblyX86();
 
   //s->print();
   v.deleteCfgs();
