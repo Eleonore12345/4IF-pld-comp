@@ -23,7 +23,8 @@ OBJECTS=build/ifccBaseVisitor.o \
 	build/SymbolTable.o \
 	build/FunctionTable.o \
 	build/IR.o \
-	build/AssemblyX86.o
+	build/AssemblyX86.o \
+	build/AssemblyArm64.o
 
 ifcc: $(OBJECTS)
 	@mkdir -p build

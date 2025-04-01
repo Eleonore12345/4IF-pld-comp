@@ -12,6 +12,7 @@
 #include "CodeGenVisitor.h"
 #include "IdentifierVisitor.h"
 #include "AssemblyX86.h"
+#include "AssemblyArm64.h"
 #include "FunctionTable.h"
 
 using namespace antlr4;
@@ -72,6 +73,8 @@ int main(int argn, const char **argv)
 
   AssemblyX86 a(c,s);
   a.generateAssemblyX86();
+  // AssemblyArm64 a(c,s);
+  // a.generateAssemblyArm64();
 
   //s->print();
 
