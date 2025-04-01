@@ -71,10 +71,10 @@ int main(int argn, const char **argv)
 
   //TODO target en argument
 
-  AssemblyX86 a(c,s);
-  a.generateAssemblyX86();
-  // AssemblyArm64 a(c,s);
-  // a.generateAssemblyArm64();
+  // AssemblyX86 a(c,s);
+  // a.generateAssemblyX86();
+  AssemblyArm64 a(c,s);
+  a.generateAssemblyArm64();
 
   //s->print();
 
