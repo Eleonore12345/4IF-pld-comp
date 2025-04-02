@@ -58,6 +58,15 @@ generated/ifccParser.cpp: ifcc.g4
 .PRECIOUS: generated/ifcc%.cpp   
 
 ##########################################
+# launch all the tests
+
+# Usage: `make test DIR=testfiles`
+DIR ?= testfiles
+
+test:
+	cd ../tests && python3 ifcc-test.py $(DIR)
+
+##########################################
 # view the parse tree in a graphical window
 
 # Usage: `make gui FILE=path/to/your/file.c`
