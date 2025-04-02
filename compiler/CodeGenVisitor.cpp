@@ -6,7 +6,7 @@ using namespace std;
 CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable, CFG* c, FunctionTable * functionTable) : ifccBaseVisitor()
 {
     symbolTable = symboleTable;
-    symbolTable->rootToCurrent();
+    symbolTable->resetAndRootToCurrent();
     cfg = c;
     funcTable = functionTable;
 }
@@ -238,10 +238,18 @@ antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
 
     funcTable->setCurrentFunction(fctName);
 
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::enter_bloc, INT, {});
+    symbolTable->enterNextScope();
+
     paramNames.insert(paramNames.begin(), fctName);
 
     cfg->current_bb->add_IRInstr(IRInstr::Operation::functionDef, INT, paramNames);
-    visit(ctx->bloc());
+    visitChildren(ctx);
+
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::leave_bloc, INT, {});
+    symbolTable->setCurrentScopeVisited();
+    symbolTable->leaveScope();
+
 
     //Verification si un return est present dans la fonction sinon on ret vide
     if(!funcTable->hasReturn(fctName)) {
@@ -313,8 +321,12 @@ antlrcpp::Any CodeGenVisitor::visitWithParams(ifccParser::WithParamsContext *ctx
 }
 
 antlrcpp::Any CodeGenVisitor::visitBloc(ifccParser::BlocContext *ctx) {
-    symbolTable->enterScope(funcTable->getCurrentFunction());
+    //cout << "add enter_bloc" << endl;
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::enter_bloc, INT, {});
+    symbolTable->enterNextScope();
     visitChildren(ctx);
+    cfg->current_bb->add_IRInstr(IRInstr::Operation::leave_bloc, INT, {});
+    symbolTable->setCurrentScopeVisited();
     symbolTable->leaveScope();
     return 0;
 }

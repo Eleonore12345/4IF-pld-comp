@@ -4,7 +4,7 @@ axiom : prog EOF ;
 
 prog : defFunc*;
 
-defFunc : typeFunc VAR '(' params ')' bloc;
+defFunc : typeFunc VAR '(' params ')' '{' instrOrDecla* '}';
 
 bloc : '{' instrOrDecla* '}';
 

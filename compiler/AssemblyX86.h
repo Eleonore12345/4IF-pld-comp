@@ -12,7 +12,7 @@ using namespace std;
 // classe qui va générer le code assembleur pour x86
 class AssemblyX86 {
     public:
-        AssemblyX86(CFG* c, SymbolTable* s): cfgX86(c), symbolTable(s){};
+        AssemblyX86(CFG* c, SymbolTable* s);
         virtual ~AssemblyX86(){};
 
         void generateAssemblyX86();

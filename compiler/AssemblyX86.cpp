@@ -4,6 +4,12 @@
 #include <string>
 #include <iostream>
 
+AssemblyX86::AssemblyX86(CFG* c, SymbolTable* s){
+    cfgX86 = c;
+    symbolTable = s;
+    s->resetAndRootToCurrent();
+}
+
 void AssemblyX86::generateAssemblyX86()
 {
     std::cout << ".globl main\n";
@@ -128,7 +134,6 @@ void AssemblyX86::generateAssemblyX86()
                     }
                     std::cout << "\n" << "    # epilogue\n" << "    movq %rbp, %rsp\n" << "    popq %rbp\n";
                     std::cout << "    ret\n";
-                    symbolTable->leaveScope();
                     break;
                 case IRInstr::functionCall :
                 {
@@ -148,7 +153,6 @@ void AssemblyX86::generateAssemblyX86()
                 }
                 case IRInstr::functionDef :
                 {
-                    symbolTable->enterScope(params[0]);
                     int nbVariablesInScope = symbolTable->getNbVariablesInScope();
                     int sizeSub = (nbVariablesInScope+1)*4;
                     while(sizeSub % 16 != 0) {
@@ -165,6 +169,18 @@ void AssemblyX86::generateAssemblyX86()
                     for (int i = 1; i < params.size() ; i++) {
                         std::cout << "    movl %" << registers[i-1] <<", -" << symbolTable->getOffset(params[i]) << "(%rbp)\n";
                     }
+                    break;
+                }
+                case IRInstr::enter_bloc :
+                {
+                    symbolTable->enterNextScope();
+                    break;
+                }
+                case IRInstr::leave_bloc :
+                {
+                    symbolTable->setCurrentScopeVisited();
+                    symbolTable->leaveScope();
+                    break;
                 }
                 default :
                     break;

@@ -59,17 +59,20 @@ int main(int argn, const char **argv)
   IdentifierVisitor i(s,f);
   i.visit(tree);
 
+  //s->print();
+
   if (i.getError()) {
     delete s;
     return 1;
   }
+
+  //s->print();
 
   CodeGenVisitor v(s,c,f);
   v.visit(tree);
   //c->afficher_CFG();
 
   //TODO target en argument
-
   AssemblyX86 a(c,s);
   a.generateAssemblyX86();
 

@@ -18,6 +18,7 @@ typedef struct scopeNode {
     vector<desc_identifier> vect;
     scopeNode* parent;
     vector<scopeNode*> children;
+    bool visited = false;
 } scopeNode;
 
 class SymbolTable {
@@ -25,28 +26,33 @@ class SymbolTable {
         SymbolTable();
         virtual ~SymbolTable();
         void print();
-        void printCurrentScope();
-        int size();
+        string getCurrentScope();
+        int size(string functionName);
         void addIdentifier(desc_identifier id);
         int getIndex(string name);
+        int getIndexInScope(string name);
         int getOffset(string name);
         int getInitStatus(string name);
         void setUse(string name);
         void setInit(string name);
+        void setCurrentScopeVisited();
         void checkIfEachIdUsed();
         void checkIfEachIdInit();
         void createAndEnterScope(string name);
-        void enterScope(string name);
+        void enterNextScope();
         void leaveScope();
-        void rootToCurrent();
+        void resetAndRootToCurrent();
         string getNextNotUsedTempVar();
         int getNbVariablesInScope();
+        scopeNode* getScope(string name);
 
     private:
         void printScope(scopeNode* scope, int level);
         void checkIfEachIdUsedInScope(scopeNode* scope);
         void checkIfEachIdInitInScope(scopeNode* scope);
         void freeScopes(scopeNode* scope);
+        void reset(scopeNode* scope);
+        void addScopeSize(scopeNode* rootScope, string functionName, int* size);
 
         scopeNode * rootScope;
         scopeNode * currentScope;
