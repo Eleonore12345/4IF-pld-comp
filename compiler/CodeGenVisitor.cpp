@@ -43,8 +43,6 @@ antlrcpp::Any CodeGenVisitor::visitAffectation(ifccParser::AffectationContext *c
 
 antlrcpp::Any CodeGenVisitor::visitVariableSimple(ifccParser::VariableSimpleContext *ctx) {
     std::string varName = ctx->VAR()->getText();
-    int index = symbolTable->getOffset(varName);
-
     return varName;
 }
 
@@ -55,13 +53,15 @@ antlrcpp::Any CodeGenVisitor::visitConstante(ifccParser::ConstanteContext *ctx) 
 
 antlrcpp::Any CodeGenVisitor::visitOpAddSub(ifccParser::OpAddSubContext *ctx) {
     string operandeG = visit(ctx->expr(0));
-    string nameVarTmpG = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmpG);
+    variable* varTmpG = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmpG->use = true;
+    string nameVarTmpG = varTmpG->name;
     VariableOrConstante(nameVarTmpG, operandeG);
     
     string operandeD = visit(ctx->expr(1));
-    string nameVarTmpD = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmpD);
+    variable* varTmpD = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmpD->use = true;
+    string nameVarTmpD = varTmpD->name;
     VariableOrConstante(nameVarTmpD, operandeD);
 
     std::string op = ctx->OP->getText();
@@ -75,13 +75,15 @@ antlrcpp::Any CodeGenVisitor::visitOpAddSub(ifccParser::OpAddSubContext *ctx) {
 
 antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) {
     string operandeG = visit(ctx->expr(0));
-    string nameVarTmpG = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmpG);
+    variable* varTmpG = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmpG->use = true;
+    string nameVarTmpG = varTmpG->name;
     VariableOrConstante(nameVarTmpG, operandeG);
     
     string operandeD = visit(ctx->expr(1));
-    string nameVarTmpD = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmpD);
+    variable* varTmpD = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmpD->use = true;
+    string nameVarTmpD = varTmpD->name;
     VariableOrConstante(nameVarTmpD, operandeD);
 
     std::string op = ctx->OP->getText();
@@ -98,8 +100,9 @@ antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) 
 antlrcpp::Any CodeGenVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ctx) {
     std::string opName = ctx->OP->getText();
     std::string constant = ctx->CONST()->getText();
-    string nameVarTmp = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmp);
+    variable* varTmp = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmp->use = true;
+    string nameVarTmp = varTmp->name;
     if (opName == "-") {
         cfg->current_bb->add_IRInstr(IRInstr::Operation::ldconstneg, INT, {nameVarTmp, constant});
     } else {
@@ -111,8 +114,9 @@ antlrcpp::Any CodeGenVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ctx) 
 antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
     std::string opName = ctx->OP->getText();
     string operande = visit(ctx->expr());
-    string nameVarTmp = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmp);
+    variable* varTmp = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmp->use = true;
+    string nameVarTmp = varTmp->name;
     if (opName == "-") {
         cfg->current_bb->add_IRInstr(IRInstr::Operation::negexpr, INT, {nameVarTmp, operande});
     } else {
@@ -134,7 +138,7 @@ antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *c
 
 void CodeGenVisitor::VariableOrConstante(string name1, string name2) {
     // pour gérer si on a une constante ou une variable à droite
-    if (symbolTable->getIndex(name2) == -1){
+    if (!symbolTable->getCurrentScope()->getVariable(name2)){
         cfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {name1, name2});
     }
     else{
@@ -146,14 +150,16 @@ antlrcpp::Any CodeGenVisitor::visitOpBitwiseAnd(ifccParser::OpBitwiseAndContext 
 {
     // Visit the left operand and store the result
     string operandeG = visit(ctx->expr(0));
-    string nameVarTmpG = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmpG);
+    variable* varTmpG = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmpG->use = true;
+    string nameVarTmpG = varTmpG->name;
     VariableOrConstante(nameVarTmpG, operandeG);
 
     // Visit the right operand and store the result
     string operandeD = visit(ctx->expr(1));
-    string nameVarTmpD = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmpD);
+    variable* varTmpD = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmpD->use = true;
+    string nameVarTmpD = varTmpD->name;
     VariableOrConstante(nameVarTmpD, operandeD);
 
     cfg->current_bb->add_IRInstr(IRInstr::Operation::and_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
@@ -164,14 +170,16 @@ antlrcpp::Any CodeGenVisitor::visitOpBitwiseXor(ifccParser::OpBitwiseXorContext 
 {
     // Visit the left operand and store the result
     string operandeG = visit(ctx->expr(0));
-    string nameVarTmpG = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmpG);
+    variable* varTmpG = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmpG->use = true;
+    string nameVarTmpG = varTmpG->name;
     VariableOrConstante(nameVarTmpG, operandeG);
 
     // Visit the right operand and store the result
     string operandeD = visit(ctx->expr(1));
-    string nameVarTmpD = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmpD);
+    variable* varTmpD = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmpD->use = true;
+    string nameVarTmpD = varTmpD->name;
     VariableOrConstante(nameVarTmpD, operandeD);
 
     cfg->current_bb->add_IRInstr(IRInstr::Operation::xor_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
@@ -182,14 +190,16 @@ antlrcpp::Any CodeGenVisitor::visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *c
 {
     // Visit the left operand and store the result
     string operandeG = visit(ctx->expr(0));
-    string nameVarTmpG = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmpG);
+    variable* varTmpG = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmpG->use = true;
+    string nameVarTmpG = varTmpG->name;
     VariableOrConstante(nameVarTmpG, operandeG);
 
     // Visit the right operand and store the result
     string operandeD = visit(ctx->expr(1));
-    string nameVarTmpD = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmpD);
+    variable* varTmpD = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmpD->use = true;
+    string nameVarTmpD = varTmpD->name;
     VariableOrConstante(nameVarTmpD, operandeD);
 
     cfg->current_bb->add_IRInstr(IRInstr::Operation::or_bit, INT, {nameVarTmpG, nameVarTmpG, nameVarTmpD});
@@ -199,20 +209,23 @@ antlrcpp::Any CodeGenVisitor::visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *c
 antlrcpp::Any CodeGenVisitor::visitOpComp(ifccParser::OpCompContext *ctx) {
     std::string opName = ctx->OP->getText();
 
-    // Evaluate left-hand side and store it in a tmp
+    // Visit the left operand and store the result
     string operandeG = visit(ctx->expr(0));
-    string nameVarTmpG = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmpG);
+    variable* varTmpG = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmpG->use = true;
+    string nameVarTmpG = varTmpG->name;
     VariableOrConstante(nameVarTmpG, operandeG);
 
-    // Evaluate the right-hand side and store it in a tmp
+    // Visit the right operand and store the result
     string operandeD = visit(ctx->expr(1));
-    string nameVarTmpD = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmpD);
+    variable* varTmpD = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmpD->use = true;
+    string nameVarTmpD = varTmpD->name;
     VariableOrConstante(nameVarTmpD, operandeD);
 
-    string nameVarTmp = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmp);
+    variable* varTmp = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmp->use = true;
+    string nameVarTmp = varTmp->name;
 
     if (opName == "==") {
         cfg->current_bb->add_IRInstr(IRInstr::Operation::eq, INT, {nameVarTmp, nameVarTmpG, nameVarTmpD});
@@ -247,7 +260,7 @@ antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     visitChildren(ctx);
 
     cfg->current_bb->add_IRInstr(IRInstr::Operation::leave_bloc, INT, {});
-    symbolTable->setCurrentScopeVisited();
+    symbolTable->getCurrentScope()->setVisited();
     symbolTable->leaveScope();
 
 
@@ -275,8 +288,9 @@ antlrcpp::Any CodeGenVisitor::visitFunctionCall(ifccParser::FunctionCallContext 
     
     argNames.insert(argNames.begin(), fctName);
 
-    string nameVarTmp = symbolTable->getNextNotUsedTempVar();
-    symbolTable->setUse(nameVarTmp);
+    variable* varTmp = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
+    varTmp->use = true;
+    string nameVarTmp = varTmp->name;
 
     argNames.insert(argNames.begin(), nameVarTmp);
 
@@ -288,14 +302,14 @@ antlrcpp::Any CodeGenVisitor::visitFunctionCall(ifccParser::FunctionCallContext 
 
 antlrcpp::Any CodeGenVisitor::visitNoArg(ifccParser::NoArgContext *ctx)
 {
-    vector<string> argNames;
+    vector<string> argNames = {};
     return argNames;
 }
                 
 antlrcpp::Any CodeGenVisitor::visitWithArgs(ifccParser::WithArgsContext *ctx)
 {
     int size = ctx->expr().size();
-    vector<string> args;
+    vector<string> args = {};
     for (int i = 0 ; i < size ; i++) {
         string arg = visit(ctx->expr(i));
         args.push_back(arg);
@@ -305,14 +319,14 @@ antlrcpp::Any CodeGenVisitor::visitWithArgs(ifccParser::WithArgsContext *ctx)
 
 antlrcpp::Any CodeGenVisitor::visitNoParam(ifccParser::NoParamContext *ctx)
 {
-    vector<string> paramNames;
+    vector<string> paramNames = {};
     return paramNames;
 }
                 
 antlrcpp::Any CodeGenVisitor::visitWithParams(ifccParser::WithParamsContext *ctx)
 {
     int size = ctx->VAR().size();
-    vector<string> paramNames;
+    vector<string> paramNames = {};
     for (int i = 0 ; i < size ; i++) {
         string varName = ctx->VAR(i)->getText();
         paramNames.push_back(varName);
@@ -326,7 +340,7 @@ antlrcpp::Any CodeGenVisitor::visitBloc(ifccParser::BlocContext *ctx) {
     symbolTable->enterNextScope();
     visitChildren(ctx);
     cfg->current_bb->add_IRInstr(IRInstr::Operation::leave_bloc, INT, {});
-    symbolTable->setCurrentScopeVisited();
+    symbolTable->getCurrentScope()->setVisited();
     symbolTable->leaveScope();
     return 0;
 }

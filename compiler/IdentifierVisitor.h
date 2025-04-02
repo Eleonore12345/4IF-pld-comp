@@ -37,7 +37,7 @@ class  IdentifierVisitor : public ifccBaseVisitor {
         private:
                 void verifExprPasFctVoid(ifccParser::ExprContext * ctx);
                 void addTempVariable();
-                SymbolTable* symTable;
+                SymbolTable* symbolTable;
                 FunctionTable * funcTable;
                 bool error;
 };

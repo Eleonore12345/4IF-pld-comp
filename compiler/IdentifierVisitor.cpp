@@ -3,7 +3,7 @@
 
 IdentifierVisitor::IdentifierVisitor(SymbolTable* symboleTable, FunctionTable * functionTable) : ifccBaseVisitor()
 {
-    symTable = symboleTable;
+    symbolTable = symboleTable;
     funcTable = functionTable;
     //On doit avoir une définition d'un main
     function_identifier f;
@@ -16,20 +16,18 @@ IdentifierVisitor::IdentifierVisitor(SymbolTable* symboleTable, FunctionTable * 
 
 antlrcpp::Any IdentifierVisitor::visitInitDecla(ifccParser::InitDeclaContext *ctx) {
     string varName = ctx->VAR()->getText();
-    if (symTable->getIndexInScope(varName) != -1) {
+    if (symbolTable->getCurrentScope()->getVariable(varName)) {
         std::string erreur = "Variable " + varName + " already declared\n";
-        symTable->print();
+        symbolTable->print();
         throw std::runtime_error(erreur);
         error = true;
     } else {
-        desc_identifier id;
-        id.identifier = varName;
-        id.offset = (symTable->size(symTable->getCurrentScope()) + 1) * 4;
+        bool init = false;
         if(ctx->expr()) {
             verifExprPasFctVoid(ctx->expr());
-            id.init = true;
+            init = true;
         }
-        symTable->addIdentifier(id);
+        symbolTable->getCurrentScope()->addVariable(varName, false, init, false);
     }
     return visitChildren(ctx);
 }
@@ -42,27 +40,29 @@ antlrcpp::Any IdentifierVisitor::visitAffectation(ifccParser::AffectationContext
 {
     string varName = ctx->VAR()->getText();
     verifExprPasFctVoid(ctx->expr());
-    if (symTable->getIndex(varName) == -1) {
+    variable* var = symbolTable->getVariable(varName);
+    if (!var) {
         std::string erreur = "Variable " + varName + "not declared\n";
         throw std::runtime_error(erreur);
         error = true;
     }
-    symTable->setInit(varName);
+    var->init = true;
     return visitChildren(ctx);
 }
 
 antlrcpp::Any IdentifierVisitor::visitVariableSimple(ifccParser::VariableSimpleContext *ctx) {
     string varName = ctx->VAR()->getText();
-    if (symTable->getIndex(varName) == -1) {
+    variable* var = symbolTable->getVariable(varName);
+    if (!var) {
         std::string erreur = "Variable " + varName + " not declared\n";
         throw std::runtime_error(erreur);
         error = true;
     }
     else{
-        if(symTable->getInitStatus(varName) == 0) {
+        if (var->init == 0) {
             cerr << "WARNING : variable " << varName << " used but not initialized" << endl;
         }
-        symTable->setUse(varName);
+        var->use = true;
     }
     return visitChildren(ctx);
 }
@@ -115,8 +115,8 @@ antlrcpp::Any IdentifierVisitor::visitAxiom(ifccParser::AxiomContext *ctx)
 {
     visitChildren(ctx);
     funcTable->checkIfEachFuncDefined();
-    symTable->checkIfEachIdUsed();
-    symTable->checkIfEachIdInit();
+    symbolTable->checkIfEachIdUsed();
+    symbolTable->checkIfEachIdInit();
     return 0;    
 }
 
@@ -125,7 +125,7 @@ antlrcpp::Any IdentifierVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) 
     std::string returnType = ctx->typeFunc()->getText();
 
     funcTable->setCurrentFunction(funcName);
-    symTable->createAndEnterScope(funcTable->getCurrentFunction());
+    symbolTable->createAndEnterFunctionScope(funcTable->getCurrentFunction());
 
     int nbParams = visit(ctx->params());
     
@@ -150,7 +150,7 @@ antlrcpp::Any IdentifierVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) 
         visit(ctx->instrOrDecla(i));
     } 
 
-    symTable->leaveScope();
+    symbolTable->leaveScope();
     return 0;
 }
 
@@ -168,11 +168,7 @@ antlrcpp::Any IdentifierVisitor::visitWithParams(ifccParser::WithParamsContext *
     } else {
         for(int i = 0; i < size; i++) {
             string varName = ctx->VAR(i)->getText();
-            desc_identifier id;
-            id.identifier = varName;
-            id.offset = (symTable->size(symTable->getCurrentScope()) + 1) * 4;
-            id.init = true;
-            symTable->addIdentifier(id);
+            symbolTable->getCurrentScope()->addVariable(varName, false, true, false);
         }
     }
     return size;
@@ -271,12 +267,8 @@ antlrcpp::Any IdentifierVisitor::visitOpComp(ifccParser::OpCompContext *ctx) {
 }
 
 void IdentifierVisitor::addTempVariable() {
-    string nameVarTmp = "tmp" + to_string(symTable->size(symTable->getCurrentScope()));
-    desc_identifier id;
-    id.identifier = nameVarTmp;
-    id.isTemp = true;
-    id.offset = (symTable->size(symTable->getCurrentScope()) + 1) * 4;
-    symTable->addIdentifier(id);
+    string nameVarTmp = "tmp" + to_string(symbolTable->getCurrentScope()->getNbTmpVariable());
+    symbolTable->getCurrentScope()->addVariable(nameVarTmp, false, false, true);
 }
 
 antlrcpp::Any IdentifierVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ctx) {
@@ -285,8 +277,8 @@ antlrcpp::Any IdentifierVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ct
 }
 
 antlrcpp::Any IdentifierVisitor::visitBloc(ifccParser::BlocContext *ctx) {
-    symTable->createAndEnterScope(funcTable->getCurrentFunction());
+    symbolTable->createAndEnterScope();
     visitChildren(ctx);
-    symTable->leaveScope();
+    symbolTable->leaveScope();
     return 0;
 }

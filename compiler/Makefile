@@ -21,6 +21,7 @@ OBJECTS=build/ifccBaseVisitor.o \
 	build/CodeGenVisitor.o \
 	build/IdentifierVisitor.o \
 	build/SymbolTable.o \
+	build/ScopeNode.o \
 	build/FunctionTable.o \
 	build/IR.o \
 	build/AssemblyX86.o
