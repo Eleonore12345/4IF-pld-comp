@@ -1,137 +1,213 @@
 #include "AssemblyArm64.h"
-
 #include <vector>
 #include <string>
 #include <iostream>
+#include <stack>
+
+// Implémenter un algo de gestion des registres pour éviter les conflits d'affectation simultanée
+class RegisterAllocator
+{
+    std::stack<std::string> freeRegisters;
+
+public:
+    RegisterAllocator()
+    {
+        for (int i = 8; i <= 15; ++i)
+        {
+            freeRegisters.push("w" + std::to_string(i));
+        }
+    }
+
+    std::string allocate()
+    {
+        if (freeRegisters.empty())
+        {
+            // Pas de registre disponible, utiliser le stack
+            return "spill";
+        }
+        std::string reg = freeRegisters.top();
+        freeRegisters.pop();
+        return reg;
+    }
+
+    void free(const std::string &reg)
+    {
+        if (reg != "spill")
+        {
+            freeRegisters.push(reg);
+        }
+    }
+};
 
 void AssemblyArm64::generateAssemblyArm64()
 {
     std::cout << ".global _main\n";
+    RegisterAllocator regAlloc;
+
     vector<BasicBlock *> bbs = cfgArm64->get_bbs();
     for (BasicBlock *bb : bbs)
     {
+        if (!bb->label.empty())
+        {
+            std::cout << bb->label << ":\n";
+        }
+
         for (IRInstr *instr : bb->instrs)
         {
             IRInstr::Operation op = instr->getOperation();
             vector<string> params = instr->getParams();
+
             switch (op)
             {
             case IRInstr::ldconst:
-                int val;
-                if (params[1][0] == '\'')
-                    val = (int)params[1][1];
-                else
-                    val = stol(params[1]);
-                std::cout << "    mov w8, #" << val << "\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+            {
+                std::string reg = regAlloc.allocate();
+                int val = (params[1][0] == '\'') ? (int)params[1][1] : stol(params[1]);
+                std::cout << "    mov " << reg << ", #" << val << "\n";
+                std::cout << "    str " << reg << ", [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+                regAlloc.free(reg);
                 break;
+            }
 
             case IRInstr::ldconstneg:
-                int valNeg;
-                if (params[1][0] == '\'')
-                    valNeg = (int)params[1][1];
-                else
-                    valNeg = stol(params[1]);
-                std::cout << "    mov w8, #-" << valNeg << "\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+            {
+                std::string reg = regAlloc.allocate();
+                int val = (params[1][0] == '\'') ? (int)params[1][1] : stol(params[1]);
+                std::cout << "    mov " << reg << ", #-" << val << "\n";
+                std::cout << "    str " << reg << ", [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+                regAlloc.free(reg);
                 break;
+            }
 
             case IRInstr::copy:
-                std::cout << "    ldr w8, [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+            {
+                std::string srcReg = regAlloc.allocate();
+                std::cout << "    ldr " << srcReg << ", [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
+                std::cout << "    str " << srcReg << ", [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+                regAlloc.free(srcReg);
                 break;
+            }
 
             case IRInstr::negexpr:
-                std::cout << "    ldr w8, [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
-                std::cout << "    neg w8, w8\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+            {
+                std::string reg = regAlloc.allocate();
+                std::cout << "    ldr " << reg << ", [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
+                std::cout << "    neg " << reg << ", " << reg << "\n";
+                std::cout << "    str " << reg << ", [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+                regAlloc.free(reg);
                 break;
+            }
 
             case IRInstr::add:
-                std::cout << "    ldr w8, [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
-                std::cout << "    ldr w1, [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
-                std::cout << "    add w8, w8, w1\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
-                break;
-
             case IRInstr::sub:
-                std::cout << "    ldr w8, [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
-                std::cout << "    ldr w1, [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
-                std::cout << "    sub w8, w8, w1\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
-                break;
-
             case IRInstr::mul:
-                std::cout << "    ldr w8, [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
-                std::cout << "    ldr w1, [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
-                std::cout << "    mul w8, w8, w1\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
-                break;
-
             case IRInstr::div:
-                std::cout << "    ldr w8, [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
-                std::cout << "    ldr w1, [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
-                std::cout << "    sdiv w8, w8, w1\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+            case IRInstr::and_bit:
+            case IRInstr::or_bit:
+            case IRInstr::xor_bit:
+            {
+                std::string destReg = regAlloc.allocate();
+                std::string srcReg1 = regAlloc.allocate();
+                std::string srcReg2 = regAlloc.allocate();
+
+                std::cout << "    ldr " << srcReg1 << ", [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
+                std::cout << "    ldr " << srcReg2 << ", [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
+
+                switch (op)
+                {
+                case IRInstr::add:
+                    std::cout << "    add ";
+                    break;
+                case IRInstr::sub:
+                    std::cout << "    sub ";
+                    break;
+                case IRInstr::mul:
+                    std::cout << "    mul ";
+                    break;
+                case IRInstr::div:
+                    std::cout << "    sdiv ";
+                    break;
+                case IRInstr::and_bit:
+                    std::cout << "    and ";
+                    break;
+                case IRInstr::or_bit:
+                    std::cout << "    orr ";
+                    break;
+                case IRInstr::xor_bit:
+                    std::cout << "    eor ";
+                    break;
+                default:
+                    break;
+                }
+                std::cout << destReg << ", " << srcReg1 << ", " << srcReg2 << "\n";
+
+                std::cout << "    str " << destReg << ", [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+
+                regAlloc.free(destReg);
+                regAlloc.free(srcReg1);
+                regAlloc.free(srcReg2);
                 break;
+            }
 
             case IRInstr::mod:
-                std::cout << "    ldr w8, [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
-                std::cout << "    ldr w1, [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
-                std::cout << "    sdiv w2, w8, w1\n";
-                std::cout << "    mul w2, w2, w1\n";
-                std::cout << "    sub w8, w8, w2\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
-                break;
+            {
+                std::string dividend = regAlloc.allocate();
+                std::string divisor = regAlloc.allocate();
+                std::string quotient = regAlloc.allocate();
+                std::string temp = regAlloc.allocate();
 
-            case IRInstr::and_bit:
-                std::cout << "    ldr w8, [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
-                std::cout << "    ldr w9, [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
-                std::cout << "    and w8, w8, w9\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+                std::cout << "    ldr " << dividend << ", [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
+                std::cout << "    ldr " << divisor << ", [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
+                std::cout << "    sdiv " << quotient << ", " << dividend << ", " << divisor << "\n";
+                std::cout << "    mul " << temp << ", " << quotient << ", " << divisor << "\n";
+                std::cout << "    sub " << dividend << ", " << dividend << ", " << temp << "\n";
+                std::cout << "    str " << dividend << ", [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+
+                regAlloc.free(dividend);
+                regAlloc.free(divisor);
+                regAlloc.free(quotient);
+                regAlloc.free(temp);
                 break;
-            case IRInstr::or_bit:
-                std::cout << "    ldr w8, [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
-                std::cout << "    ldr w9, [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
-                std::cout << "    orr w8, w8, w9\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
-                break;
-            case IRInstr::xor_bit:
-                std::cout << "    ldr w8, [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
-                std::cout << "    ldr w9, [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
-                std::cout << "    eor w8, w8, w9\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
-                break;
+            }
+
             case IRInstr::inf:
-                std::cout << "    ldr w8, [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
-                std::cout << "    ldr w9, [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
-                std::cout << "    subs w8, w8, w9\n";
-                std::cout << "    cset w8, lt\n";
-                std::cout << "    and w8, w8, #0x1\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
-                break;
             case IRInstr::sup:
-                std::cout << "    ldr w8, [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
-                std::cout << "    ldr w9, [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
-                std::cout << "    subs w8, w8, w9\n";
-                std::cout << "    cset w8, gt\n";
-                std::cout << "    and w8, w8, #0x1\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
-                break;
             case IRInstr::eq:
-                std::cout << "    ldr w9, [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
-                std::cout << "    subs w8, w8, w9\n";
-                std::cout << "    cset w8, eq\n";
-                std::cout << "    and w8, w8, #0x1\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
-                break;
             case IRInstr::diff:
-                std::cout << "    ldr w9, [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
-                std::cout << "    subs w8, w8, w9\n";
-                std::cout << "    cset w8, ne\n";
-                std::cout << "    and w8, w8, #0x1\n";
-                std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+            {
+                std::string reg1 = regAlloc.allocate();
+                std::string reg2 = regAlloc.allocate();
+                std::string result = regAlloc.allocate();
+
+                std::cout << "    ldr " << reg1 << ", [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
+                std::cout << "    ldr " << reg2 << ", [sp, #" << symbolTable->getOffset(params[2]) << "]\n";
+                std::cout << "    cmp " << reg1 << ", " << reg2 << "\n";
+
+                switch (op)
+                {
+                case IRInstr::inf:
+                    std::cout << "    cset " << result << ", lt\n";
+                    break;
+                case IRInstr::sup:
+                    std::cout << "    cset " << result << ", gt\n";
+                    break;
+                case IRInstr::eq:
+                    std::cout << "    cset " << result << ", eq\n";
+                    break;
+                case IRInstr::diff:
+                    std::cout << "    cset " << result << ", ne\n";
+                    break;
+                default:
+                    break;
+                }
+
+                std::cout << "    str " << result << ", [sp, #" << symbolTable->getOffset(params[0]) << "]\n";
+
+                regAlloc.free(reg1);
+                regAlloc.free(reg2);
+                regAlloc.free(result);
                 break;
+            }
 
             case IRInstr::retour:
             {
@@ -143,46 +219,54 @@ void AssemblyArm64::generateAssemblyArm64()
                     }
                     else
                     {
-                        int val;
-                        if (params[0][0] == '\'')
-                            val = (int)params[0][1];
-                        else
-                            val = stol(params[0]);
+                        int val = (params[0][0] == '\'') ? (int)params[0][1] : stol(params[0]);
                         std::cout << "    mov w0, #" << val << "\n";
                     }
                 }
 
                 int nbVariablesInScope = symbolTable->getNbVariablesInScope();
-                int sizeSub = (nbVariablesInScope + 2) * 4; // +2 for frame pointer and return address
-                while (sizeSub % 16 != 0)
-                {
-                    sizeSub += 4;
-                }
-                std::cout << "    # epilogue\n";
-                std::cout << "    ldp x29, x30, [sp, #" << sizeSub - 16 << "]\n"; // restore the frame pointer and return address
-                std::cout << "    add sp, sp, #" << sizeSub << "\n";              // restore the stack pointer
+                int stackSize = (nbVariablesInScope + 2) * 4;
+                stackSize = (stackSize + 15) & ~15;
+                std::cout << "    add sp, sp, #" << stackSize << "\n";
                 std::cout << "    ret\n";
                 symbolTable->leaveScope();
                 break;
             }
+
             case IRInstr::functionCall:
             {
-                vector<string> registers = {"w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8"};
+                std::cout << "    mov x27, sp\n";
+                // Engistrer les registres
+                std::cout << "    stp x8, x9, [sp, #-16]!\n";
+                std::cout << "    stp x10, x11, [sp, #-16]!\n";
+                std::cout << "    stp x12, x13, [sp, #-16]!\n";
+
+                //  Passer les parametres à w0 - w7
+                // params[0]: type de reour; params[1]: valeur de retour; params[2]: lable de fonction
+                vector<string> paramRegs = {"w0", "w1", "w2", "w3", "w4", "w5", "w6", "w7"};
                 for (int i = 3; i < params.size(); i++)
                 {
-                    if (symbolTable->getOffset(params[i]) == -1) // if the variable is not in the symbol table, it is a constant
+                    if (symbolTable->getOffset(params[i]) == -1)
                     {
-                        std::cout << "    mov " << registers[i] << ", #" << params[i] << "\n";
+                        std::cout << "    mov " << paramRegs[i - 3] << ", #" << params[i] << "\n";
                     }
-                    else // if the variable is in the symbol table
+                    else
                     {
-                        std::cout << "    ldr " << registers[i] << ", [sp, #" << symbolTable->getOffset(params[i]) << "]\n";
+                        std::cout << "    ldr " << paramRegs[i - 3] << ", [sp, #"
+                                  << symbolTable->getOffset(params[i]) << "]\n";
                     }
                 }
-                std::cout << "    bl _" << params[1] << "\n";
-                if (params[0] != "void") // if the function is not void, we store the result in the symbol table
+
+                std::cout << "    bl _" << params[2] << "\n";
+
+                // 恢复寄存器
+                std::cout << "    ldp x12, x13, [sp], #16\n";
+                std::cout << "    ldp x10, x11, [sp], #16\n";
+                std::cout << "    ldp x8, x9, [sp], #16\n";
+
+                if (params[0] != "void")
                 {
-                    std::cout << "    str w8, [sp, #" << symbolTable->getOffset(params[1]) << "]\n";
+                    std::cout << "    str w0, [x27, #" << symbolTable->getOffset(params[1]) << "]\n";
                 }
                 break;
             }
@@ -191,27 +275,26 @@ void AssemblyArm64::generateAssemblyArm64()
             {
                 symbolTable->enterScope(params[0]);
                 int nbVariablesInScope = symbolTable->getNbVariablesInScope();
-                int sizeSub = (nbVariablesInScope + 2) * 4; // +2 for frame pointer and return address
-                while (sizeSub % 16 != 0)
-                {
-                    sizeSub += 4;
-                }
+                int stackSize = (nbVariablesInScope + 2) * 4;
+                stackSize = (stackSize + 15) & ~15;
+
                 std::cout << "_" << params[0] << ":\n";
-                std::cout << "    sub sp, sp, #" << sizeSub << "\n";
-                // prologue
-                std::cout << "    # prologue\n";
-                std::cout << "    stp x29, x30, [sp, #" << sizeSub - 16 << "]\n";
-                std::cout << "    add x29, sp, #" << sizeSub - 16 << "\n";
-                // body
-                vector<string> registers = {"w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8"};
-                std::cout << "    # body\n";
-                // store parameters in the stack
+                std::cout << "    sub sp, sp, #" << stackSize << "\n";
+
+                std::cout << "    stp x29, x30, [sp, #" << stackSize - 16 << "]\n";
+                std::cout << "    add x29, sp, #" << stackSize - 16 << "\n";
+
+                vector<string> paramRegs = {"w0", "w1", "w2", "w3", "w4", "w5", "w6", "w7"};
                 for (int i = 1; i < params.size(); i++)
                 {
-                    std::cout << "    str " << registers[i - 1] << ", [x29, #" << symbolTable->getOffset(params[i]) << "]\n";
+                    std::cout << "    str " << paramRegs[i - 1] << ", [x29, #"
+                              << symbolTable->getOffset(params[i]) << "]\n";
                 }
                 break;
             }
+
+            default:
+                throw std::runtime_error("Unsupported operation in generateAssemblyArm64");
             }
         }
     }
