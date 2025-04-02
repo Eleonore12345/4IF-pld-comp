@@ -36,6 +36,8 @@ class  CodeGenVisitor : public ifccBaseVisitor {
                 virtual antlrcpp::Any visitFunctionCall(ifccParser::FunctionCallContext *ctx) override;
                 virtual antlrcpp::Any visitNoArg(ifccParser::NoArgContext *ctx) override;
                 virtual antlrcpp::Any visitWithArgs(ifccParser::WithArgsContext *ctx) override;
+                virtual antlrcpp::Any visitBloc(ifccParser::BlocContext *ctx) override;
+                    
                 
                 void VariableOrConstante(string name1, string name2);
                 vector<CFG*> getCfgs(){return cfgs;};

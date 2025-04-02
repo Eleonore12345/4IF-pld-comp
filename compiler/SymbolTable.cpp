@@ -4,9 +4,8 @@
 using namespace std;
 
 SymbolTable::SymbolTable() {
-    currentScope = new scopeNode();
-    currentScope->nameScope = "scope_fichier";
-    currentScope->parent = nullptr;
+    string fichier = "scope_fichier";
+    currentScope = new FunctionScopeNode(nullptr, fichier);
     rootScope = currentScope;
 }
 
@@ -14,141 +13,89 @@ SymbolTable::~SymbolTable() {
     freeScopes(rootScope);
 }
 
-void SymbolTable::freeScopes(scopeNode * scope) {
+void SymbolTable::freeScopes(ScopeNode * scope) {
     if (scope == nullptr) {
         return;
     }
-    for (auto* child : scope->children) {
+    for (ScopeNode* child : scope->getChildren()) {
         freeScopes(child);
     }
     delete scope;
 }
 
-void SymbolTable::createAndEnterScope(string name) {
-    scopeNode * nextScope = new scopeNode();
-    nextScope->nameScope = name;
-    nextScope->parent = currentScope;
-    currentScope->children.push_back(nextScope);
+void SymbolTable::createAndEnterFunctionScope(string name) {
+    ScopeNode* nextScope = new FunctionScopeNode(currentScope, name);
+    currentScope->addChildren(nextScope);
     currentScope = nextScope;
 }
 
-void SymbolTable::enterScope(string name) {
+void SymbolTable::createAndEnterScope() {
+    ScopeNode * nextScope = new ScopeNode(currentScope);
+    currentScope->addChildren(nextScope);
+    currentScope = nextScope;
+}
+
+void SymbolTable::enterNextScope() {
     bool found = false;
-    for(const auto& a : currentScope->children) {
-        if(a->nameScope == name) {
+    for (ScopeNode* a : currentScope->getChildren()) {
+        if (a->isVisited() == false) 
+        {
             currentScope = a;
             found = true;
             break;
         }
     }
     if(!found) {
-        string erreur = "Error : Scope " + name + " not found from Scope " + currentScope->nameScope + " !";
+        string erreur = "Error : no unvisited scope left\n";
         throw runtime_error(erreur);
     }
 }
 
 void SymbolTable::leaveScope() {
-    currentScope = currentScope->parent;
+    currentScope = currentScope->getParent();
 }
 
-void SymbolTable::rootToCurrent() {
+void SymbolTable::resetAndRootToCurrent() {
     currentScope = rootScope;
+    reset(currentScope);
+}
+
+void SymbolTable::reset(ScopeNode* scope) {
+    scope->reset();
+    for (ScopeNode* child : scope->getChildren()) {
+        reset(child);
+    }
 }
 
 void SymbolTable::print() {
-    if(rootScope) {
+    if (rootScope) {
         printScope(rootScope,0);
     }
 }
 
-void SymbolTable::printCurrentScope() {
-    cout << currentScope->nameScope << endl;
-    for(const auto & a : currentScope->vect) {
-        cout << "   id : " << a.identifier << " offset : " << a.offset << endl;
-    }
+ScopeNode* SymbolTable::getCurrentScope() {
+    return currentScope;
 }
 
-void SymbolTable::printScope(scopeNode* scope, int level) {
-    cout << "Level : " << level << ", Scope: " << scope->nameScope << endl;
-    for(const auto & a : scope->vect) {
-        cout << "   id : " << a.identifier << " offset : " << a.offset << " used : " << a.use << endl;
-    }
-    for (auto* child : scope->children) {
+void SymbolTable::printScope(ScopeNode* scope, int level) {
+    cout << "Level : " << level << endl;
+    scope->print();
+    for (ScopeNode* child : scope->getChildren()) {
         printScope(child, level + 1);
     }
 }
 
-void SymbolTable::addIdentifier(desc_identifier id) 
+variable* SymbolTable::getVariable(string name) 
 {
-    currentScope->vect.push_back(id);
-}
-
-int SymbolTable::size() 
-{
-    return currentScope->vect.size();
-}
-
-int SymbolTable::getIndex(string name) 
-{
-    scopeNode* scope = currentScope;
+    ScopeNode* scope = currentScope;
     while (scope != nullptr){
-        for (int i = 0 ; i < scope->vect.size() ; i++)
-        {
-            if ((scope->vect)[i].identifier == name) 
-            {
-                return i;
-            }
+        variable* variable = scope->getVariable(name);
+        if (variable) {
+            return variable;
         }
-        scope = scope->parent;
+        scope = scope->getParent();
     }
-    return -1;
-}
-
-int SymbolTable::getOffset(string name)
-{
-    scopeNode* scope = currentScope;
-    while (scope != nullptr){
-        for(int i = 0 ; i < scope->vect.size() ; i++)
-        {
-            if ((scope->vect)[i].identifier == name) 
-            {
-                return (scope->vect)[i].offset;
-            }
-        }
-        scope = scope->parent;
-    }
-    return -1;
-}
-
-int SymbolTable::getInitStatus(string name) {
-    scopeNode* scope = currentScope;
-    while (scope != nullptr){
-        for(int i = 0 ; i < scope->vect.size() ; i++)
-        {
-            if ((scope->vect)[i].identifier == name) 
-            {
-                return (scope->vect)[i].init;
-            }
-        }
-        scope = scope->parent;
-    }
-    return -1;
-}
-
-void SymbolTable::setUse(string name) {
-    int index = getIndex(name);
-    if (index != -1) 
-    {
-        (currentScope->vect)[index].use = true;
-    }
-}
-
-void SymbolTable::setInit(string name) {
-    int index = getIndex(name);
-    if (index != -1) 
-    {
-        (currentScope->vect)[index].init = true;
-    }
+    return nullptr;
 }
 
 void SymbolTable::checkIfEachIdUsed() {
@@ -159,41 +106,16 @@ void SymbolTable::checkIfEachIdInit() {
     checkIfEachIdInitInScope(rootScope);
 }
 
-void SymbolTable::checkIfEachIdUsedInScope(scopeNode* scope) {
-    for (const auto& a : scope->vect) {
-        if (a.isTemp == false && a.use == false) {
-            cerr << "WARNING : variable " << a.identifier << " not used" << endl;
-        }
-    }
-    for (auto* child : scope->children) {
+void SymbolTable::checkIfEachIdUsedInScope(ScopeNode* scope) {
+    scope->checkIfEachIdUsed();
+    for (ScopeNode* child : scope->getChildren()) {
         checkIfEachIdUsedInScope(child);
     }
 }
 
-void SymbolTable::checkIfEachIdInitInScope(scopeNode* scope) {
-    for (const auto& a : scope->vect) {
-        if (a.isTemp == false && a.init == false) 
-        {
-            cerr << "WARNING : variable " << a.identifier << " declared but not initialized" << endl;
-        }
-    }
-    for (auto* child : scope->children) {
+void SymbolTable::checkIfEachIdInitInScope(ScopeNode* scope) {
+    scope->checkIfEachIdInit();
+    for (ScopeNode* child : scope->getChildren()) {
         checkIfEachIdInitInScope(child);
     }
-}
-
-string SymbolTable::getNextNotUsedTempVar() {
-    for (const auto& a : currentScope->vect) {
-        if (a.isTemp == true && a.use == false) 
-        {
-            return a.identifier;
-        }
-    }
-    string erreur = "No temp variable available\n";
-    throw runtime_error(erreur);
-    return "";
-}
-
-int SymbolTable::getNbVariablesInScope() {
-    return currentScope->vect.size();
 }

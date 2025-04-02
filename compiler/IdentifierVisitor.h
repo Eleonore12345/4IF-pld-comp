@@ -32,11 +32,12 @@ class  IdentifierVisitor : public ifccBaseVisitor {
                 virtual antlrcpp::Any visitOpBitwiseXor(ifccParser::OpBitwiseXorContext *ctx) override;
                 virtual antlrcpp::Any visitOpBitwiseOr(ifccParser::OpBitwiseOrContext *ctx) override;
                 virtual antlrcpp::Any visitOpComp(ifccParser::OpCompContext *ctx) override;
+                virtual antlrcpp::Any visitBloc(ifccParser::BlocContext *ctx) override;
                 
         private:
                 void verifExprPasFctVoid(ifccParser::ExprContext * ctx);
                 void addTempVariable();
-                SymbolTable* symTable;
+                SymbolTable* symbolTable;
                 FunctionTable * funcTable;
                 bool error;
 };

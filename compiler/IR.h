@@ -52,6 +52,8 @@ class IRInstr {
 		diff,
 		functionCall, // a = function(arg1, arg2, ...) {a, function, arg[]}
 		functionDef, // int/void function(int arg1, int arg2, ...) { instr* }
+		enter_bloc,
+		leave_bloc,
 	} Operation;
 
 
