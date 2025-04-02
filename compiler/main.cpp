@@ -54,32 +54,26 @@ int main(int argn, const char **argv)
 
   FunctionTable* f = new FunctionTable();
   SymbolTable* s = new SymbolTable();
-  CFG * c = new CFG();
+
 
   IdentifierVisitor i(s,f);
   i.visit(tree);
 
-  
   if (i.getError()) {
     delete s;
     return 1;
   }
 
-  //s->print();
-
-  CodeGenVisitor v(s,c,f);
+  CodeGenVisitor v(s,f);
   v.visit(tree);
-  //c->afficher_CFG();
-
-  //s->print();
-
+  vector<CFG*> listeCFG = v.getCfgs();
   //TODO target en argument
-  AssemblyX86 a(c,s);
+
+  AssemblyX86 a(listeCFG,s);
   a.generateAssemblyX86();
 
   //s->print();
-
-  delete c;
+  v.deleteCfgs();
   delete s;
   delete f;
   return 0;

@@ -29,6 +29,8 @@ class IRInstr {
 		ldconstneg, //a=-2 {a,2}
 		copy, // a=b {a,b}
 		negexpr, // a=-b {a,b}
+		notexpr, //a=!b
+		notconst, //a=!const
 		add, // a=b+c {a,b,c}
 		sub, // a=b-c {a,b,c}
 		mul, // a=b*c {a,b,c}
@@ -118,7 +120,6 @@ class BasicBlock {
   string test_var_name;  /** < when generating IR code for an if(expr) or while(expr) etc,
 													 store here the name of the variable that holds the value of expr */
  protected:
-
  
 };
 
@@ -157,7 +158,7 @@ class CFG {
 	Type get_var_Type(string name);
 	void afficher_CFG();
 	// basic block management
-	string new_BB_name();
+	string new_BB_name(string name);
 	BasicBlock* current_bb;
 	vector <BasicBlock*> get_bbs() { return bbs; }
 
