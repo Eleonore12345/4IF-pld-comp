@@ -162,15 +162,15 @@ antlrcpp::Any IdentifierVisitor::visitNoParam(ifccParser::NoParamContext *ctx)
 antlrcpp::Any IdentifierVisitor::visitWithParams(ifccParser::WithParamsContext *ctx)
 {
     int size = ctx->VAR().size();
-    if(size > 6) {
-        std::string erreur = "Fonctions avec plus de 6 paramètres non implémentées\n";
-        throw std::runtime_error(erreur);
-    } else {
-        for(int i = 0; i < size; i++) {
+        for(int i = 0; i < 6 && i < size; i++) {
             string varName = ctx->VAR(i)->getText();
             symbolTable->getCurrentScope()->addVariable(varName, false, true, false);
         }
-    }
+        for(int i = size - 1; i > 5; --i) {
+            string varName = ctx->VAR(i)->getText();
+            variable* var = symbolTable->getCurrentScope()->addVariable(varName, false, true, false);
+            var->offset = 16 + (i-6) * 8;
+        }
     return size;
 }
 

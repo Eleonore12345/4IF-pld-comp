@@ -7,7 +7,6 @@ CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable, FunctionTable * functi
 {
     symbolTable = symboleTable;
     symbolTable->resetAndRootToCurrent();
-    cfg = c;
     funcTable = functionTable;
 }
 
@@ -140,7 +139,7 @@ antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *c
 void CodeGenVisitor::VariableOrConstante(string name1, string name2) {
     // pour gérer si on a une constante ou une variable à droite
     if (!symbolTable->getCurrentScope()->getVariable(name2)){
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {name1, name2});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {name1, name2});
     }
     else{
         currentCfg->current_bb->add_IRInstr(IRInstr::Operation::copy, INT, {name1, name2});
@@ -262,7 +261,7 @@ antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
 
     funcTable->setCurrentFunction(fctName);
 
-    cfg->current_bb->add_IRInstr(IRInstr::Operation::enter_bloc, INT, {});
+    currentCfg->current_bb->add_IRInstr(IRInstr::Operation::enter_bloc, INT, {});
     symbolTable->enterNextScope();
 
     paramNames.insert(paramNames.begin(), fctName);
@@ -270,14 +269,14 @@ antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     currentCfg->current_bb->add_IRInstr(IRInstr::Operation::functionDef, INT, paramNames);
     visitChildren(ctx);
 
-    cfg->current_bb->add_IRInstr(IRInstr::Operation::leave_bloc, INT, {});
+    currentCfg->current_bb->add_IRInstr(IRInstr::Operation::leave_bloc, INT, {});
     symbolTable->getCurrentScope()->setVisited();
     symbolTable->leaveScope();
 
 
     //Verification si un return est present dans la fonction sinon on ret vide
     if(!funcTable->hasReturn(fctName)) {
-        cfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {});
+        currentCfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {});
     }
     return 0;
 }
@@ -347,10 +346,10 @@ antlrcpp::Any CodeGenVisitor::visitWithParams(ifccParser::WithParamsContext *ctx
 
 antlrcpp::Any CodeGenVisitor::visitBloc(ifccParser::BlocContext *ctx) {
     //cout << "add enter_bloc" << endl;
-    cfg->current_bb->add_IRInstr(IRInstr::Operation::enter_bloc, INT, {});
+    currentCfg->current_bb->add_IRInstr(IRInstr::Operation::enter_bloc, INT, {});
     symbolTable->enterNextScope();
     visitChildren(ctx);
-    cfg->current_bb->add_IRInstr(IRInstr::Operation::leave_bloc, INT, {});
+    currentCfg->current_bb->add_IRInstr(IRInstr::Operation::leave_bloc, INT, {});
     symbolTable->getCurrentScope()->setVisited();
     symbolTable->leaveScope();
     return 0;

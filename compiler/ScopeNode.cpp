@@ -54,17 +54,18 @@ FunctionScopeNode* ScopeNode::getFunctionParent() {
     return nullptr; // Aucun FunctionScopeNode trouvé
 }
 
-void ScopeNode::addVariable(string name, bool use, bool init, bool isTemp) 
+variable* ScopeNode::addVariable(string name, bool use, bool init, bool isTemp) 
 {
     FunctionScopeNode* functionParent = getFunctionParent();
     functionParent->incrementSize(4);
     variable var;
     var.name = name;
-    var.offset = functionParent->getSize();
+    var.offset = - functionParent->getSize();
     var.use = use;
     var.init = init;
     var.isTemp = isTemp;
     variable_vect.push_back(var);
+    return &(variable_vect.back());
 }
 
 void ScopeNode::checkIfEachIdUsed() {
