@@ -252,14 +252,13 @@ void AssemblyArm64::generateAssemblyArm64()
                     }
                     else
                     {
-                        std::cout << "    ldr " << paramRegs[i - 3] << ", [sp, #"
+                        std::cout << "    ldr " << paramRegs[i - 3] << ", [x27, #"
                                   << symbolTable->getOffset(params[i]) << "]\n";
                     }
                 }
 
                 std::cout << "    bl _" << params[2] << "\n";
 
-                // 恢复寄存器
                 std::cout << "    ldp x12, x13, [sp], #16\n";
                 std::cout << "    ldp x10, x11, [sp], #16\n";
                 std::cout << "    ldp x8, x9, [sp], #16\n";
@@ -287,7 +286,7 @@ void AssemblyArm64::generateAssemblyArm64()
                 vector<string> paramRegs = {"w0", "w1", "w2", "w3", "w4", "w5", "w6", "w7"};
                 for (int i = 1; i < params.size(); i++)
                 {
-                    std::cout << "    str " << paramRegs[i - 1] << ", [x29, #"
+                    std::cout << "    str " << paramRegs[i - 1] << ", [sp, #"
                               << symbolTable->getOffset(params[i]) << "]\n";
                 }
                 break;
