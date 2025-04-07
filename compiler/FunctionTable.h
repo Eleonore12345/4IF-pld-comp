@@ -10,6 +10,7 @@ typedef struct {
     string retourType;
     int nbParams;
     bool def = false;
+    bool rval = false;
 } function_identifier;
 
 class FunctionTable {
@@ -20,6 +21,7 @@ class FunctionTable {
         void setDef(string name);
         void setReturnType(string name, string type);
         void setCurrentFunction(string name);
+        void setAsRval(string name);
         string getCurrentFunction();
         int getIndex(string name); 
         int getNbParams(string name);
@@ -27,6 +29,7 @@ class FunctionTable {
         bool isDefined(string name);
         bool isPresent(string name);
         void checkIfEachFuncDefined();
+        void checkRvalFuncReturnType();
 
     private:
         vector<function_identifier> vect;

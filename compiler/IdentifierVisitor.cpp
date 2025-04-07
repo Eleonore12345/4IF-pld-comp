@@ -114,6 +114,7 @@ antlrcpp::Any IdentifierVisitor::visitAxiom(ifccParser::AxiomContext *ctx)
 {
     visitChildren(ctx);
     funcTable->checkIfEachFuncDefined();
+    funcTable->checkRvalFuncReturnType();
     symTable->checkIfEachIdUsed();
     symTable->checkIfEachIdInit();
     return 0;    
@@ -205,6 +206,7 @@ void IdentifierVisitor::verifExprPasFctVoid(ifccParser::ExprContext * ctx) {
     if (auto funcCallCtx = dynamic_cast<ifccParser::FunctionCallContext*>(ctx)) {
         std::string funcName = funcCallCtx->VAR()->getText();
         std::string returnType = funcTable->getReturnType(funcName);
+        funcTable->setAsRval(funcName);
         if (returnType == "void") {
             std::string erreur = "error: void value not ignored as it ought to be\n";
             throw std::runtime_error(erreur);

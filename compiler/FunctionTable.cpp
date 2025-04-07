@@ -1,5 +1,6 @@
 #include "FunctionTable.h"
 #include <stdexcept>
+#include <iostream>
 
 FunctionTable::FunctionTable() {
     function_identifier f1;
@@ -55,6 +56,14 @@ void FunctionTable::setCurrentFunction(string name) {
     currentFunction = name;
 }
 
+void FunctionTable::setAsRval(string name) {
+    int index = getIndex(name);
+    if (index != -1) 
+    {
+        vect[index].rval = true;
+    }
+}
+
 string FunctionTable::getCurrentFunction() {
     return currentFunction;
 }
@@ -98,6 +107,16 @@ void FunctionTable::checkIfEachFuncDefined() {
         {
             std::string erreur = "undefined reference to " + a.functionName + "\n";
             throw std::runtime_error(erreur);
+        }
+    }
+}
+
+void FunctionTable::checkRvalFuncReturnType() {
+    for (auto a : vect)
+    {
+        if (a.rval == true && a.retourType == "void") 
+        {
+        std::cerr << "WARNING : conflicting types for '" << a.functionName << "'; have ‘void()’" << std::endl;
         }
     }
 }
