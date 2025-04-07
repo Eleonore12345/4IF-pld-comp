@@ -291,11 +291,13 @@ void AssemblyX86::generateAssemblyX86()
                     }
                     case IRInstr::enter_bloc:
                     {
+                        //std::cout << "enter bloc" << endl;
                         symbolTable->enterNextScope();
                         break;
                     }
                     case IRInstr::leave_bloc:
                     {
+                        //std::cout << "leave bloc" << endl;
                         symbolTable->getCurrentScope()->setVisited();
                         symbolTable->leaveScope();
                         break;
@@ -313,6 +315,21 @@ void AssemblyX86::generateAssemblyX86()
                 {
                     string label_bb_endif = bb->exit_true->label;
                     std::cout << "    jmp " << label_bb_endif << endl;
+                }
+            }
+        }
+        for (IRInstr *instr : c->get_output_bb()->instrs)
+        {
+            IRInstr::Operation op = instr->getOperation();
+            vector<string> params = instr->getParams();
+            switch (op)
+            {
+            case IRInstr::leave_bloc:
+                {
+                    //std::cout << "leave bloc" << endl;
+                    symbolTable->getCurrentScope()->setVisited();
+                    symbolTable->leaveScope();
+                    break;
                 }
             }
         }

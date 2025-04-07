@@ -30,7 +30,7 @@ if_stmt : 'if' '(' expr ')' instr
         (else_stmt)?
         ;
 
-else_stmt : 'else' instr*;
+else_stmt : 'else' instr;
 
 expr : VAR '(' args ')' # functionCall
     | OP=('+'|'-'|'!') CONST # opUnConst

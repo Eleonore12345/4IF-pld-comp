@@ -140,7 +140,9 @@ class CFG {
  public:
 	CFG(DefFonction* ast);
 
-	CFG(){};
+	CFG(){
+		output_bb = new BasicBlock(this, "output_bb");
+	};
 
 	DefFonction* ast; /**< The AST this CFG comes from */
 	
@@ -162,6 +164,7 @@ class CFG {
 	string new_BB_name(string name);
 	BasicBlock* current_bb;
 	vector <BasicBlock*> get_bbs() { return bbs; }
+	BasicBlock* get_output_bb() { return output_bb; }
 
  protected:
 	map <string, Type> Symbolint; /**< part of the symbol table  */
@@ -170,6 +173,8 @@ class CFG {
 	int nextBBnumber; /**< just for naming */
 	
 	vector <BasicBlock*> bbs; /**< all the basic blocks of this CFG*/
+	BasicBlock* output_bb;
+
 };
 
 

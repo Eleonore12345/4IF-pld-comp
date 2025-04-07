@@ -47,6 +47,7 @@ void SymbolTable::enterNextScope() {
     }
     if(!found) {
         string erreur = "Error : no unvisited scope left\n";
+        //print();
         throw runtime_error(erreur);
     }
 }

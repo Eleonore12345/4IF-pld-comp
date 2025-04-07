@@ -64,16 +64,21 @@ int main(int argn, const char **argv)
     return 1;
   }
 
+  //s->print();
+  
   CodeGenVisitor v(s,f);
   v.visit(tree);
   vector<CFG*> listeCFG = v.getCfgs();
   //TODO target en argument
 
+  //s->print();
+
   AssemblyX86 a(listeCFG,s);
   a.generateAssemblyX86();
-
   //s->print();
+  
   v.deleteCfgs();
+
   delete s;
   delete f;
   return 0;
