@@ -28,8 +28,9 @@ void AssemblyX86::generateAssemblyX86()
                         int val;
                         if (params[1][0] == '\'')
                             val = (int) params[1][1];
-                        else 
+                        else {
                             val = stol(params[1]);
+                        }
                         int offset = symbolTable->getVariable(params[0])->offset;
                         std::cout << "    movl $" << val << ", " << offset << "(%rbp)\n";
                         break;
