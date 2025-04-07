@@ -206,6 +206,14 @@ void IdentifierVisitor::verifExprPasFctVoid(ifccParser::ExprContext * ctx) {
     if (auto funcCallCtx = dynamic_cast<ifccParser::FunctionCallContext*>(ctx)) {
         std::string funcName = funcCallCtx->VAR()->getText();
         std::string returnType = funcTable->getReturnType(funcName);
+        if(!funcTable->isPresent(funcName) && !funcTable->isDefined(funcName)) {
+            int nbArgs = visit(funcCallCtx->args());
+            function_identifier f;
+            f.functionName = funcName;
+            f.nbParams = nbArgs;
+            f.def = false;
+            funcTable->addFunction(f);
+        }
         funcTable->setAsRval(funcName);
         if (returnType == "void") {
             std::string erreur = "error: void value not ignored as it ought to be\n";
