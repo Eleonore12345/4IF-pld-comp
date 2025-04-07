@@ -137,3 +137,13 @@ bool FunctionTable::hasReturn(string name) {
     } 
     return false;
 }
+
+void FunctionTable::checkRvalFuncReturnType() {
+    for (auto a : vect)
+    {
+        if (a.rval == true && a.retourType == "void") 
+        {
+        std::cerr << "WARNING : conflicting types for '" << a.functionName << "'; have ‘void()’" << std::endl;
+        }
+    }
+}

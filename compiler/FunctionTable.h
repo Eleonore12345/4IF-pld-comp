@@ -12,6 +12,7 @@ typedef struct {
     bool def = false;
     bool rval = false;
     bool hasReturn = false;
+    bool rval = false;
 } function_identifier;
 
 class FunctionTable {
