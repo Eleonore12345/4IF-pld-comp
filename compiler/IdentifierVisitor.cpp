@@ -18,7 +18,6 @@ antlrcpp::Any IdentifierVisitor::visitInitDecla(ifccParser::InitDeclaContext *ct
     string varName = ctx->VAR()->getText();
     if (symbolTable->getCurrentScope()->getVariable(varName)) {
         std::string erreur = "Variable " + varName + " already declared\n";
-        symbolTable->print();
         throw std::runtime_error(erreur);
         error = true;
     } else {
@@ -27,7 +26,11 @@ antlrcpp::Any IdentifierVisitor::visitInitDecla(ifccParser::InitDeclaContext *ct
             verifExprPasFctVoid(ctx->expr());
             init = true;
         }
-        symbolTable->getCurrentScope()->addVariable(varName, false, init, false);
+        ScopeNode* currentScope = symbolTable->getCurrentScope();
+        FunctionScopeNode* functionParent = currentScope->getFunctionParent();
+        functionParent->incrementSize(4);
+        int offset = - functionParent->getSize();
+        currentScope->addVariable(varName, offset, false, init, false);
     }
     return visitChildren(ctx);
 }
@@ -162,15 +165,19 @@ antlrcpp::Any IdentifierVisitor::visitNoParam(ifccParser::NoParamContext *ctx)
 antlrcpp::Any IdentifierVisitor::visitWithParams(ifccParser::WithParamsContext *ctx)
 {
     int size = ctx->VAR().size();
-        for(int i = 0; i < 6 && i < size; i++) {
-            string varName = ctx->VAR(i)->getText();
-            symbolTable->getCurrentScope()->addVariable(varName, false, true, false);
-        }
-        for(int i = size - 1; i > 5; --i) {
-            string varName = ctx->VAR(i)->getText();
-            variable* var = symbolTable->getCurrentScope()->addVariable(varName, false, true, false);
-            var->offset = 16 + (i-6) * 8;
-        }
+    ScopeNode* currentScope = symbolTable->getCurrentScope();
+    FunctionScopeNode* functionParent = currentScope->getFunctionParent();
+    for(int i = 0; i < 6 && i < size; i++) {
+        string varName = ctx->VAR(i)->getText();
+        functionParent->incrementSize(4);
+        int offset = - functionParent->getSize();
+        currentScope->addVariable(varName, offset, false, true, false);
+    }
+    for(int i = size - 1; i > 5; --i) {
+        string varName = ctx->VAR(i)->getText();
+        int offset = 16 + (i-6) * 8;
+        variable* var = currentScope->addVariable(varName, offset, false, true, false);
+    }
     return size;
 }
 
@@ -268,7 +275,11 @@ antlrcpp::Any IdentifierVisitor::visitOpComp(ifccParser::OpCompContext *ctx) {
 
 void IdentifierVisitor::addTempVariable() {
     string nameVarTmp = "tmp" + to_string(symbolTable->getCurrentScope()->getNbTmpVariable());
-    symbolTable->getCurrentScope()->addVariable(nameVarTmp, false, false, true);
+    ScopeNode* currentScope = symbolTable->getCurrentScope();
+    FunctionScopeNode* functionParent = currentScope->getFunctionParent();
+    functionParent->incrementSize(4);
+    int offset = - functionParent->getSize();
+    currentScope->addVariable(nameVarTmp, offset, false, false, true);
 }
 
 antlrcpp::Any IdentifierVisitor::visitOpUnConst(ifccParser::OpUnConstContext *ctx) {

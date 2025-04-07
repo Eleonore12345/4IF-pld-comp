@@ -51,16 +51,16 @@ FunctionScopeNode* ScopeNode::getFunctionParent() {
         }
         current = current->getParent();
     }
+    string erreur = "error: no function found\n";
+    throw runtime_error(erreur);
     return nullptr; // Aucun FunctionScopeNode trouvé
 }
 
-variable* ScopeNode::addVariable(string name, bool use, bool init, bool isTemp) 
+variable* ScopeNode::addVariable(string name, int offset, bool use, bool init, bool isTemp) 
 {
-    FunctionScopeNode* functionParent = getFunctionParent();
-    functionParent->incrementSize(4);
     variable var;
     var.name = name;
-    var.offset = - functionParent->getSize();
+    var.offset = offset;
     var.use = use;
     var.init = init;
     var.isTemp = isTemp;

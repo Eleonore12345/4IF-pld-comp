@@ -20,7 +20,7 @@ class ScopeNode {
         ScopeNode(ScopeNode* parent = nullptr);
         virtual ~ScopeNode(){};
         virtual void print();
-        variable* addVariable(string name, bool use = false, bool init = false, bool isTemp = false);
+        variable* addVariable(string name, int offset, bool use = false, bool init = false, bool isTemp = false);
         void addChildren(ScopeNode* children);
         variable* getVariable(string name);
         ScopeNode* getParent();
@@ -32,11 +32,10 @@ class ScopeNode {
         void reset();
         bool isVisited();
         int getNbTmpVariable();
+        FunctionScopeNode* getFunctionParent();
         
 
     protected:
-        FunctionScopeNode* getFunctionParent();
-
         vector<variable> variable_vect;
         ScopeNode* parent;
         vector<ScopeNode*> children;
