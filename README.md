@@ -120,9 +120,70 @@ The test framework is based on [ifcc-test.py][python-test-script] which shouldn'
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+Our compiler `ifcc` can compile basic code written in C. The only variable type allowed is `int` (even if we can declare single characters as int values). It allows function definitions, implements [`int putchar(int ch)`][putchar-url] and [`int getchar(int ch)`][getchar-url] and can raise a few specific errors and warnings.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+Compilation target can be chosen between x86 and ARM architectures.
+
+#TODO: ## expliquer commandes de make
+
+## Example
+
+Our compiler produce correct assembly code for the following C code samples.
+
+```C
+int alphabet(int n) {
+  char a;
+  a=’A’;
+  while (a<’A’+n)
+  {
+    putchar(a);
+    a=a+1;
+  }
+  return a;
+}
+
+int main() {
+  int c;
+  c = alphabet(15);
+  return c;
+}
+```
+
+```C
+int fibo(int n) {
+  if ( n < 0 || n == 0) {
+    return 0;
+  }
+  else if (n == 1) {
+    return 1;
+  }
+  return fibo(n-1)
+    + fibo(n-2);
+}
+
+int main() {
+  return 2*fibo(8);
+}
+```
+
+```C
+void print_int(int x) {
+  if(x<0) {
+    putchar(’-’);
+    x = -x;
+  }
+  if(x/10 != 0) 
+    print_int(x/10);
+
+  putchar(x%10 + ’0’);
+}
+
+int main() {
+  print_int(-273);
+  putchar(10);/* newline */
+  return 0;
+}
+```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -175,6 +236,8 @@ Distributed under the MIT License. See [LICENSE.txt][license] for more informati
 [cpp-url]: https://en.cppreference.com/w/cpp/17
 [python-url]: https://www.python.org/downloads/
 [ast-url]: https://en.wikipedia.org/wiki/Abstract_syntax_tree
+[putchar-url]: https://en.cppreference.com/w/c/io/putchar
+[getchar-url]: https://en.cppreference.com/w/c/io/getchar
 [c-logo]: documents/c_icon.png
 [insa-lgog]: documents/insa_logo.jpg 
 [antlr-logo]: documents/antlr_logo.png
