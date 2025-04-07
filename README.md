@@ -23,16 +23,14 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
+        <li><a href="#antlr4">Antlr4</a></li>
+        <li><a href="#python">Python</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#contributors">Contibutors</a></li>
     <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
+
   </ol>
 </details>
 
@@ -129,14 +127,35 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Contributors:
-
-<a href="https://github.com/Eleonore12345/4IF-pld-comp/graphs/contributors">
-  <div>
-  <img src="https://avatars.githubusercontent.com/u/68855403?v=4" width="40"/>
-  AO2708
+<div style="display: flex; flex-wrap: wrap; gap: 12px;">
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <img src="https://avatars.githubusercontent.com/u/68855403?v=4" width="40" />
+    <span>AO2708</span>
   </div>
-  TODOOOOOO
-</a>
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <img src="https://avatars.githubusercontent.com/u/129035607?v=4" width="40" />
+    <span>Manon3005</span>
+  </div>
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <img src="https://avatars.githubusercontent.com/u/147798555?v=4" width="40" />
+    <span>armynion</span>
+  </div>
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <img src="https://avatars.githubusercontent.com/u/77687565?v=4" width="40" />
+    <span>Eleonore12345</span>
+  </div>
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <img src="https://avatars.githubusercontent.com/u/128641822?v=4" width="40" />
+    <span>BugaThis</span>
+  </div>
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <img src="https://avatars.githubusercontent.com/u/127881703?v=4" width="40" />
+    <span>Bathrock78</span>
+  </div>
+</div>
+
+
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -161,7 +180,7 @@ Distributed under the MIT License. See [LICENSE.txt][license] for more informati
 [antlr-logo]: documents/antlr_logo.png
 [cpp-logo]: documents/cpp_logo.png
 [python-logo]: documents/python_logo.png
-[config-file]: compiler/co
+[config-file]: compiler/config.mk
 [python-test-script]: tests/ifcc-test.py
 [license]: LICENCE.txt
 
