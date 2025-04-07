@@ -1,5 +1,6 @@
 #include "FunctionTable.h"
 #include <stdexcept>
+#include <iostream>
 
 FunctionTable::FunctionTable() {
     function_identifier f1;
@@ -53,6 +54,14 @@ void FunctionTable::setReturnType(string name, string type) {
 
 void FunctionTable::setCurrentFunction(string name) {
     currentFunction = name;
+}
+
+void FunctionTable::setAsRval(string name) {
+    int index = getIndex(name);
+    if (index != -1) 
+    {
+        vect[index].rval = true;
+    }
 }
 
 string FunctionTable::getCurrentFunction() {
@@ -117,4 +126,14 @@ bool FunctionTable::hasReturn(string name) {
         return vect[index].hasReturn;
     } 
     return false;
+}
+
+void FunctionTable::checkRvalFuncReturnType() {
+    for (auto a : vect)
+    {
+        if (a.rval == true && a.retourType == "void") 
+        {
+        std::cerr << "WARNING : conflicting types for '" << a.functionName << "'; have ‘void()’" << std::endl;
+        }
+    }
 }
