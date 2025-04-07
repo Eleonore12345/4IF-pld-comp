@@ -111,16 +111,6 @@ void FunctionTable::checkIfEachFuncDefined() {
     }
 }
 
-void FunctionTable::checkRvalFuncReturnType() {
-    for (auto a : vect)
-    {
-        if (a.rval == true && a.retourType == "void") 
-        {
-        std::cerr << "WARNING : conflicting types for '" << a.functionName << "'; have ‘void()’" << std::endl;
-        }
-    }
-}
-
 void FunctionTable::setHasReturnTrue(string name) {
     int index = getIndex(name);
     if (index != -1) 
