@@ -318,20 +318,8 @@ void AssemblyX86::generateAssemblyX86()
                 }
             }
         }
-        for (IRInstr *instr : c->get_output_bb()->instrs)
-        {
-            IRInstr::Operation op = instr->getOperation();
-            vector<string> params = instr->getParams();
-            switch (op)
-            {
-            case IRInstr::leave_bloc:
-                {
-                    //std::cout << "leave bloc" << endl;
-                    symbolTable->getCurrentScope()->setVisited();
-                    symbolTable->leaveScope();
-                    break;
-                }
-            }
-        }
+        // on quitte le scope de la fonction
+        symbolTable->getCurrentScope()->setVisited();
+        symbolTable->leaveScope();
     }
 }

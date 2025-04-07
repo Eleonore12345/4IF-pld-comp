@@ -118,7 +118,7 @@ class BasicBlock {
 	string label; /**< label of the BB, also will be the label in the generated code */
 	CFG* cfg; /** < the CFG where this block belongs */
 	vector<IRInstr*> instrs; /** < the instructions themselves. */
-  string test_var_name;  /** < when generating IR code for an if(expr) or while(expr) etc,
+  	string test_var_name;  /** < when generating IR code for an if(expr) or while(expr) etc,
 													 store here the name of the variable that holds the value of expr */
  protected:
  
@@ -141,7 +141,7 @@ class CFG {
 	CFG(DefFonction* ast);
 
 	CFG(){
-		output_bb = new BasicBlock(this, "output_bb");
+		nextBBnumber = 0;
 	};
 
 	DefFonction* ast; /**< The AST this CFG comes from */
@@ -164,7 +164,6 @@ class CFG {
 	string new_BB_name(string name);
 	BasicBlock* current_bb;
 	vector <BasicBlock*> get_bbs() { return bbs; }
-	BasicBlock* get_output_bb() { return output_bb; }
 
  protected:
 	map <string, Type> Symbolint; /**< part of the symbol table  */
@@ -173,7 +172,6 @@ class CFG {
 	int nextBBnumber; /**< just for naming */
 	
 	vector <BasicBlock*> bbs; /**< all the basic blocks of this CFG*/
-	BasicBlock* output_bb;
 
 };
 

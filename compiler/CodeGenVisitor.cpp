@@ -269,7 +269,6 @@ antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     currentCfg->current_bb->add_IRInstr(IRInstr::Operation::functionDef, INT, paramNames);
     visitChildren(ctx);
 
-    currentCfg->get_output_bb()->add_IRInstr(IRInstr::Operation::leave_bloc, INT, {});
     symbolTable->getCurrentScope()->setVisited();
     symbolTable->leaveScope();
 
@@ -367,11 +366,8 @@ antlrcpp::Any CodeGenVisitor::visitIf_stmt(ifccParser::If_stmtContext *ctx){
     string fctName = symbolTable->getCurrentScope()->getFunctionParent()->getName();
     // création des 3 blocs vides
     BasicBlock* bb_true = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
-    currentCfg->add_bb(bb_true);
     BasicBlock* bb_false = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
-    currentCfg->add_bb(bb_false);
     BasicBlock* bb_endif = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
-    currentCfg->add_bb(bb_endif);
     
     // affectation des pointeurs
     BasicBlock* previous_bb_endif = currentCfg->current_bb->exit_true;
@@ -385,16 +381,19 @@ antlrcpp::Any CodeGenVisitor::visitIf_stmt(ifccParser::If_stmtContext *ctx){
     visit(ctx->expr());
 
     // on passe dans la branche true
+    currentCfg->add_bb(bb_true);
     currentCfg->current_bb = bb_true;
     visit(ctx->instr());
 
     // on passe dans la branche false
+    currentCfg->add_bb(bb_false);
     if (ctx->else_stmt()) {
         currentCfg->current_bb = bb_false;
         visit(ctx->else_stmt());
     } 
 
     // on retourne dans la branche endif
+    currentCfg->add_bb(bb_endif);
     currentCfg->current_bb = bb_endif;
     return 0;
 }
