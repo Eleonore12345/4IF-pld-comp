@@ -18,12 +18,19 @@ typeFunc : 'void' # typeFunctionVoid
 
 instr : expr ';' # expression
     | bloc # instrBloc
+    | if_stmt #if
     | return_stmt  # return
     ;
 
 decla : TYPE initDecla (',' initDecla)* ';' ;
 
 initDecla : VAR ('=' expr)? ;
+
+if_stmt : 'if' '(' expr ')' instr
+        (else_stmt)?
+        ;
+
+else_stmt : 'else' instr*;
 
 expr : VAR '(' args ')' # functionCall
     | OP=('+'|'-'|'!') CONST # opUnConst

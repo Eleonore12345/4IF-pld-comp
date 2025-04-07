@@ -54,6 +54,7 @@ class IRInstr {
 		functionDef, // int/void function(int arg1, int arg2, ...) { instr* }
 		enter_bloc,
 		leave_bloc,
+		if_stmt,
 	} Operation;
 
 

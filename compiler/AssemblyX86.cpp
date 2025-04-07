@@ -17,6 +17,7 @@ void AssemblyX86::generateAssemblyX86()
         vector<BasicBlock *> bbs = c->get_bbs();
         for (BasicBlock *bb : bbs)
         {
+            std::cout << bb->label << ":" << std::endl;
             for (IRInstr *instr : bb->instrs)
             {
                 IRInstr::Operation op = instr->getOperation();
@@ -275,7 +276,6 @@ void AssemblyX86::generateAssemblyX86()
                         while(sizeSub % 16 != 0) {
                             sizeSub += 4;
                         }
-                        std::cout << params[0] << ":" << std::endl;
                         std::cout << "    # prologue\n"
                             << "    pushq %rbp\n"
                             << "    movq %rsp, %rbp\n"
@@ -289,17 +289,30 @@ void AssemblyX86::generateAssemblyX86()
                         }
                         break;
                     }
-                    case IRInstr::enter_bloc :
+                    case IRInstr::enter_bloc:
                     {
                         symbolTable->enterNextScope();
                         break;
                     }
-                    case IRInstr::leave_bloc :
+                    case IRInstr::leave_bloc:
                     {
                         symbolTable->getCurrentScope()->setVisited();
                         symbolTable->leaveScope();
                         break;
                     }
+                }
+            }
+            if (bb->exit_true) {
+                if (bb->exit_false) {
+                    string label_bb_true = bb->exit_true->label;
+                    string label_bb_false = bb->exit_false->label;
+                    std::cout << "    cmpl $0, %eax\n";
+                    std::cout << "    jne " << label_bb_true << endl;
+                    std::cout << "    jmp " << label_bb_false << endl;
+                } else 
+                {
+                    string label_bb_endif = bb->exit_true->label;
+                    std::cout << "    jmp " << label_bb_endif << endl;
                 }
             }
         }

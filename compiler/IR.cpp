@@ -14,6 +14,8 @@ CFG::CFG(DefFonction* ast){
 BasicBlock::BasicBlock(CFG* cfg, string entry_label){
     this->cfg = cfg;
     this->label = entry_label;
+    exit_true = nullptr;
+    exit_false = nullptr;
 }
 
 IRInstr::IRInstr(BasicBlock* bb_, Operation op, Type t, vector<string> params){
@@ -24,12 +26,7 @@ IRInstr::IRInstr(BasicBlock* bb_, Operation op, Type t, vector<string> params){
 }
 
 string CFG::new_BB_name(string name){
-    if (bbs.size()==0){
-        return name;
-    }
-    else {
-        return "." + name + to_string(bbs.size());
-    }
+    return "." + name + to_string(bbs.size());
 }
 
 void CFG::add_bb(BasicBlock* bb){
