@@ -138,7 +138,7 @@ antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *c
 
 void CodeGenVisitor::VariableOrConstante(string name1, string name2) {
     // pour gérer si on a une constante ou une variable à droite
-    if (!symbolTable->getCurrentScope()->getVariable(name2)){
+    if (!symbolTable->getVariable(name2)){
         currentCfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {name1, name2});
     }
     else{
@@ -345,7 +345,6 @@ antlrcpp::Any CodeGenVisitor::visitWithParams(ifccParser::WithParamsContext *ctx
 }
 
 antlrcpp::Any CodeGenVisitor::visitBloc(ifccParser::BlocContext *ctx) {
-    //cout << "add enter_bloc" << endl;
     currentCfg->current_bb->add_IRInstr(IRInstr::Operation::enter_bloc, INT, {});
     symbolTable->enterNextScope();
     visitChildren(ctx);
