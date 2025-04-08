@@ -397,3 +397,36 @@ antlrcpp::Any CodeGenVisitor::visitIf_stmt(ifccParser::If_stmtContext *ctx){
     currentCfg->current_bb = bb_endif;
     return 0;
 }
+
+antlrcpp::Any CodeGenVisitor::visitWhile_stmt(ifccParser::While_stmtContext *ctx) {
+    string fctName = symbolTable->getCurrentScope()->getFunctionParent()->getName();
+
+    BasicBlock* bb_condition = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
+    BasicBlock* bb_body = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
+    BasicBlock* bb_sortie = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
+
+    BasicBlock* previous_exit = currentCfg->current_bb->exit_true;
+
+    currentCfg->current_bb->exit_true = bb_condition;
+
+    //On explore le bloc condition (l'instr) : deux issues soit on sort de la boucle soit on y reste
+    currentCfg->add_bb(bb_condition);
+    currentCfg->current_bb = bb_condition;
+    visit(ctx->expr()); 
+    bb_condition->exit_true = bb_body;
+    bb_condition->exit_false = bb_sortie;
+
+    //on explore le body et on revient a la condition
+    currentCfg->add_bb(bb_body);
+    currentCfg->current_bb = bb_body;
+    visit(ctx->instr());
+    bb_body->exit_true = bb_condition; 
+
+    // on sort de la boucle
+    currentCfg->add_bb(bb_sortie);
+    currentCfg->current_bb = bb_sortie;
+    bb_sortie->exit_true = previous_exit;
+
+    return 0;
+
+}
