@@ -1,5 +1,5 @@
 int alphabet(int n) {
-    char a;
+    int a;
     a='A';
     while (a<'A'+n)
     {
