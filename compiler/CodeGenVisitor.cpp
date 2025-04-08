@@ -409,18 +409,22 @@ antlrcpp::Any CodeGenVisitor::visitWhile_stmt(ifccParser::While_stmtContext *ctx
 
     currentCfg->current_bb->exit_true = bb_condition;
 
-    //On explore le bloc condition (l'instr) : deux issues soit on sort de la boucle soit on y reste
+    bb_condition->exit_true = bb_body;
+    bb_condition->exit_false = bb_sortie;
+
+    bb_body->exit_true = bb_condition; 
+
+    //On explore le bloc condition (l'expr) : deux issues soit on sort de la boucle soit on y reste
     currentCfg->add_bb(bb_condition);
     currentCfg->current_bb = bb_condition;
     visit(ctx->expr()); 
-    bb_condition->exit_true = bb_body;
-    bb_condition->exit_false = bb_sortie;
+    
 
     //on explore le body et on revient a la condition
     currentCfg->add_bb(bb_body);
     currentCfg->current_bb = bb_body;
     visit(ctx->instr());
-    bb_body->exit_true = bb_condition; 
+    
 
     // on sort de la boucle
     currentCfg->add_bb(bb_sortie);
