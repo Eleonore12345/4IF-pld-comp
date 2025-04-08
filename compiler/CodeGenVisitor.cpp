@@ -252,7 +252,7 @@ antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     CFG * c = new CFG();
     currentCfg = c;
     cfgs.push_back(c);
-    BasicBlock* bb = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
+    BasicBlock* bb = new BasicBlock(currentCfg, fctName);
     currentCfg->add_bb(bb);
     currentCfg->current_bb = bb;
 
@@ -269,7 +269,6 @@ antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     currentCfg->current_bb->add_IRInstr(IRInstr::Operation::functionDef, INT, paramNames);
     visitChildren(ctx);
 
-    currentCfg->current_bb->add_IRInstr(IRInstr::Operation::leave_bloc, INT, {});
     symbolTable->getCurrentScope()->setVisited();
     symbolTable->leaveScope();
 
@@ -361,4 +360,40 @@ void CodeGenVisitor::deleteCfgs(){
         }
         delete(cfg);
     }
+}
+
+antlrcpp::Any CodeGenVisitor::visitIf_stmt(ifccParser::If_stmtContext *ctx){
+    string fctName = symbolTable->getCurrentScope()->getFunctionParent()->getName();
+    // création des 3 blocs vides
+    BasicBlock* bb_true = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
+    BasicBlock* bb_false = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
+    BasicBlock* bb_endif = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
+    
+    // affectation des pointeurs
+    BasicBlock* previous_bb_endif = currentCfg->current_bb->exit_true;
+    currentCfg->current_bb->exit_true = bb_true;
+    currentCfg->current_bb->exit_false = bb_false;
+    bb_true->exit_true = bb_endif;
+    bb_false->exit_true = bb_endif;
+    bb_endif->exit_true = previous_bb_endif;
+
+    // visite de la condition
+    visit(ctx->expr());
+
+    // on passe dans la branche true
+    currentCfg->add_bb(bb_true);
+    currentCfg->current_bb = bb_true;
+    visit(ctx->instr());
+
+    // on passe dans la branche false
+    currentCfg->add_bb(bb_false);
+    if (ctx->else_stmt()) {
+        currentCfg->current_bb = bb_false;
+        visit(ctx->else_stmt());
+    } 
+
+    // on retourne dans la branche endif
+    currentCfg->add_bb(bb_endif);
+    currentCfg->current_bb = bb_endif;
+    return 0;
 }
