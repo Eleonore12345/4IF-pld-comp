@@ -19,6 +19,7 @@ typeFunc : 'void' # typeFunctionVoid
 instr : expr ';' # expression
     | bloc # instrBloc
     | if_stmt #if
+    | while_stmt #while
     | return_stmt  # return
     ;
 
@@ -31,6 +32,8 @@ if_stmt : 'if' '(' expr ')' instr
         ;
 
 else_stmt : 'else' instr;
+
+while_stmt : 'while' '(' expr ')' instr ;
 
 expr : VAR '(' args ')' # functionCall
     | OP=('+'|'-'|'!') CONST # opUnConst
