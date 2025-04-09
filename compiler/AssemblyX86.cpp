@@ -10,31 +10,38 @@ AssemblyX86::AssemblyX86(vector<CFG*> c, SymbolTable* s){
     s->resetAndRootToCurrent();
 }
 
+
 void AssemblyX86::generateAssemblyX86()
 {
     std::cout << ".globl main\n";
+    //Parcours de chaque CFG (1 par fonction)
     for (CFG* c : cfgsX86) {
         vector<BasicBlock *> bbs = c->get_bbs();
+        //Parcours des blocs au sein du CFG
         for (BasicBlock *bb : bbs)
         {
             std::cout << bb->label << ":" << std::endl;
+            //Parcours de chaque instruction du bloc avec un switch et génération du code associé
             for (IRInstr *instr : bb->instrs)
             {
                 IRInstr::Operation op = instr->getOperation();
                 vector<string> params = instr->getParams();
                 switch (op){
                     case IRInstr::ldconst :
-                    {
+                    {   
+                        //gestion des char (conversion en int si c'est le cas) et des int lors d'une affectation de constante 
                         int val;
                         if (params[1][0] == '\'')
                             val = (int) params[1][1];
                         else {
                             val = stol(params[1]);
                         }
+
                         int offset = symbolTable->getVariable(params[0])->offset;
                         std::cout << "    movl $" << val << ", " << offset << "(%rbp)\n";
                         break;
                     }
+                    //gestion du cas de la négation unitaire
                     case IRInstr::ldconstneg :
                     {
                         int valNeg;
@@ -241,7 +248,8 @@ void AssemblyX86::generateAssemblyX86()
                         break;
                     }
                     case IRInstr::functionCall :
-                    {
+                    {   
+                        // les 6 premiers arguments d'une fonction sont stockés dans les registers dédiés
                         vector<string> registers = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
                         for (int i = 3; i < 9 && i < params.size() ; i++) {
                             variable* var = symbolTable->getVariable(params[i]);
@@ -251,6 +259,7 @@ void AssemblyX86::generateAssemblyX86()
                                 std::cout << "    movl " << var->offset << "(%rbp), %" << registers[i-3] << "\n";
                             }
                         }
+                        // si on a plus de 6 arguments on ajoute les restants sur la pile
                         for (int i = params.size()-1; i > 8; --i) {
                             variable* var = symbolTable->getVariable(params[i]);
                             if(!var) {
@@ -305,10 +314,14 @@ void AssemblyX86::generateAssemblyX86()
                     }
                 }
             }
+            //si le bloc n'a aucun bloc suivant alors c'est un bloc final
             if (bb->exit_true) {
+                // si un bloc a deux blocs successeurs alors on est dans le cas d'une condition (if ou while)
+                // si il n'a pas de bloc suivant exit_false alors on va simplement faire un saut vers son suivant (exit_true)
                 if (bb->exit_false) {
                     string label_bb_true = bb->exit_true->label;
                     string label_bb_false = bb->exit_false->label;
+                    //on teste donc true ou false pour déterminer le jump à effectuer
                     std::cout << "    cmpl $0, %eax\n";
                     std::cout << "    jne " << label_bb_true << endl;
                     std::cout << "    jmp " << label_bb_false << endl;

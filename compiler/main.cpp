@@ -19,7 +19,7 @@ using namespace std;
 
 int main(int argn, const char **argv)
 {
-  stringstream in;
+  stringstream in; 
   if (argn==2)
   {
      ifstream lecture(argv[1]);
@@ -55,7 +55,7 @@ int main(int argn, const char **argv)
   FunctionTable* f = new FunctionTable();
   SymbolTable* s = new SymbolTable();
 
-
+  //Premier visiteur
   IdentifierVisitor i(s,f);
   i.visit(tree);
 
@@ -64,14 +64,17 @@ int main(int argn, const char **argv)
     return 1;
   }
 
+  //Second visiteur
   CodeGenVisitor v(s,f);
   v.visit(tree);
-  vector<CFG*> listeCFG = v.getCfgs();
-  //TODO target en argument
 
+
+  //Génération du code assembleur
+  vector<CFG*> listeCFG = v.getCfgs();
   AssemblyX86 a(listeCFG,s);
   a.generateAssemblyX86();
   
+  //libération de la mémoire
   v.deleteCfgs();
   delete s;
   delete f;

@@ -34,7 +34,6 @@ void CFG::add_bb(BasicBlock* bb){
     bbs.push_back(bb);
 }
 
-
 void BasicBlock::add_IRInstr(IRInstr::Operation op, Type t, vector<string> params){
     IRInstr* instr = new IRInstr(this, op, t, params);
     instrs.push_back(instr);

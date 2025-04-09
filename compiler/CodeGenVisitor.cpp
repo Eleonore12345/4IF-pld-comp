@@ -6,15 +6,9 @@ using namespace std;
 CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable, FunctionTable * functionTable) : ifccBaseVisitor()
 {
     symbolTable = symboleTable;
+    //on réinitialise tout les éléments à non-visités
     symbolTable->resetAndRootToCurrent();
     funcTable = functionTable;
-}
-
-antlrcpp::Any CodeGenVisitor::visitProg(ifccParser::ProgContext *ctx) 
-{
-    
-
-    return visitChildren(ctx);
 }
 
 antlrcpp::Any CodeGenVisitor::visitInitDecla(ifccParser::InitDeclaContext * ctx) {
@@ -48,6 +42,7 @@ antlrcpp::Any CodeGenVisitor::visitConstante(ifccParser::ConstanteContext *ctx) 
 }
 
 antlrcpp::Any CodeGenVisitor::visitOpAddSub(ifccParser::OpAddSubContext *ctx) {
+    //on stocke les opérandes dans des variables provisoires, puis le résultat que l'on fait remonter
     string operandeG = visit(ctx->expr(0));
     variable* varTmpG = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
     varTmpG->use = true;
@@ -137,7 +132,7 @@ antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *c
 }
 
 void CodeGenVisitor::VariableOrConstante(string name1, string name2) {
-    // pour gérer si on a une constante ou une variable à droite
+    // pour gérer si on a une constante ou une variable à droite (cas récurrent)
     if (!symbolTable->getVariable(name2)){
         currentCfg->current_bb->add_IRInstr(IRInstr::Operation::ldconst, INT, {name1, name2});
     }
@@ -252,6 +247,8 @@ antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     CFG * c = new CFG();
     currentCfg = c;
     cfgs.push_back(c);
+
+    //Création du premier bloc
     BasicBlock* bb = new BasicBlock(currentCfg, fctName);
     currentCfg->add_bb(bb);
     currentCfg->current_bb = bb;
@@ -354,6 +351,7 @@ antlrcpp::Any CodeGenVisitor::visitBloc(ifccParser::BlocContext *ctx) {
 }
 
 void CodeGenVisitor::deleteCfgs(){
+    //libération de la mémoire occupée par les CFG
     for (CFG* cfg : cfgs){
         for (BasicBlock* bb : cfg->get_bbs()){
             delete(bb);
