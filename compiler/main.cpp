@@ -13,6 +13,7 @@
 #include "IdentifierVisitor.h"
 #include "AssemblyX86.h"
 #include "FunctionTable.h"
+#include "AssemblyArm64.h"
 
 using namespace antlr4;
 using namespace std;
@@ -69,8 +70,10 @@ int main(int argn, const char **argv)
   vector<CFG*> listeCFG = v.getCfgs();
   //TODO target en argument
 
-  AssemblyX86 a(listeCFG,s);
-  a.generateAssemblyX86();
+  // AssemblyX86 a(listeCFG,s);
+  // a.generateAssemblyX86();
+  AssemblyArm64 a(listeCFG,s);
+  a.generateAssemblyArm64();
   
   v.deleteCfgs();
   delete s;
