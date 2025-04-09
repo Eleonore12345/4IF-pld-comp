@@ -7,6 +7,7 @@
 
 using namespace std;
 
+// SymbolTable représente la table de symboles
 class SymbolTable {
     public:
         SymbolTable();
@@ -29,6 +30,6 @@ class SymbolTable {
         void freeScopes(ScopeNode* scope);
         void reset(ScopeNode* scope);
 
-        ScopeNode* rootScope;
+        ScopeNode* rootScope; // scope du fichier
         ScopeNode* currentScope;
 };

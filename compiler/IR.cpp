@@ -1,11 +1,7 @@
 #include "IR.h"
 #include <iostream>
 
-
-
-
 using namespace std;
-
 
 CFG::CFG(DefFonction* ast){
     this->ast = ast;

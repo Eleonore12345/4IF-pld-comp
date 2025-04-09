@@ -26,6 +26,7 @@ void ScopeNode::print() {
 }
 
 variable* ScopeNode::getVariable(string name) {
+    // renvoie un pointeur vers la variable nommée "name" dans le scope, nullptr si elle n'existe pas
     for (int i = 0; i < variable_vect.size() ; i++) {
         if (variable_vect[i].name == name) {
             return &(variable_vect[i]);
@@ -43,6 +44,7 @@ vector<ScopeNode*> ScopeNode::getChildren() {
 }
 
 FunctionScopeNode* ScopeNode::getFunctionParent() {
+    // renvoie un pointeur vers le FunctionScopeNode appartenant aux ancêtres du scope
     ScopeNode* current = this;
     while (current) {
         FunctionScopeNode* functionScope = dynamic_cast<FunctionScopeNode*>(current);
@@ -53,7 +55,7 @@ FunctionScopeNode* ScopeNode::getFunctionParent() {
     }
     string erreur = "error: no function found\n";
     throw runtime_error(erreur);
-    return nullptr; // Aucun FunctionScopeNode trouvé
+    return nullptr;
 }
 
 variable* ScopeNode::addVariable(string name, int offset, bool use, bool init, bool isTemp) 
@@ -69,6 +71,7 @@ variable* ScopeNode::addVariable(string name, int offset, bool use, bool init, b
 }
 
 void ScopeNode::checkIfEachIdUsed() {
+    // vérifie que toutes les variables du scope sont utilisées dans le programme, i.e. font l'office de rvalue, sinon quoi un warning est renvoyé à l'utilisateur
     for (const auto& var : variable_vect) {
         if (var.isTemp == false && var.use == false) {
             cerr << "WARNING : variable " << var.name << " not used" << endl;
@@ -77,6 +80,7 @@ void ScopeNode::checkIfEachIdUsed() {
 }
 
 void ScopeNode::checkIfEachIdInit() {
+    // vérifie que toutes les variables du scope utilisées dans le programme ont bien été initialisées, sinon quoi un warning est renvoyé à l'utilisateur
     for (const auto& var : variable_vect) {
         if (var.isTemp == false && var.init == false) 
         {
@@ -86,6 +90,7 @@ void ScopeNode::checkIfEachIdInit() {
 }
 
 variable* ScopeNode::getNextNotUsedTempVar() {
+    // renvoie le nom de la prochaine variable temporaire appartenant au scope n'ayant pas encore été utilisée
     for (auto& var : variable_vect) {
         if (var.isTemp == true && var.use == false) 
         {

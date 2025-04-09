@@ -15,6 +15,7 @@ typedef struct {
 
 class FunctionScopeNode;
 
+// ScopeNode représente un noeud dans l'arbre des scopes contenus dans SymbolTable
 class ScopeNode {
     public:
         ScopeNode(ScopeNode* parent = nullptr);
@@ -42,6 +43,7 @@ class ScopeNode {
         bool visited;
 };
 
+// FunctionScopeNode est un noeud de scope de fonction
 class FunctionScopeNode : public ScopeNode {
     public:
         FunctionScopeNode(ScopeNode* parent, std::string name) : ScopeNode(parent), name(name), size(0){};
