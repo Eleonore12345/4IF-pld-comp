@@ -20,7 +20,7 @@ using namespace std;
 int main(int argc, const char **argv)
 {
 
-    string target = "";
+    string target = "x86";
     string inputFile = "";
     stringstream in;
     
