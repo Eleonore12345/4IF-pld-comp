@@ -135,56 +135,60 @@ Our compiler produce correct assembly code for the following C code samples.
 
 ```C
 int alphabet(int n) {
-  int a;
-  a=’A’;
-  while (a<’A’+n)
-  {
-    putchar(a);
-    a=a+1;
-  }
-  return a;
+    int a;
+    a='A';
+    while (a<'A'+n)
+    {
+        putchar(a);
+        a=a+1;
+    }
+    return a;
 }
 
 int main() {
-  int c;
-  c = alphabet(15);
-  return c;
+    int c;
+    c = alphabet(15);
+    return c;
 }
 ```
 
 ```C
-int fibo(int n) {
-  if ( n < 1) {
-    return 0;
-  }
-  else if (n == 1) {
-    return 1;
-  }
-  return fibo(n-1)
-    + fibo(n-2);
+int fibo(int n)
+{
+    if ( n < 1 )
+    {
+        return 0;
+    }
+    else if (n == 1)
+    {
+        return 1;
+    }
+    return fibo(n-1) + fibo(n-2);
 }
 
-int main() {
-  return 2*fibo(8);
+int main()
+{
+    return 2*fibo(8);
 }
 ```
 
 ```C
 void print_int(int x) {
-  if(x<0) {
-    putchar(’-’);
-    x = -x;
-  }
-  if(x/10 != 0) 
-    print_int(x/10);
-
-  putchar(x%10 + ’0’);
+    if(x<0)
+    {
+        putchar('-');
+        x = -x;
+    }
+    if(x/10 != 0)
+        print_int(x/10);
+        
+    putchar(x%10 + '0');
 }
 
 int main() {
-  print_int(-273);
-  putchar(10);/* newline */
-  return 0;
+    print_int(-273);
+    putchar(10);
+    return 0;
 }
 ```
 
