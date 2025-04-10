@@ -69,6 +69,9 @@ Before running a local copy of this project follow these steps.
 
 [Antlr4][antlr-url] is a common parser which is used here to build the [Abstract Syntax Tree (AST)][ast-url].
 
+> [!NOTE]
+> You may need to uninstall previous installations of Antlr debending on your linux ditribution.
+
 Linux installation:
 ```
 mkdir ~/antlr4-install
@@ -102,15 +105,13 @@ make -j8
 ```
 make  install
 ```
-Now edit the [config.mk][config-file]. It should look like this:
+Now create a `config.mk` file at the poject's root, it should look like this:
 ```
 ANTLRJAR=/home/$(USER)/antlr4-install/antlr-4.7.2-complete.jar
 ANTLRINC=/home/$(USER)/antlr4-install/include/antlr4-runtime/
 ANTLRLIB=/home/$(USER)/antlr4-install/lib/libantlr4-runtime.a
 ANTLR=java -jar ~/antlr4-install/antlr-4.7.2-complete.jar
 ```
-> [!NOTE]
-> You may need to uninstall previous installations of Antlr debending on your linux ditribution.
 
 ### Python
 
@@ -124,7 +125,9 @@ Our compiler `ifcc` can compile basic code written in C. The only variable type 
 
 Compilation target can be chosen between x86 and ARM architectures.
 
-#TODO: ## expliquer commandes de make
+To compile the C++ code and make `ifcc` work, it's only required to enter the `make` command in [the compiler directory][compiler-dir].
+
+Then you can have a look to the [python test framework][python-test-script] to see usage of `ifcc` for C programs compilation.
 
 ## Example
 
@@ -132,7 +135,7 @@ Our compiler produce correct assembly code for the following C code samples.
 
 ```C
 int alphabet(int n) {
-  char a;
+  int a;
   a=’A’;
   while (a<’A’+n)
   {
@@ -151,7 +154,7 @@ int main() {
 
 ```C
 int fibo(int n) {
-  if ( n < 0 || n == 0) {
+  if ( n < 1) {
     return 0;
   }
   else if (n == 1) {
@@ -188,30 +191,34 @@ int main() {
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Contributors:
+<div style="display: flex; align-items: center; gap: 8px;">
+    <img src="https://avatars.githubusercontent.com/u/103212284?v=4" width="40" />
+    <span><a href="https://github.com/yiwanou" >yiwanou</a></span>
+  </div>
 <div style="display: flex; flex-wrap: wrap; gap: 12px;">
   <div style="display: flex; align-items: center; gap: 8px;">
     <img src="https://avatars.githubusercontent.com/u/68855403?v=4" width="40" />
-    <span>AO2708</span>
+    <span><a href="https://github.com/AO2708" >AO2708</a></span>
   </div>
   <div style="display: flex; align-items: center; gap: 8px;">
     <img src="https://avatars.githubusercontent.com/u/129035607?v=4" width="40" />
-    <span>Manon3005</span>
+    <span><a href="https://github.com/Manon3005" >Manon3005</a></span>
   </div>
   <div style="display: flex; align-items: center; gap: 8px;">
     <img src="https://avatars.githubusercontent.com/u/147798555?v=4" width="40" />
-    <span>armynion</span>
+    <span><a href="https://github.com/armynion" >armynion</a></span>
   </div>
   <div style="display: flex; align-items: center; gap: 8px;">
     <img src="https://avatars.githubusercontent.com/u/77687565?v=4" width="40" />
-    <span>Eleonore12345</span>
+    <span><a href="https://github.com/Eleonore12345" >Eleonore12345</a></span>
   </div>
   <div style="display: flex; align-items: center; gap: 8px;">
     <img src="https://avatars.githubusercontent.com/u/128641822?v=4" width="40" />
-    <span>BugaThis</span>
+    <span><a href="https://github.com/BugaThis" >BugaThis</a></span>
   </div>
   <div style="display: flex; align-items: center; gap: 8px;">
     <img src="https://avatars.githubusercontent.com/u/127881703?v=4" width="40" />
-    <span>Bathrock78</span>
+    <span><a href="https://github.com/Bathrock78" >Bathrock78</a></span>
   </div>
 </div>
 
@@ -243,7 +250,7 @@ Distributed under the MIT License. See [LICENSE.txt][license] for more informati
 [antlr-logo]: documents/antlr_logo.png
 [cpp-logo]: documents/cpp_logo.png
 [python-logo]: documents/python_logo.png
-[config-file]: compiler/config.mk
+[compiler-dir]: compiler/
 [python-test-script]: tests/ifcc-test.py
 [license]: LICENCE.txt
 
