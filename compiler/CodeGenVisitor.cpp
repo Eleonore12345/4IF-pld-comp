@@ -6,7 +6,7 @@ using namespace std;
 CodeGenVisitor::CodeGenVisitor(SymbolTable* symboleTable, FunctionTable * functionTable) : ifccBaseVisitor()
 {
     symbolTable = symboleTable;
-    //on réinitialise tout les éléments à non-visités
+    //on réinitialise tous les scopes à non-visités
     symbolTable->resetAndRootToCurrent();
     funcTable = functionTable;
 }
@@ -42,13 +42,14 @@ antlrcpp::Any CodeGenVisitor::visitConstante(ifccParser::ConstanteContext *ctx) 
 }
 
 antlrcpp::Any CodeGenVisitor::visitOpAddSub(ifccParser::OpAddSubContext *ctx) {
-    //on stocke les opérandes dans des variables provisoires, puis le résultat que l'on fait remonter
+    // Visit the left operand and store the result
     string operandeG = visit(ctx->expr(0));
     variable* varTmpG = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
     varTmpG->use = true;
     string nameVarTmpG = varTmpG->name;
     VariableOrConstante(nameVarTmpG, operandeG);
     
+    // Visit the right operand and store the result
     string operandeD = visit(ctx->expr(1));
     variable* varTmpD = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
     varTmpD->use = true;
@@ -65,12 +66,14 @@ antlrcpp::Any CodeGenVisitor::visitOpAddSub(ifccParser::OpAddSubContext *ctx) {
 }
 
 antlrcpp::Any CodeGenVisitor::visitOpMultDiv(ifccParser::OpMultDivContext *ctx) {
+    // Visit the left operand and store the result
     string operandeG = visit(ctx->expr(0));
     variable* varTmpG = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
     varTmpG->use = true;
     string nameVarTmpG = varTmpG->name;
     VariableOrConstante(nameVarTmpG, operandeG);
-    
+
+    // Visit the right operand and store the result
     string operandeD = visit(ctx->expr(1));
     variable* varTmpD = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
     varTmpD->use = true;
@@ -120,8 +123,7 @@ antlrcpp::Any CodeGenVisitor::visitOpUnExpr(ifccParser::OpUnExprContext *ctx) {
     return nameVarTmp;
 }
 
-antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx)
-{   
+antlrcpp::Any CodeGenVisitor::visitReturn_stmt(ifccParser::Return_stmtContext *ctx) {   
     if(ctx->expr()) {
         string expr_finale = visit(ctx->expr());
         currentCfg->current_bb->add_IRInstr(IRInstr::Operation::retour, INT, {expr_finale});
@@ -141,8 +143,7 @@ void CodeGenVisitor::VariableOrConstante(string name1, string name2) {
     }
 }
 
-antlrcpp::Any CodeGenVisitor::visitOpBitwiseAnd(ifccParser::OpBitwiseAndContext *ctx)
-{
+antlrcpp::Any CodeGenVisitor::visitOpBitwiseAnd(ifccParser::OpBitwiseAndContext *ctx) {
     // Visit the left operand and store the result
     string operandeG = visit(ctx->expr(0));
     variable* varTmpG = symbolTable->getCurrentScope()->getNextNotUsedTempVar();
@@ -234,8 +235,7 @@ antlrcpp::Any CodeGenVisitor::visitOpComp(ifccParser::OpCompContext *ctx) {
     return nameVarTmp;
 }
 
-antlrcpp::Any CodeGenVisitor::visitExpression(ifccParser::ExpressionContext *ctx)
-{
+antlrcpp::Any CodeGenVisitor::visitExpression(ifccParser::ExpressionContext *ctx) {
     return visit(ctx->expr());
 }
 
@@ -253,11 +253,11 @@ antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     currentCfg->add_bb(bb);
     currentCfg->current_bb = bb;
 
-    std::string returnType = ctx->typeFunc()->getText();
+    //Récupération de la nouvelle fonction dans la table de fonction
     vector<string> paramNames = visit(ctx->params());
-
     funcTable->setCurrentFunction(fctName);
 
+    //Entre dans le scope de la fonction
     currentCfg->current_bb->add_IRInstr(IRInstr::Operation::enter_bloc, INT, {});
     symbolTable->enterNextScope();
 
@@ -266,6 +266,7 @@ antlrcpp::Any CodeGenVisitor::visitDefFunc(ifccParser::DefFuncContext * ctx) {
     currentCfg->current_bb->add_IRInstr(IRInstr::Operation::functionDef, INT, paramNames);
     visitChildren(ctx);
 
+    //Une fois les instructions de la fonction visitée, on sort du scope
     symbolTable->getCurrentScope()->setVisited();
     symbolTable->leaveScope();
 
@@ -341,9 +342,11 @@ antlrcpp::Any CodeGenVisitor::visitWithParams(ifccParser::WithParamsContext *ctx
 }
 
 antlrcpp::Any CodeGenVisitor::visitBloc(ifccParser::BlocContext *ctx) {
+    //Entre dans le scope du bloc
     currentCfg->current_bb->add_IRInstr(IRInstr::Operation::enter_bloc, INT, {});
     symbolTable->enterNextScope();
     visitChildren(ctx);
+    //Sort du scope du bloc une fois les instructions visitées
     currentCfg->current_bb->add_IRInstr(IRInstr::Operation::leave_bloc, INT, {});
     symbolTable->getCurrentScope()->setVisited();
     symbolTable->leaveScope();
@@ -398,18 +401,16 @@ antlrcpp::Any CodeGenVisitor::visitIf_stmt(ifccParser::If_stmtContext *ctx){
 
 antlrcpp::Any CodeGenVisitor::visitWhile_stmt(ifccParser::While_stmtContext *ctx) {
     string fctName = symbolTable->getCurrentScope()->getFunctionParent()->getName();
-
+    // création des 3 blocs vides
     BasicBlock* bb_condition = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
     BasicBlock* bb_body = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
     BasicBlock* bb_sortie = new BasicBlock(currentCfg, currentCfg->new_BB_name(fctName));
 
+    // affectation des pointeurs
     BasicBlock* previous_exit = currentCfg->current_bb->exit_true;
-
     currentCfg->current_bb->exit_true = bb_condition;
-
     bb_condition->exit_true = bb_body;
     bb_condition->exit_false = bb_sortie;
-
     bb_body->exit_true = bb_condition; 
 
     //On explore le bloc condition (l'expr) : deux issues soit on sort de la boucle soit on y reste
@@ -430,5 +431,4 @@ antlrcpp::Any CodeGenVisitor::visitWhile_stmt(ifccParser::While_stmtContext *ctx
     bb_sortie->exit_true = previous_exit;
 
     return 0;
-
 }

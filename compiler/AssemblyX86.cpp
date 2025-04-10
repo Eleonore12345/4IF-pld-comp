@@ -292,6 +292,7 @@ void AssemblyX86::generateAssemblyX86()
                             << "    subq $" << sizeSub << ", %rsp\n"
                             << "\n";
                         std::cout << "    # body\n";
+                        //On transfère les 6 premiers paramètres (qui sont dans les registres) dans nos variables locales
                         vector<string> registers = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
                         for (int i = 1; i < 7 && i < params.size() ; i++) {
                             int offset = symbolTable->getVariable(params[i])->offset;
@@ -301,13 +302,11 @@ void AssemblyX86::generateAssemblyX86()
                     }
                     case IRInstr::enter_bloc:
                     {
-                        //std::cout << "enter bloc" << endl;
                         symbolTable->enterNextScope();
                         break;
                     }
                     case IRInstr::leave_bloc:
                     {
-                        //std::cout << "leave bloc" << endl;
                         symbolTable->getCurrentScope()->setVisited();
                         symbolTable->leaveScope();
                         break;
@@ -325,14 +324,13 @@ void AssemblyX86::generateAssemblyX86()
                     std::cout << "    cmpl $0, %eax\n";
                     std::cout << "    jne " << label_bb_true << endl;
                     std::cout << "    jmp " << label_bb_false << endl;
-                } else 
-                {
+                } else {
                     string label_bb_endif = bb->exit_true->label;
                     std::cout << "    jmp " << label_bb_endif << endl;
                 }
             }
         }
-        // on quitte le scope de la fonction
+        // on quitte le scope de la fonction et on set le scode à "visited"
         symbolTable->getCurrentScope()->setVisited();
         symbolTable->leaveScope();
     }
