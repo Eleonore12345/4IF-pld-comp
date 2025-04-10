@@ -3,12 +3,14 @@
 #include <iostream>
 
 FunctionTable::FunctionTable() {
+    // Ajout de putchar à l'initialisation
     function_identifier f1;
     f1.functionName = "putchar";
     f1.retourType = "int";
     f1.nbParams = 1;
     f1.def = true;
 
+    // Ajout de getchar à l'initialisation
     function_identifier f2;
     f2.functionName = "getchar";
     f2.retourType = "int";
@@ -57,6 +59,7 @@ void FunctionTable::setCurrentFunction(string name) {
 }
 
 void FunctionTable::setAsRval(string name) {
+    // quand une fonction est utilisée comme une Rvalue
     int index = getIndex(name);
     if (index != -1) 
     {
@@ -129,11 +132,12 @@ bool FunctionTable::hasReturn(string name) {
 }
 
 void FunctionTable::checkRvalFuncReturnType() {
+    // warning si une fonction void est en Rvalue.
     for (auto a : vect)
     {
         if (a.rval == true && a.retourType == "void") 
         {
-        std::cerr << "WARNING : conflicting types for '" << a.functionName << "'; have ‘void()’" << std::endl;
+            std::cerr << "WARNING : conflicting types for '" << a.functionName << "'; have ‘void()’" << std::endl;
         }
     }
 }

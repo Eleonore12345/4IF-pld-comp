@@ -4,6 +4,7 @@
 using namespace std;
 
 SymbolTable::SymbolTable() {
+    // Création du scope racine : celui du fichier
     string fichier = "scope_fichier";
     currentScope = new FunctionScopeNode(nullptr, fichier);
     rootScope = currentScope;
@@ -53,7 +54,6 @@ void SymbolTable::enterNextScope() {
     }
     if(!found) {
         string erreur = "error : no unvisited scope left\n";
-        //print();
         throw runtime_error(erreur);
     }
 }

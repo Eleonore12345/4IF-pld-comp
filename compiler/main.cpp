@@ -59,11 +59,6 @@ int main(int argn, const char **argv)
   IdentifierVisitor i(s,f);
   i.visit(tree);
 
-  if (i.getError()) {
-    delete s;
-    return 1;
-  }
-
   //Second visiteur
   CodeGenVisitor v(s,f);
   v.visit(tree);

@@ -10,7 +10,6 @@ class  IdentifierVisitor : public ifccBaseVisitor {
 	public:
                 IdentifierVisitor(SymbolTable* symboleTable, FunctionTable * functionTable);
                 virtual ~IdentifierVisitor(){};
-                bool getError();
                 virtual antlrcpp::Any visitAxiom(ifccParser::AxiomContext *ctx) override;
                 virtual antlrcpp::Any visitInitDecla(ifccParser::InitDeclaContext *ctx) override;
                 virtual antlrcpp::Any visitAffectation(ifccParser::AffectationContext *ctx) override;
@@ -39,5 +38,4 @@ class  IdentifierVisitor : public ifccBaseVisitor {
                 void addTempVariable();
                 SymbolTable* symbolTable;
                 FunctionTable * funcTable;
-                bool error;
 };

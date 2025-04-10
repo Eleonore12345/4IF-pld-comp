@@ -58,8 +58,7 @@ FunctionScopeNode* ScopeNode::getFunctionParent() {
     return nullptr;
 }
 
-variable* ScopeNode::addVariable(string name, int offset, bool use, bool init, bool isTemp) 
-{
+variable* ScopeNode::addVariable(string name, int offset, bool use, bool init, bool isTemp) {
     variable var;
     var.name = name;
     var.offset = offset;
@@ -90,7 +89,7 @@ void ScopeNode::checkIfEachIdInit() {
 }
 
 variable* ScopeNode::getNextNotUsedTempVar() {
-    // renvoie le nom de la prochaine variable temporaire appartenant au scope n'ayant pas encore été utilisée
+    // renvoie un pointeur vers la prochaine variable temporaire appartenant au scope n'ayant pas encore été utilisée
     for (auto& var : variable_vect) {
         if (var.isTemp == true && var.use == false) 
         {
@@ -111,6 +110,7 @@ bool ScopeNode::isVisited() {
 }
 
 void ScopeNode::addChildren(ScopeNode* children) {
+    // Ajoute un scope enfant
     if (children) {
         this->children.push_back(children);
     }
