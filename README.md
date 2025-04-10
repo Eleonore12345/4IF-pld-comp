@@ -1,11 +1,6 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a id="readme-top"></a>
 
-
-
-<!-- PROJECT LOGO -->
-<br />
-
 <h1 align="center">C - Compilation project</h1>
 
 [![C language logo][c-logo]](https://en.cppreference.com/w/c/language)
@@ -27,7 +22,13 @@
         <li><a href="#python">Python</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
+    <li>
+      <a href="#usage">Usage</a>
+      <ul>
+        <li><a href="#error-handling-and-warnings">Error handling and warnings</a></li>
+      </ul>
+    </li>
+    <li><a href="#example">Example</a></li>
     <li><a href="#contributors">Contibutors</a></li>
     <li><a href="#license">License</a></li>
 
@@ -72,7 +73,7 @@ Before running a local copy of this project follow these steps.
 > [!NOTE]
 > You may need to uninstall previous installations of Antlr debending on your linux ditribution.
 
-Linux installation:
+#### Linux installation:
 ```
 mkdir ~/antlr4-install
 ```
@@ -117,6 +118,7 @@ ANTLR=java -jar ~/antlr4-install/antlr-4.7.2-complete.jar
 
 The test framework is based on [ifcc-test.py][python-test-script] which shouldn't need specific libraries.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
@@ -128,6 +130,28 @@ Compilation target can be chosen between x86 and ARM architectures.
 To compile the C++ code and make `ifcc` work, it's only required to enter the `make` command in [the compiler directory][compiler-dir].
 
 Then you can have a look to the [python test framework][python-test-script] to see usage of `ifcc` for C programs compilation.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Error handling and warnings
+
+`ifcc` can detect some cases of error and raise detailed messages inspired of `gcc` outputs. Here you can find all cases with corresponding references to code snippets. 
+
+- `syntax error during parsing` [all cases not suported by grammar][err-syntax] (can be detailed by Antlr errors)
+- `Variable <var> not declared`[undeclared variable or called outside its scope][err-var-non-decla]
+- `Variable <var> already declared` [variable declared before in current scope][err-double-decla]
+- `too few arguments to function '<function>'` [less arguments in function call than in function definition][err-too-few-args]
+- `void value not ignored as it ought to be` [assignment to a variable of the return value of a void function][err-void-assign]
+- `Function <function> already defined` [trying to define the same function twice][err-func-def-twice]
+- `undefined reference to <function>` [call of a function without definition][err-undef-func]
+- `undefined reference to main` [mandatory main function is missing][err-no-main]
+- `variable <var> not used` [variable declared but not used][warn-not-used-var]
+- `conflicting types for '<function>'; have ‘void()’` [function called for assignment but defined as returning void later][warn-not-used-var]
+- `implicit declaration of function fonction` [function declared after call][warn-not-used-var]
+- `variable a used but not initialized` [variable declared and used as rvalue without having been declared][warn-not-decl-var]
+- `variable a declared but not initialized` [variable declared but is never a lvalue][warn-not-decl-var]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Example
 
@@ -194,12 +218,12 @@ int main() {
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Contributors:
-<div style="display: flex; align-items: center; gap: 8px;">
+## Contributors:
+<div style="display: flex; flex-wrap: wrap; gap: 12px;">
+  <div style="display: flex; align-items: center; gap: 8px;">
     <img src="https://avatars.githubusercontent.com/u/103212284?v=4" width="40" />
     <span><a href="https://github.com/yiwanou" >yiwanou</a></span>
   </div>
-<div style="display: flex; flex-wrap: wrap; gap: 12px;">
   <div style="display: flex; align-items: center; gap: 8px;">
     <img src="https://avatars.githubusercontent.com/u/68855403?v=4" width="40" />
     <span><a href="https://github.com/AO2708" >AO2708</a></span>
@@ -258,32 +282,13 @@ Distributed under the MIT License. See [LICENSE.txt][license] for more informati
 [python-test-script]: tests/ifcc-test.py
 [license]: LICENCE.txt
 
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
-
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/
-[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
-[Vue-url]: https://vuejs.org/
-[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
-[Angular-url]: https://angular.io/
-[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
-[Svelte-url]: https://svelte.dev/
-[Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
-[Laravel-url]: https://laravel.com
-[Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
-[Bootstrap-url]: https://getbootstrap.com
-[JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
+[err-syntax]: tests/testfiles/testAffectation/erreur_affectation_multiple.c
+[err-var-non-decla]: tests/testfiles/testAffectation/erreur_affectation_variable_non_declaree.c
+[err-double-decla]: tests/testfiles/testDeclaration/erreur_redeclaration.c
+[err-too-few-args]: tests/testfiles/testDefFonctions/erreur_appel_fonction_mauvais_nombre_param.c
+[err-void-assign]: tests/testfiles/testDefFonctions/erreur_fonction_declaree_void_affectation_int.c
+[err-func-def-twice]: tests/testfiles/testDefFonctions/erreur_fonction_def_twice.c
+[err-undef-func]: tests/testfiles/testDefFonctions/erreur_fonction_sans_param_appelée_non_definie.c
+[err-no-main]: tests/testfiles/testDefFonctions/erreur_prog_sans_main.c
+[warn-not-used-var]: tests/testfiles/testDefFonctions/warning_fonction_declaree_void_affectation_int.c
+[warn-not-decl-var]: tests/testfiles/testWarningVariable/warning_affectation_variable_not_initialized.c
