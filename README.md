@@ -138,18 +138,21 @@ Then you can have a look to the [python test framework][python-test-script] to s
 `ifcc` can detect some cases of error and raise detailed messages inspired of `gcc` outputs. Here you can find all cases with corresponding references to code snippets. 
 
 - `syntax error during parsing` [all cases not suported by grammar][err-syntax] (can be detailed by Antlr errors)
-- `Variable <var> not declared`[undeclared variable or called outside its scope][err-var-non-decla]
-- `Variable <var> already declared` [variable declared before in current scope][err-double-decla]
-- `too few arguments to function '<function>'` [less arguments in function call than in function definition][err-too-few-args]
-- `void value not ignored as it ought to be` [assignment to a variable of the return value of a void function][err-void-assign]
-- `Function <function> already defined` [trying to define the same function twice][err-func-def-twice]
-- `undefined reference to <function>` [call of a function without definition][err-undef-func]
-- `undefined reference to main` [mandatory main function is missing][err-no-main]
-- `variable <var> not used` [variable declared but not used][warn-not-used-var]
-- `conflicting types for '<function>'; have ‘void()’` [function called for assignment but defined as returning void later][warn-not-used-var]
-- `implicit declaration of function fonction` [function declared after call][warn-not-used-var]
-- `variable a used but not initialized` [variable declared and used as rvalue without having been declared][warn-not-decl-var]
-- `variable a declared but not initialized` [variable declared but is never a lvalue][warn-not-decl-var]
+- `Variable <var> not declared`[undeclared variable or called outside its scope][err-var-non-decla] (Error)
+- `Variable <var> already declared` [variable declared before in current scope][err-double-decla] (Error)
+- `too few arguments to function '<function>'` [less arguments in function call than in function definition][err-too-few-args] (Error)
+- `too many arguments to function '<function>'` [more arguments in function call than in function definition][err-too-many-args] (Error)
+- `void value not ignored as it ought to be` [assignment to a variable of the return value of a void function][err-void-assign] (Error)
+- `Function <function> already defined` [trying to define the same function twice][err-func-def-twice] (Error)
+- `undefined reference to <function>` [call of a function without definition][err-undef-func] (Error)
+- `undefined reference to main` [mandatory main function is missing][err-no-main] (Error)
+- `variable <var> not used` [variable declared but not used][warn-not-used-var] (Warning)
+- `conflicting types for '<function>'; have ‘void()’` [function called for assignment but defined as returning void later][warn-not-used-var] (Warning)
+- `return with a value, in function returning void : <function>` [return expression in a void function][warn-return-void-func] (Warning)
+- `implicit declaration of function fonction` [function declared after call][warn-not-used-var] (Warning)
+- `variable <var> used but not initialized` [variable declared and used as rvalue without having been declared][warn-not-decl-var] (Warning)
+- `variable <var> declared but not initialized` [variable declared but is never a lvalue][warn-not-decl-var] (Warning)
+- `division by zero` [division by constant zero][warn-div-zero] (Warning)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -286,9 +289,12 @@ Distributed under the MIT License. See [LICENSE.txt][license] for more informati
 [err-var-non-decla]: tests/testfiles/testAffectation/erreur_affectation_variable_non_declaree.c
 [err-double-decla]: tests/testfiles/testDeclaration/erreur_redeclaration.c
 [err-too-few-args]: tests/testfiles/testDefFonctions/erreur_appel_fonction_mauvais_nombre_param.c
+[err-too-many-args]: tests/testfiles/testPutchar/putchar_2_args.c
 [err-void-assign]: tests/testfiles/testDefFonctions/erreur_fonction_declaree_void_affectation_int.c
 [err-func-def-twice]: tests/testfiles/testDefFonctions/erreur_fonction_def_twice.c
 [err-undef-func]: tests/testfiles/testDefFonctions/erreur_fonction_sans_param_appelée_non_definie.c
 [err-no-main]: tests/testfiles/testDefFonctions/erreur_prog_sans_main.c
+[warn-return-void-func]: tests/testfiles/testTypeVoidFonction/warning_retour_valeur_alors_que_void.c
 [warn-not-used-var]: tests/testfiles/testDefFonctions/warning_fonction_declaree_void_affectation_int.c
 [warn-not-decl-var]: tests/testfiles/testWarningVariable/warning_affectation_variable_not_initialized.c
+[warn-div-zero]: tests/testfiles/testDivision/division_par_const_0.c
