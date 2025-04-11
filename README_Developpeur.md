@@ -1,4 +1,6 @@
-# Documentation Développeur
+<h1 align="center">C - Compilation project</h1>
+
+[![C language logo][c-logo]](https://en.cppreference.com/w/c/language)
 
 <!-- TABLE OF CONTENTS -->
 <details>
