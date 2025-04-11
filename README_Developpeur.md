@@ -24,7 +24,7 @@
 
 ## Gestion des différents scopes
 
-## Intermediate Representation
+## Intermediate Representation (IR)
 
 ## Table de fonctions
 Afin de gérer certains cas d'erreurs ou de warnings à propos des déclarations et des appels de fonction, nous utilisons une "table de fonctions". Cette table de fonctions est déclarée dans le fichier [FunctionTable.h][functiontable-h] et implémentée dans le fichier [FunctionTable.cpp][functiontable-cpp]. Elle est utilisée par les trois visiteurs.
