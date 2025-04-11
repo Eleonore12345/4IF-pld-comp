@@ -10,7 +10,7 @@
       <a href="#gestion-des-différents-scopes">Gestion des différents scopes</a>
     </li>
     <li>
-      <a href="#intermediate-representation">Intermediate Representation</a>
+      <a href="#intermediate-representation-ir">Intermediate Representation</a>
     </li>
     <li>
       <a href="#table-de-fonctions">Table de fonctions</a>
