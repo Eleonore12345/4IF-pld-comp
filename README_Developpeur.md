@@ -50,6 +50,8 @@ Lors de la seconde visite par [CodeGenVisitor][codegenvisitor-cpp], la table de 
 - Vérifier si la fonction a un return (sinon on fait un simple return vide dans la méthode `visitDefFunc`)
 - Vérifier le nombre d'arguments d'un appel de fonction (méthode `visitFunctionCall`) sinon erreur : `too few/many arguments to function '<function>'`
 
+[c-logo]: documents/c_icon.png
+
 [functiontable-h]: compiler/FunctionTable.h
 [functiontable-cpp]: compiler/FunctionTable.cpp
 [identifier-visitor-cpp]: compiler/IdentifierVisitor.cpp
