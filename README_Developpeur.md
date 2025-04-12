@@ -42,7 +42,7 @@ Ce projet a été réalisé dans le cadre d'un projet de cours de l'INSA Lyon et
 
 Le dossier `compiler` contient le code et le dossier `test` contient les tests.
 
-![schema-organisation-fichiers](documents/schema_structure_pldcomp.png)
+![schema-organisation-fichiers](documents/structure.png)
 
 L'outil ANTLR4 utilise la grammaire décrite dans le fichier ifcc.g4 pour générer l'arbre abstrait syntaxique, ou plutôt un visiteur de base qui visite cet arbre, qui se trouve dans le dossier `generated`.
 Il est ensuite possible de créer des visiteurs héritant du visiteur de base. Nous avons trois visiteurs : IdentifierVisitor et CodeGenVisitor.
