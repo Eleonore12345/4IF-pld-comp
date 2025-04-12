@@ -47,7 +47,7 @@ Ces variables sont représentées via la structure "variable" qui possède les a
 
 Notre table des symboles possède deux attributs :
 
--  <ins>rootScope</ins> de type **ScopeNode*** contenant un pointeur vers le scope racine ; autrement dit le scope représentant le fichier dans lequel est contenu le fichier;
+-  <ins>rootScope</ins> de type **ScopeNode*** contenant un pointeur vers le scope racine ; autrement dit le scope représentant le fichier dans lequel est contenu le programme;
 -  <ins>currentScope</ins> de type **ScopeNode*** contenant un pointeur vers le scope courant ; autrement dit le scope dans lequel on se situe à chaque instant de la visite du programme;
 
 Ainsi, nous pouvons modéliser les scopes contenus dans notre programme sous la forme d'un arbre ayant pour racine le fichier.
