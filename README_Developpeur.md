@@ -8,6 +8,12 @@
   <ol>
     <li>
       <a href="#gestion-des-différents-scopes">Gestion des différents scopes</a>
+      <ul>
+        <li><a href="#table-de-symboles">Table de symboles</a></li>
+        <li><a href="#scopenode-et-functionscopenode">ScopeNode et FunctionScopeNode</a></li>
+        <li><a href="#navigation-entre-les-scopes">Navigation entre les scopes</a></li>
+        <li><a href="#utilisation">Utilisation</a></li>
+      </ul>
     </li>
     <li>
       <a href="#intermediate-representation-ir">Intermediate Representation</a>
