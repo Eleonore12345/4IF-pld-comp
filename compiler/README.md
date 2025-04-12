@@ -5,7 +5,7 @@
 - `main.cpp` contains the C++ code to call the antlr4-generated parser
   on the file name provided in the command line.
 - `CodeGenVisitor.h` is the visitor used to parse the C input and call IR instructions.
-- `IdentifierVisitor.h` is the visitor used to fill in symbol an function tables.
+- `IdentifierVisitor.h` is the visitor used to fill in symbol and function tables and scopes.
 - `IR.h` is used to stack intermediary representations corresponding to parsed code
 - `AssemblyArm64.h` and `Assemblyx86.h` are generating assembly code for Arm64 architecture (resp. x86 architecture)
 - `ScopeNode.h` manages scopes for blocs in the control flow
