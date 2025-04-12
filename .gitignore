@@ -5,3 +5,4 @@ ifcc
 tests/ifcc-test-output
 test.c
 .vscode
+.DS_Store

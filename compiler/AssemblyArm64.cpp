@@ -42,7 +42,7 @@ AssemblyArm64::AssemblyArm64(std::vector<CFG *> c, SymbolTable *s)
 
 void AssemblyArm64::generateAssemblyArm64()
 {
-    std::cout << ".global _main\n";
+    std::cout << ".globl _main\n";
     RegisterAllocator regAlloc;
 
     for (CFG *c : cfgsArm64)
@@ -87,7 +87,26 @@ void AssemblyArm64::generateAssemblyArm64()
                     regAlloc.free(srcReg);
                     break;
                 }
-
+                case IRInstr::notconst:
+                {
+                    std::string reg = regAlloc.allocate();
+                    int val = (params[1][0] == '\'') ? (int)params[1][1] : std::stol(params[1]);
+                    std::cout << "    mov " << reg << ", #" << val << "\n";
+                    std::cout << "    cmp " << reg << ", #0\n";
+                    std::cout << "    cset " << reg << ", eq\n";
+                    std::cout << "    str " << reg << ", [sp, #" << getOffset(params[0]) << "]\n";
+                    regAlloc.free(reg);
+                    break;
+                }
+                case IRInstr::notexpr:
+                {
+                    std::string r = loadReg(params[1]);
+                    std::cout << "    cmp " << r << ", #0\n";
+                    std::cout << "    cset " << r << ", eq\n";
+                    std::cout << "    str " << r << ", [sp, #" << getOffset(params[0]) << "]\n";
+                    regAlloc.free(r);
+                    break;
+                }
                 case IRInstr::negexpr:
                 {
                     std::string reg = loadReg(params[0]);
@@ -172,7 +191,7 @@ void AssemblyArm64::generateAssemblyArm64()
                     int sizeSub = func->getSize() + 4;
                     while (sizeSub % 16 != 0)
                         sizeSub += 4;
-                    std::cout << "    ldp x29, x30, [sp, #" << sizeSub - 16 << "]\n";
+                    // std::cout << "    ldp x29, x30, [sp, #" << sizeSub - 16 << "]\n";
                     std::cout << "    add sp, sp, #" << sizeSub << "\n    ret\n";
 
                     symbolTable->leaveScope();
@@ -192,12 +211,13 @@ void AssemblyArm64::generateAssemblyArm64()
                             std::cout << "    mov " << args[i - 3] << ", #" << params[i] << "\n";
                     }
                     std::cout << "    bl _" << params[2] << "\n";
-                    if (params[0] != "void")
+                    if (params[0] != "void") // return value is not void
                     {
-                        auto *var = symbolTable->getVariable(params[0]);
+                        auto *var = symbolTable->getVariable(params[1]);
                         if (var)
                             std::cout << "    str w0, [x27, #" << -var->offset << "]\n";
                     }
+
                     break;
                 }
 
@@ -236,6 +256,26 @@ void AssemblyArm64::generateAssemblyArm64()
                     throw std::runtime_error("Unsupported operation in generateAssemblyArm64");
                 }
             }
+            if (bb->exit_true)
+            {
+                if (bb->exit_false)
+                {
+                    std::string label_bb_true = bb->exit_true->label;
+                    std::string label_bb_false = bb->exit_false->label;
+                    std::cout << "    cmp w0, #0\n";
+                    std::cout << "    bne " <<label_bb_true << "\n";
+                    std::cout << "    b " << label_bb_false << "\n";
+                }
+                else
+                {
+                    std::string label_bb_endif = bb->exit_true->label;
+                    std::cout << "    b " << label_bb_endif << "\n";
+                }
+            }
         }
+
+        // on quitte le scope de la fonction
+        symbolTable->getCurrentScope()->setVisited();
+        symbolTable->leaveScope();
     }
 }

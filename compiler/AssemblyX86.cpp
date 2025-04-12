@@ -12,12 +12,12 @@ AssemblyX86::AssemblyX86(vector<CFG*> c, SymbolTable* s){
 
 void AssemblyX86::generateAssemblyX86()
 {
-    std::cout << ".globl main\n";
+    std::cout << ".globl _main\n";
     for (CFG* c : cfgsX86) {
         vector<BasicBlock *> bbs = c->get_bbs();
         for (BasicBlock *bb : bbs)
         {
-            std::cout << bb->label << ":" << std::endl;
+            std::cout << "_" << bb->label << ":" << std::endl;
             for (IRInstr *instr : bb->instrs)
             {
                 IRInstr::Operation op = instr->getOperation();
@@ -260,7 +260,7 @@ void AssemblyX86::generateAssemblyX86()
                                 std::cout << "    pushq %rax\n";
                             }
                         }
-                        std::cout << "    call " << params[2] << "\n";
+                        std::cout << "    call " << "_" << params[2] << "\n";
                         for (int i = params.size()-1; i > 8; --i) {
                             std::cout << "    popq %rcx\n";
                         }
