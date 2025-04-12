@@ -14,5 +14,5 @@
 
 ## Prerequisites
   Before building your  compiler, you should install  antlr using your
-  distribution's  package manager, or by following the steps given in [the main README.md](../README.md),  or by  running the  provided shell
+  distribution's  package manager, or by following the steps given in [the main README.md](../README_Developpeur.md),  or by  running the  provided shell
   script:   `install-antlr.sh`. 
