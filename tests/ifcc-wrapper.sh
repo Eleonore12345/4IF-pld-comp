@@ -15,10 +15,29 @@
 
 # Warning: you have to forward the exit status of your compiler back to the harness
 
+TARGET=""
+
+while [ "$1" != "" ]; do
+  case $1 in
+    -target)
+      shift
+      TARGET=$1
+      ;;
+    *)
+      break
+      ;;
+  esac
+  shift
+done
+
 DESTNAME=$1
 SOURCENAME=$2
 
-$(dirname $0)/../compiler/ifcc $SOURCENAME >$DESTNAME
+if [ "$TARGET" != "" ]; then
+  $(dirname $0)/../compiler/ifcc -target $TARGET $SOURCENAME > $DESTNAME
+else
+  $(dirname $0)/../compiler/ifcc $SOURCENAME > $DESTNAME
+fi
 retcode=$?
 
 # forward exit status of the compiler
