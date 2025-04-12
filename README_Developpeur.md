@@ -24,6 +24,73 @@
 
 ## Gestion des différents scopes
 
+### Table de symboles
+
+Notre table des symboles permet de gérer les variables du programme compilé, que ce soit les variables temporaires que nous créons lors de la visite du programme ou les variables déclarées dans le programme lui-même.
+
+Ces variables sont représentées via la structure "variable" qui possède les attributs suivants :
+- <ins>name</ins> de type **string** contenant le nom de la variable ; ce nom est défini à "tmp" suivi d'un numéro pour les variables temporaires;
+- <ins>offset</ins> de type **int** contenant la position relative de l'emplacement mémoire 32 bits (car toutes nos variables sont de type int) de la variable;
+- <ins>use</ins> de type **bool** prenant la valeur vraie si la variable est utilisée au moins une fois dans le programme ; une variable utilisée est une variable qui apparaît en rvalue;
+- <ins>init</ins> de type **bool** prenant la valeur vraie si la variable a bien été initialisée;
+- <ins>isTemp</ins> de type **bool** prenant la valeur vraie si la variable représente une variable temporaire;
+
+Notre table des symboles possède deux attributs :
+
+-  <ins>rootScope</ins> de type **ScopeNode*** contenant un pointeur vers le scope racine ; autrement dit le scope représentant le fichier dans lequel est contenu le fichier;
+-  <ins>currentScope</ins> de type **ScopeNode*** contenant un pointeur vers le scope courant ; autrement dit le scope dans lequel on se situe à chaque instant de la visite du programme;
+
+Ainsi, nous pouvons modéliser les scopes contenus dans notre programme sous la forme d'un arbre ayant pour racine le fichier.
+
+### ScopeNode et FunctionScopeNode
+
+Chacune des variables appartient à un scope précis (notion de portée en français). Cela dépend de la fonction et du bloc au sein desquels la variable est déclarée. 
+
+Dans une même fonction, plusieurs blocs peuvent s'imbriquer. A l'ouverture d'un bloc, il faut donc garder l'information du bloc dans lequel nous étions avant.
+
+Pour répondre à ce besoin, nous avons créé une classe `ScopeNode` représentant un scope contenu dans le programme. Toutes les instances de cette classe possèdent plusieurs attributs :
+
+- <ins>variable_vect</ins> de type **vector\<variable>** contenant toutes les variables déclarées dans ce scope;
+- <ins>parent</ins> de type **ScopeNode*** contenant un pointeur vers le scope dans lequel ce scope est contenu ; le scope représentant le fichier dans lequel est contenu le programme possède une valeur de parent égale à nullptr;
+- <ins>children</ins> de type **vector<ScopeNode\*>** contenant un vecteur de pointeurs vers chacun des scopes dont ce scope est le parent;
+- <ins>visited</ins> de type **bool** prenant la valeur vraie une fois que le scope a été visité ; nous expliquerons ce processus ci-dessous;
+
+Une classe hérite de la classe `ScopeNode` : la classe `FunctionScopeNode`. Cette seconde classe représente les fonctions définies dans le programme. Cette dernière possède deux attributs supplémentaires
+
+- <ins>name</ins> de type **string** contenant le nom de la fonction ; utile afin de débugger le programme;
+- <ins>size</ins> de type **int** contenant la taille que représentent toutes les variables contenues dans la fonction ; cet attribut est utile afin de déduire l'espace mémoire nécessaire à la fonction dans la pile;
+
+Voici le diagramme UML des trois classes décrites ci-dessus. Vous pouvez retrouver la documentation de chaque méthode dans les commentaires associés à chacune de leur définition :
+
+![diagramme_uml_scope](documents/diagramme_classe_scope.png)
+
+### Navigation entre les scopes
+
+Afin de naviguer entre les différents scopes, nous utilisons deux méthodes :
+
+ -  la méthode `enterNextScope` de la classe `SymbolTable` qui permet de changer le scope courant au prochain scope qui doit être visité ; pour un scope courant donné, le prochain scope à visiter est son premier scope enfant encore non-visité;
+ - la méthode  `leaveScope` de la classe `SymbolTable` qui permet de retourner au scope parent;
+
+### Utilisation
+
+Lors de la première visite par [IdentifierVisitor][identifier-visitor-cpp], la table de symboles est utilisée pour :
+
+ - créer les variables temporaires et les variables du programme dans chaque scope;
+ - vérifier que toutes les variables déclarées sont utilisées, sinon quoi un warning est renvoyé;
+ - vérifier que toutes les variables utilisées ont bien été initialisées, sinon quoi un warning est renvoyé;
+ - créer une erreur à la compilation en cas de redéclaration de variable;
+ - créer une erreur à la compilation en cas d'utilisation de variable non déclarée;
+
+Lors de la seconde visite par [CodeGenVisitor][codegenvisitor-cpp], la table de symboles est utilisée pour :
+
+ - naviguer entre les scopes;
+ - accéder au nom des variables temporaires qui peuvent être utilisées;
+
+Lors de la génération du code assembleur par [AssemblyX86][assembly-x86-cpp], la table de symboles est utilisée pour :
+
+ - naviguer entre les scopes;
+ - accéder à l'emplacement mémoire de chacune des variables, temporaires ou non;
+
 ## Intermediate Representation (IR)
 
 ## Table de fonctions
@@ -56,3 +123,4 @@ Lors de la seconde visite par [CodeGenVisitor][codegenvisitor-cpp], la table de 
 [functiontable-cpp]: compiler/FunctionTable.cpp
 [identifier-visitor-cpp]: compiler/IdentifierVisitor.cpp
 [codegenvisitor-cpp]: compiler/CodeGenVisitor.cpp
+[assembly-x86-cpp]: compiler/AssemblyX86.cpp
