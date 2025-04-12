@@ -100,6 +100,20 @@ Lors de la génération du code assembleur par [AssemblyX86][assembly-x86-cpp], 
  - accéder à l'emplacement mémoire de chacune des variables, temporaires ou non;
 
 ## Intermediate Representation (IR)
+Nous avons implémenté une IR pour permettre de représenter simplement le programme de manière générique pour ensuite effectuer facilement un reciblage vers le langage assembleur que l'on souhaite utiliser. 
+### Structure
+Concrètement notre IR a la structure suivante décrite dans [IR.h](compiler/IR.h) et implémentée dans [IR.cpp](compiler/IR.h): 
+- des Control-flow graphs (classe **CFG**), un pour chaque fonction, avec les blocs qui les composent dans l'attribut <ins>bbs</ins> (type **vector<BasicBlock[]>**). La méthode `new_bb_name` assure un nom totalement unique à chaque bloc pour permettre de l'identifier.
+- des blocs (classe **BasicBlock**) liés les uns aux autres qui composent un CFG et qui représentent une suite d'instructions successives. Les attributs <ins>exit_true</ins> et <ins>exit_false</ins> permettent d'indiquer jusqu'à deux blocs suivants. <ins>instrs</ins> (type **vector<IRInstr[]>**) contient les instructions.
+- des instructions (classe **IRInstr**) qui composent chaque bloc et décrivent les opérations de manière abstraite avec leurs paramètres. Le vecteur <ins>bbs</ins> (type **vector<BasicBlock[]>**) permet de renseigner les paramètres qui sont propres à chaque opération. Les opérations actuellement supportées sont : ldconst, ldconstneg, copy, negexpr, notexpr, notconst,add, sub, mul, div, mod, and_bit, or_bit, xor_bit,inf, sup, eq, diff,retour,functionCall, functionDef,enter_bloc, leave_bloc.
+
+### Fonctionnement
+Le visiteur [CodeGenVisitor][codegenvisitor-cpp] va permettre de créer les CFG et les blocs et de les remplir d'instructions en parcourant l'AST.   
+Un premier bloc est créé à chaque fonction puis ensuite des embranchements vont être créés lorsque l'on rencontre des conditions ou des boucles.  
+Une fois l'arbre syntaxique parcouru, les CFG créés sont disponibles dans l'attribut <ins>cfgs</ins> (type **vector<CFG[]>**) de [CodeGenVisitor][codegenvisitor-cpp]. Selon l'architecture utilisée, nous allons invoquer la classe correspondant à l'architecture cible ([AssemblyX86][assembly-x86-cpp] pour du x86) qui va générer le code assembleur en itérant successivement sur chaque CFG, chaque bloc et chaque instruction.  
+Lorque le générateur d'assembleur arrive à la fin d'un bloc on regarde ses suivants <ins>exit_true</ins> et <ins>exit_false</ins>. Si ils sont nuls (par défaut on initalise à nullptr), on est dans le cas d'un bloc final. Si seulement <ins>exit_true</ins> est indiqué, on effectue un saut vers ce bloc. Si les deux suivants sont renseignés (cas d'une condition), on effectue un saut vers le bloc correspondant selon la valeur du test.  
+  
+L'exécution avec la commande `./ifcc <nom_prog> [-target <architecture_cible>]` permet d'indiquer l'assembleur que l'on souhaite produire. Les options disponibles sont **x86** (par défaut) et **arm**.
 
 ## Table de fonctions
 Afin de gérer certains cas d'erreurs ou de warnings à propos des déclarations et des appels de fonction, nous utilisons une "table de fonctions". Cette table de fonctions est déclarée dans le fichier [FunctionTable.h][functiontable-h] et implémentée dans le fichier [FunctionTable.cpp][functiontable-cpp]. Elle est utilisée par les trois visiteurs.
