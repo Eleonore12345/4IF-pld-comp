@@ -81,7 +81,7 @@ Afin de naviguer entre les différents scopes, nous utilisons deux méthodes :
  -  la méthode `enterNextScope` de la classe `SymbolTable` qui permet de changer le scope courant au prochain scope qui doit être visité ; pour un scope courant donné, le prochain scope à visiter est son premier scope enfant encore non-visité;
  - la méthode  `leaveScope` de la classe `SymbolTable` qui permet de retourner au scope parent;
 
-Un scope est dit visité lorsque tous ces enfants sont visités et que l'on quitte ce scope.
+Un scope est dit visité lorsque tous ses enfants sont visités et que l'on quitte ce scope.
 
 ### Utilisation
 
