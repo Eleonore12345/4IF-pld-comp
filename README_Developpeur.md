@@ -32,6 +32,28 @@
   </ol>
 </details>
 
+## Introduction et contribution
+
+Comme décrit dans le README_User, ce projet est un compilateur d'une sous-partie du langage C, écrit en C++ et utilisant ANTLR4. Il est distribué sous la licence MIT.
+
+Ce projet a été réalisé dans le cadre d'un projet de cours de l'INSA Lyon et n'est pas maintenu. Libre à toutes et à tous de reprendre le projet dans le respect de la licence MIT. 
+
+## Structure globale
+
+Le dossier `compiler` contient le code et le dossier `test` contient les tests.
+
+![schema-organisation-fichiers](documents/schema_structure_pldcomp.png)
+
+L'outil ANTLR4 utilise la grammaire décrite dans le fichier ifcc.g4 pour générer l'arbre abstrait syntaxique, ou plutôt un visiteur de base qui visite cet arbre, qui se trouve dans le dossier `generated`.
+Il est ensuite possible de créer des visiteurs héritant du visiteur de base. Nous avons trois visiteurs : IdentifierVisitor et CodeGenVisitor.
+
+**IdentifierVisitor :** 
+Ce premier visiteur va principalement créer les variables dans la table des symboles et les fonctions dans la table des fonctions. Le visiteur effectue des vérifications sur les déclarations, définitions et retours des variables et fonctions. Il déclenche des erreurs et des warnings. Plus de détails sont donnés plus bas.
+ 
+**CodeGenVisitor :**
+Comme son nom l'indique, le rôle de ce visiteur est de déclencher la traduction en assembleur des instructions. Il peut également déclencher des erreurs, comme sur le nombre d'arguments des fonctions. 
+
+
 ## Gestion des différents scopes
 
 ### Table de symboles
