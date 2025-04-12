@@ -45,13 +45,15 @@ Le dossier `compiler` contient le code et le dossier `test` contient les tests.
 ![schema-organisation-fichiers](documents/structure.png)
 
 L'outil ANTLR4 utilise la grammaire décrite dans le fichier ifcc.g4 pour générer l'arbre abstrait syntaxique, ou plutôt un visiteur de base qui visite cet arbre, qui se trouve dans le dossier `generated`.
-Il est ensuite possible de créer des visiteurs héritant du visiteur de base. Nous avons trois visiteurs : IdentifierVisitor et CodeGenVisitor.
+Il est ensuite possible de créer des visiteurs héritant du visiteur de base. Nous avons en tout trois visiteurs : IdentifierVisitor et CodeGenVisito qui héritent du visiteur de base, ainsi que le 3e visiteur qui traduit en assembleur (X86 ou ARM).
 
 **IdentifierVisitor :** 
 Ce premier visiteur va principalement créer les variables dans la table des symboles et les fonctions dans la table des fonctions. Le visiteur effectue des vérifications sur les déclarations, définitions et retours des variables et fonctions. Il déclenche des erreurs et des warnings. Plus de détails sont donnés plus bas.
  
 **CodeGenVisitor :**
-Comme son nom l'indique, le rôle de ce visiteur est de déclencher la traduction en assembleur des instructions. Il peut également déclencher des erreurs, comme sur le nombre d'arguments des fonctions. 
+Comme son nom l'indique, le rôle de ce visiteur est de déclencher la traduction en IR (représentation intermédiaire) des instructions. Il peut également déclencher des erreurs, comme sur le nombre d'arguments des fonctions. 
+
+**X86 ou ARM :** Ces visiteurs prennent en entrée la liste des Control Flow Graphs et la table des symboles issus du CodeGenVisitor et transforment le tout en code assembleur. 
 
 
 ## Gestion des différents scopes
