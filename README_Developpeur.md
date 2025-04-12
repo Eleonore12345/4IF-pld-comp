@@ -26,7 +26,7 @@
 
 ### Table de symboles
 
-Notre table des symboles permet de gérer les variables du programme compilé, que ce soit les variables temporaires que nous créons lors de la visite du programme ou les variables déclarées dans le programme lui-même.
+Notre table des symboles permet de gérer les variables du programme compilé, que ce soit les variables temporaires que nous créons lors de la visite du programme ou les variables déclarées dans le programme lui-même. Cette table de symboles est déclarée dans le fichier [SymbolTable.h](compiler/SymbolTable.h) et implémentée dans le fichier [SymbolTable.cpp](compiler/SymbolTable.cpp).
 
 Ces variables sont représentées via la structure "variable" qui possède les attributs suivants :
 - <ins>name</ins> de type **string** contenant le nom de la variable ; ce nom est défini à "tmp" suivi d'un numéro pour les variables temporaires;
@@ -44,11 +44,11 @@ Ainsi, nous pouvons modéliser les scopes contenus dans notre programme sous la 
 
 ### ScopeNode et FunctionScopeNode
 
-Chacune des variables appartient à un scope précis (notion de portée en français). Cela dépend de la fonction et du bloc au sein desquels la variable est déclarée. 
+Chacune des variables appartient à un scope précis (notion de portée en français). Cela dépend de la fonction et du bloc au sein desquels la variable est déclarée. Dans une même fonction, plusieurs blocs peuvent s'imbriquer. A l'ouverture d'un bloc, il faut donc garder l'information du bloc dans lequel nous étions avant.
 
-Dans une même fonction, plusieurs blocs peuvent s'imbriquer. A l'ouverture d'un bloc, il faut donc garder l'information du bloc dans lequel nous étions avant.
+Pour répondre à ce besoin, nous avons créé une classe `ScopeNode` représentant un scope contenu dans le programme. Cette classe est déclarée dans le fichier [ScopeNode.h](compiler/ScopeNode.h) et implémentée dans le fichier [ScopeNode.cpp](compiler/ScopeNode.cpp).
 
-Pour répondre à ce besoin, nous avons créé une classe `ScopeNode` représentant un scope contenu dans le programme. Toutes les instances de cette classe possèdent plusieurs attributs :
+Toutes les instances de cette classe possèdent plusieurs attributs :
 
 - <ins>variable_vect</ins> de type **vector\<variable>** contenant toutes les variables déclarées dans ce scope;
 - <ins>parent</ins> de type **ScopeNode*** contenant un pointeur vers le scope dans lequel ce scope est contenu ; le scope représentant le fichier dans lequel est contenu le programme possède une valeur de parent égale à nullptr;
@@ -58,9 +58,9 @@ Pour répondre à ce besoin, nous avons créé une classe `ScopeNode` représent
 Une classe hérite de la classe `ScopeNode` : la classe `FunctionScopeNode`. Cette seconde classe représente les fonctions définies dans le programme. Cette dernière possède deux attributs supplémentaires
 
 - <ins>name</ins> de type **string** contenant le nom de la fonction ; utile afin de débugger le programme;
-- <ins>size</ins> de type **int** contenant la taille que représentent toutes les variables contenues dans la fonction ; cet attribut est utile afin de déduire l'espace mémoire nécessaire à la fonction dans la pile;
+- <ins>size</ins> de type **int** contenant la taille que représentent toutes les variables contenues dans la fonction ; cet attribut est utile afin de déduire l'espace mémoire que nous devons réserver à la fonction dans la pile;
 
-Voici le diagramme UML des trois classes décrites ci-dessus. Vous pouvez retrouver la documentation de chaque méthode dans les commentaires associés à chacune de leur définition :
+Voici le diagramme UML des trois classes décrites ci-dessus. Vous pouvez retrouver la documentation de chaque méthode dans les commentaires associés à chacune de leur définition.
 
 ![diagramme_uml_scope](documents/diagramme_classe_scope.png)
 
@@ -70,6 +70,8 @@ Afin de naviguer entre les différents scopes, nous utilisons deux méthodes :
 
  -  la méthode `enterNextScope` de la classe `SymbolTable` qui permet de changer le scope courant au prochain scope qui doit être visité ; pour un scope courant donné, le prochain scope à visiter est son premier scope enfant encore non-visité;
  - la méthode  `leaveScope` de la classe `SymbolTable` qui permet de retourner au scope parent;
+
+Un scope est dit visité lorsque tous ces enfants sont visités et que l'on quitte ce scope.
 
 ### Utilisation
 
