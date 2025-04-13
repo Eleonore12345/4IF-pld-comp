@@ -142,13 +142,13 @@ In order to launch the compiler for ARM assembly, you need to :
 ```
 ./ifcc -target arm name_file.c
 ```
-Précision : pour compiler vers du ARM vous avez besoin d'installer :
+NB : in order to launch the compiler for ARM assembly you need to install :
 ```
 sudo apt install gcc-aarch64-linux-gnu libc6-arm64-cross qemu-user
 sudo apt install gcc-aarch64-linux-gnu
 ```
 
-Si des problèmes apparaissent :
+If any issue appears :
 ```
 sudo ln -s /usr/aarch64-linux-gnu/lib/ld-linux-aarch64.so.1 /lib/ld-linux-aarch64.so.1
 sudo ln -s /usr/aarch64-linux-gnu/lib/libc.so.6 /lib/libc.so.6
