@@ -7,6 +7,12 @@
   <summary>Table des matières</summary>
   <ol>
     <li>
+      <a href="#introduction-et-contribution">Introduction et Contribution</a>
+    </li>
+    <li>
+      <a href="#structure-globale">Structure globale</a>
+    </li>
+    <li>
       <a href="#gestion-des-différents-scopes">Gestion des différents scopes</a>
       <ul>
         <li><a href="#table-de-symboles">Table de symboles</a></li>
@@ -32,7 +38,7 @@
   </ol>
 </details>
 
-## Introduction et contribution
+## Introduction et Contribution
 
 Comme décrit dans le README_User, ce projet est un compilateur d'une sous-partie du langage C, écrit en C++ et utilisant ANTLR4. Il est distribué sous la licence MIT.
 
@@ -51,7 +57,7 @@ Il est ensuite possible de créer des visiteurs héritant du visiteur de base. N
 Ce premier visiteur va principalement créer les variables dans la table des symboles et les fonctions dans la table des fonctions. Le visiteur effectue des vérifications sur les déclarations, définitions et retours des variables et fonctions. Il déclenche des erreurs et des warnings. Plus de détails sont donnés plus bas.
  
 **CodeGenVisitor :**
-Comme son nom l'indique, le rôle de ce visiteur est de déclencher la traduction en IR (représentation intermédiaire) des instructions. Il peut également déclencher des erreurs, comme sur le nombre d'arguments des fonctions. 
+Comme son nom l'indique, le rôle de ce visiteur est de déclencher la traduction en IR (représentation intermédiaire) des instructions en créant les Control Flow Graphs et les blocs d'instructions dans le langage intermédiaire. Il peut également déclencher des erreurs, comme sur le nombre d'arguments des fonctions. 
 
 **X86 ou ARM :** Ces visiteurs prennent en entrée la liste des Control Flow Graphs et la table des symboles issus du CodeGenVisitor et transforment le tout en code assembleur. 
 
