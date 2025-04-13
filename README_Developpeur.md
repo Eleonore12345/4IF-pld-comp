@@ -35,6 +35,9 @@
         <li><a href="#utilisation">Utilisation</a></li>
       </ul>
     </li>
+    <li>
+      <a href="#lancement-des-tests">Lancement des tests</a>
+    </li>
   </ol>
 </details>
 
@@ -172,6 +175,14 @@ Lors de la seconde visite par [CodeGenVisitor][codegenvisitor-cpp], la table de 
 - Changer de fonction courante lorsque nous entrons dans une nouvelle définition de fonction (méthode `visitDefFunc`)
 - Vérifier si la fonction a un return (sinon on fait un simple return vide dans la méthode `visitDefFunc`)
 - Vérifier le nombre d'arguments d'un appel de fonction (méthode `visitFunctionCall`) sinon erreur : `too few/many arguments to function '<function>'`
+
+## Lancement des tests
+Afin de lancer les tests, il faut se trouver dans le dossier `compiler`. Puis tapez : 
+```
+make test [TARGET = target] [DIR = directory]
+```
+L'option target peut valoir `x86` ou `arm`.  
+Par défaut : target = x86, directory = testfiles.
 
 [c-logo]: documents/c_icon.png
 
