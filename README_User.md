@@ -129,6 +129,20 @@ Compilation target can be chosen between x86 and ARM architectures.
 
 To compile the C++ code and make `ifcc` work, it's only required to enter the `make` command in [the compiler directory][compiler-dir].
 
+In order to launch the compiler for x86 assembly, you need to :
+```
+./ifcc name_file.c
+```
+or
+```
+./ifcc -target x86 name_file.c
+```
+
+In order to launch the compiler for ARM assembly, you need to :
+```
+./ifcc -target arm name_file.c
+```
+
 Then you can have a look to the [python test framework][python-test-script] to see usage of `ifcc` for C programs compilation.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
