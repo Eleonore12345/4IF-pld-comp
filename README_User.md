@@ -106,7 +106,7 @@ make -j8
 ```
 make  install
 ```
-Now create a `config.mk` file at the poject's root, it should look like this:
+Now create a `config.mk` file at the project's root, it should look like this:
 ```
 ANTLRJAR=/home/$(USER)/antlr4-install/antlr-4.7.2-complete.jar
 ANTLRINC=/home/$(USER)/antlr4-install/include/antlr4-runtime/
