@@ -178,8 +178,12 @@ if args.debug:
 total_tests = 0
 passed_tests = 0
 failed_tests = 0
+total_tests = 0
+passed_tests = 0
+failed_tests = 0
 
 for jobname in jobs:
+    total_tests += 1
     total_tests += 1
     os.chdir(orig_cwd)
 
@@ -198,6 +202,8 @@ for jobname in jobs:
     ## Reference compiler = GCC
     # Using the selected gcc_cmd here:
     gccstatus = command(f"{gcc_cmd} -S -o asm-gcc.s input.c", "gcc-compile.txt")
+    # Using the selected gcc_cmd here:
+    gccstatus = command(f"{gcc_cmd} -S -o asm-gcc.s input.c", "gcc-compile.txt")
     if gccstatus == 0:
         gccstatus = command(f"{gcc_cmd} -o exe-gcc asm-gcc.s", "gcc-link.txt")
     if gccstatus == 0:  # then both compile and link stage went well
@@ -207,20 +213,24 @@ for jobname in jobs:
             
     ## IFCC compiler
     ifccstatus = command(f"{wrapper} -target {args.target} asm-ifcc.s input.c", "ifcc-compile.txt")
+    ifccstatus = command(f"{wrapper} -target {args.target} asm-ifcc.s input.c", "ifcc-compile.txt")
     
     if gccstatus != 0 and ifccstatus != 0:
         ## ifcc correctly rejects invalid program -> test-case ok
         print(GREEN_BG+"TEST OK"+RESET_COLOR)
+        passed_tests += 1
         passed_tests += 1
         continue
     elif gccstatus != 0 and ifccstatus == 0:
         ## ifcc wrongly accepts invalid program -> error
         print(RED_BG+"TEST FAIL"+RESET_COLOR+RED_FG+"(your compiler accepts an invalid program)"+RESET_COLOR)
         failed_tests += 1
+        failed_tests += 1
         continue
     elif gccstatus == 0 and ifccstatus != 0:
         ## ifcc wrongly rejects valid program -> error
         print(RED_BG+"TEST FAIL"+RESET_COLOR+RED_FG+"(your compiler rejects a valid program)"+RESET_COLOR)
+        failed_tests += 1
         failed_tests += 1
         if args.verbose:
             dumpfile("ifcc-compile.txt")
@@ -228,10 +238,12 @@ for jobname in jobs:
     else:
         ## ifcc accepts to compile valid program -> let's link it
         ldstatus=command(f"{gcc_cmd} -o exe-ifcc asm-ifcc.s", "ifcc-link.txt")
+        ldstatus=command(f"{gcc_cmd} -o exe-ifcc asm-ifcc.s", "ifcc-link.txt")
         if ldstatus:
             print(RED_BG+"TEST FAIL"+RESET_COLOR+RESET_COLOR+RED_FG+"(your compiler produces incorrect assembly)"+RESET_COLOR)
             if args.verbose:
                 dumpfile("ifcc-link.txt")
+            failed_tests += 1
             failed_tests += 1
             continue
 
@@ -247,10 +259,21 @@ for jobname in jobs:
             print("you:")
             dumpfile("ifcc-execute.txt")
         failed_tests += 1   
+        failed_tests += 1   
         continue
 
     ## last but not least
     print(GREEN_BG+"TEST OK"+RESET_COLOR)
+    passed_tests += 1
+    
+print("\n--------------------------")
+print("Total tests: {}".format(total_tests))
+print("Passed: {}".format(passed_tests))
+print("Failed : {}".format(failed_tests))
+if total_tests > 0:
+    success_ratio = (passed_tests / total_tests) * 100
+    print("Passing percentage: {:.2f}%".format(success_ratio))
+print("--------------------------")
     passed_tests += 1
     
 print("\n--------------------------")
