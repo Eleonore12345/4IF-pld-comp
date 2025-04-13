@@ -66,16 +66,18 @@ argparser.add_argument('-v','--verbose',action="count",default=0,
 argparser.add_argument('-w','--wrapper',metavar='PATH',
                        help='Invoke your compiler through the shell script at PATH. (default: `ifcc-wrapper.sh`)')
 argparser.add_argument('-t','--target', choices=['x86', 'arm'], default='x86',
-    help='Target architecture: "arm" will use gcc, "x86"(default) will use "arch -x86_64 gcc"')
+    help='Target architecture: "x86"(default) will use gcc, "arm" will use "qemu-arm"')
 args=argparser.parse_args()
 
 if args.debug >=2:
     print('debug: command-line arguments '+str(args))
 
 if args.target == "x86":
-    gcc_cmd = "arch -x86_64 gcc"
-else:
     gcc_cmd = "gcc"
+    run_cmd = "./"
+else:
+    gcc_cmd = "aarch64-linux-gnu-gcc"
+    run_cmd = "QEMU_LD_PREFIX=/usr/aarch64-linux-gnu qemu-aarch64 ./"
 
 orig_cwd=os.getcwd()
 if "ifcc-test-output" in orig_cwd:
@@ -199,7 +201,7 @@ for jobname in jobs:
     if gccstatus == 0:
         gccstatus = command(f"{gcc_cmd} -o exe-gcc asm-gcc.s", "gcc-link.txt")
     if gccstatus == 0:  # then both compile and link stage went well
-        exegccstatus = command("./exe-gcc" + replace_stdin, "gcc-execute.txt")
+        exegccstatus = command(run_cmd + "exe-gcc" + replace_stdin, "gcc-execute.txt")
         if args.verbose >= 2:
             dumpfile("gcc-execute.txt")
             

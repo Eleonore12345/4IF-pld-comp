@@ -42,7 +42,7 @@ AssemblyArm64::AssemblyArm64(std::vector<CFG *> c, SymbolTable *s)
 
 void AssemblyArm64::generateAssemblyArm64()
 {
-    std::cout << ".globl _main\n";
+    std::cout << ".globl main\n";
     RegisterAllocator regAlloc;
 
     for (CFG *c : cfgsArm64)
@@ -54,7 +54,6 @@ void AssemblyArm64::generateAssemblyArm64()
             {
                 IRInstr::Operation op = instr->getOperation();
                 vector<string> params = instr->getParams();
-
                 auto getOffset = [&](const std::string &name)
                 {
                     return -symbolTable->getVariable(name)->offset;
@@ -193,8 +192,6 @@ void AssemblyArm64::generateAssemblyArm64()
                         sizeSub += 4;
                     // std::cout << "    ldp x29, x30, [sp, #" << sizeSub - 16 << "]\n";
                     std::cout << "    add sp, sp, #" << sizeSub << "\n    ret\n";
-
-                    symbolTable->leaveScope();
                     break;
                 }
 
@@ -210,7 +207,7 @@ void AssemblyArm64::generateAssemblyArm64()
                         else
                             std::cout << "    mov " << args[i - 3] << ", #" << params[i] << "\n";
                     }
-                    std::cout << "    bl _" << params[2] << "\n";
+                    std::cout << "    bl " << params[2] << "\n";
                     if (params[0] != "void") // return value is not void
                     {
                         auto *var = symbolTable->getVariable(params[1]);
@@ -227,7 +224,7 @@ void AssemblyArm64::generateAssemblyArm64()
                     int sizeSub = func->getSize() + 4;
                     while (sizeSub % 16 != 0)
                         sizeSub += 4;
-                    std::cout << "_" << params[0] << ":\n    sub sp, sp, #" << sizeSub << "\n";
+                    std::cout << params[0] << ":\n    sub sp, sp, #" << sizeSub << "\n";
                     std::cout << "    stp x29, x30, [sp, #" << sizeSub - 16 << "]\n";
                     std::cout << "    add x29, sp, #" << sizeSub - 16 << "\n";
                     std::vector<std::string> args = {"w0", "w1", "w2", "w3", "w4", "w5", "w6", "w7"};
@@ -241,13 +238,11 @@ void AssemblyArm64::generateAssemblyArm64()
                 }
 
                 case IRInstr::enter_bloc:
-                    cerr << "entering\n";
                     // symbolTable->print();
                     symbolTable->enterNextScope();
                     break;
 
                 case IRInstr::leave_bloc:
-                    cerr << "leaving\n";
                     symbolTable->getCurrentScope()->setVisited();
                     symbolTable->leaveScope();
                     break;

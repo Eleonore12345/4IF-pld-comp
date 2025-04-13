@@ -98,12 +98,6 @@ int main(int argc, const char **argv)
   IdentifierVisitor i(s, f);
   i.visit(tree);
 
-  if (i.getError())
-  {
-    delete s;
-    return 1;
-  }
-
   CodeGenVisitor v(s, f);
   v.visit(tree);
   vector<CFG *> listeCFG = v.getCfgs();
@@ -122,7 +116,6 @@ int main(int argc, const char **argv)
     cerr << "Erreur, valeur invalide pour -target. Valeurs attendues : x86 ou arm " << endl;
     exit(1);
   }
-  // s->print();
   v.deleteCfgs();
   delete s;
   delete f;
