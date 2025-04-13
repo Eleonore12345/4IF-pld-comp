@@ -269,7 +269,7 @@ void AssemblyX86::generateAssemblyX86()
                                 std::cout << "    pushq %rax\n";
                             }
                         }
-                        std::cout << "    call " << "_" << params[2] << "\n";
+                        std::cout << "    call " << params[2] << "\n";
                         for (int i = params.size()-1; i > 8; --i) {
                             std::cout << "    popq %rcx\n";
                         }
