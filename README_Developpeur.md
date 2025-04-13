@@ -146,7 +146,7 @@ Concrètement notre IR a la structure suivante, décrite dans [IR.h](compiler/IR
 
 ### Utilisation
 Le second visiteur, [CodeGenVisitor][codegenvisitor-cpp], permet de créer les CFG et les blocs et de les remplir d'instructions en parcourant l'AST.   
-Un premier bloc est créé à chaque fonction puis des embranchements sont créés, si des conditions ou des boucles while sont rencontrées, ou de nouveaux blocs, si des blocs simples {} sont rencontrés.  
+Un premier bloc est créé à chaque fonction puis des embranchements sont créés, si des conditions ou des boucles while sont rencontrées.
 Une fois l'arbre syntaxique parcouru, les CFG créés sont disponibles dans l'attribut <ins>cfgs</ins> (type **vector<CFG[]>**) de [CodeGenVisitor][codegenvisitor-cpp]. Selon l'architecture utilisée, nous allons invoquer la classe correspondant à l'architecture cible ([AssemblyX86][assembly-x86-cpp] pour du x86) qui génère le code assembleur en itérant successivement sur chaque CFG, chaque bloc et chaque instruction.  
 Lorque le générateur d'assembleur arrive à la fin d'un bloc, il regarde ses suivants <ins>exit_true</ins> et <ins>exit_false</ins>. S'ils sont nuls (par défaut ils sont initialisés à nullptr), nous sommes dans le cas d'un bloc final. Si seulement <ins>exit_true</ins> est indiqué, un saut vers ce bloc est effectué. Si les deux suivants sont renseignés (cas d'une condition), un saut est effectué vers le bloc approprié en fonction du résultat de la condition. 
   
