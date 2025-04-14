@@ -65,11 +65,19 @@ argparser.add_argument('-v','--verbose',action="count",default=0,
                        help='Increase verbosity level. You can use this option multiple times.')
 argparser.add_argument('-w','--wrapper',metavar='PATH',
                        help='Invoke your compiler through the shell script at PATH. (default: `ifcc-wrapper.sh`)')
-
+argparser.add_argument('-t','--target', choices=['x86', 'arm'], default='x86',
+    help='Target architecture: "x86"(default) will use gcc, "arm" will use "qemu-arm"')
 args=argparser.parse_args()
 
 if args.debug >=2:
     print('debug: command-line arguments '+str(args))
+
+if args.target == "x86":
+    gcc_cmd = "gcc"
+    run_cmd = "./"
+else:
+    gcc_cmd = "aarch64-linux-gnu-gcc"
+    run_cmd = "QEMU_LD_PREFIX=/usr/aarch64-linux-gnu qemu-aarch64 ./"
 
 orig_cwd=os.getcwd()
 if "ifcc-test-output" in orig_cwd:
@@ -167,8 +175,12 @@ if args.debug:
 
 ######################################################################################
 ## TEST step: actually compile all test-cases with both compilers
+total_tests = 0
+passed_tests = 0
+failed_tests = 0
 
 for jobname in jobs:
+    total_tests += 1
     os.chdir(orig_cwd)
 
     print('TEST-CASE: '+jobname)
@@ -184,39 +196,45 @@ for jobname in jobs:
                         replace_stdin = " < input.txt"
     
     ## Reference compiler = GCC
-    gccstatus=command("gcc -S -o asm-gcc.s input.c", "gcc-compile.txt")
+    # Using the selected gcc_cmd here:
+    gccstatus = command(f"{gcc_cmd} -S -o asm-gcc.s input.c", "gcc-compile.txt")
     if gccstatus == 0:
-        # test-case is a valid program. we should run it
-        gccstatus=command("gcc -o exe-gcc asm-gcc.s", "gcc-link.txt")
-    if gccstatus == 0: # then both compile and link stage went well
-        exegccstatus=command("./exe-gcc" + replace_stdin, "gcc-execute.txt")
-        if args.verbose >=2:
+        gccstatus = command(f"{gcc_cmd} -o exe-gcc asm-gcc.s", "gcc-link.txt")
+    if gccstatus == 0:  # then both compile and link stage went well
+        exegccstatus = command(run_cmd + "exe-gcc" + replace_stdin, "gcc-execute.txt")
+        if args.verbose >= 2:
             dumpfile("gcc-execute.txt")
             
     ## IFCC compiler
-    ifccstatus=command(wrapper+" asm-ifcc.s input.c", "ifcc-compile.txt")
+    ifccstatus = command(f"{wrapper} -target {args.target} asm-ifcc.s input.c", "ifcc-compile.txt")
     
     if gccstatus != 0 and ifccstatus != 0:
         ## ifcc correctly rejects invalid program -> test-case ok
         print(GREEN_BG+"TEST OK"+RESET_COLOR)
+        passed_tests += 1
         continue
     elif gccstatus != 0 and ifccstatus == 0:
         ## ifcc wrongly accepts invalid program -> error
         print(RED_BG+"TEST FAIL"+RESET_COLOR+RED_FG+"(your compiler accepts an invalid program)"+RESET_COLOR)
+        failed_tests += 1
         continue
     elif gccstatus == 0 and ifccstatus != 0:
         ## ifcc wrongly rejects valid program -> error
         print(RED_BG+"TEST FAIL"+RESET_COLOR+RED_FG+"(your compiler rejects a valid program)"+RESET_COLOR)
+        failed_tests += 1
         if args.verbose:
             dumpfile("ifcc-compile.txt")
         continue
     else:
         ## ifcc accepts to compile valid program -> let's link it
-        ldstatus=command("gcc -o exe-ifcc asm-ifcc.s", "ifcc-link.txt")
+        ldstatus=command(f"{gcc_cmd} -o exe-ifcc asm-ifcc.s", "ifcc-link.txt")
+        ldstatus=command(f"{gcc_cmd} -o exe-ifcc asm-ifcc.s", "ifcc-link.txt")
         if ldstatus:
-            print(RED_BG+"TEST FAIL"+RESET_COLOR+RESET_COLOR+RED_FG+"(your compiler produces incorrect assembly)"+RESET_COLOR)
+            print(RED_BG+"TEST FAIL"+RESET_COLOR+RED_FG+"(your compiler produces incorrect assembly)"+RESET_COLOR)
             if args.verbose:
                 dumpfile("ifcc-link.txt")
+            failed_tests += 1
+            failed_tests += 1
             continue
 
     ## both compilers  did produce an  executable, so now we  run both
@@ -230,7 +248,19 @@ for jobname in jobs:
             dumpfile("gcc-execute.txt")
             print("you:")
             dumpfile("ifcc-execute.txt")
+        failed_tests += 1   
+        failed_tests += 1   
         continue
 
     ## last but not least
     print(GREEN_BG+"TEST OK"+RESET_COLOR)
+    passed_tests += 1
+    
+print("\n--------------------------")
+print("Total tests: {}".format(total_tests))
+print("Passed: {}".format(passed_tests))
+print("Failed : {}".format(failed_tests))
+if total_tests > 0:
+    success_ratio = (passed_tests / total_tests) * 100
+    print("Passing percentage: {:.2f}%".format(success_ratio))
+print("--------------------------")

@@ -24,8 +24,8 @@ OBJECTS=build/ifccBaseVisitor.o \
 	build/ScopeNode.o \
 	build/FunctionTable.o \
 	build/IR.o \
-	build/AssemblyX86.o
-
+	build/AssemblyX86.o \
+	build/AssemblyArm64.o
 ifcc: $(OBJECTS)
 	@mkdir -p build
 	$(CC) $(LDFLAGS) build/*.o $(ANTLRLIB) -o ifcc
@@ -61,11 +61,12 @@ generated/ifccParser.cpp: ifcc.g4
 ##########################################
 # launch all the tests
 
-# Usage: `make test DIR=testfiles`
+# Usage: `make test TARGET=x86 DIR=testfiles`
+TARGET ?= x86
 DIR ?= testfiles
 
 test:
-	cd ../tests && python3 ifcc-test.py $(DIR)
+	cd ../tests && python3 ifcc-test.py --target $(TARGET) $(DIR)
 
 ##########################################
 # view the parse tree in a graphical window
